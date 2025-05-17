@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // If not in localStorage, check database
       const { data, error } = await supabase
         .from('profiles')
-        .select('onboarding_completed, first_name, last_name, email, mobile, is_admin')
+        .select('onboarding_completed, first_name, last_name, email, is_admin')
         .eq('id', user.id)
         .maybeSingle();
       
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           firstName: data.first_name || '',
           lastName: data.last_name || '',
           email: user.email || '',
-          mobile: data.mobile || '',
+          mobile: '',
           onboardingCompleted: data.onboarding_completed || false
         };
         
@@ -137,7 +137,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .update({
           first_name: profileData.firstName,
           last_name: profileData.lastName,
-          mobile: profileData.mobile || null,
           onboarding_completed: true,
           updated_at: new Date().toISOString(),
         })
@@ -257,7 +256,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const { data, error } = await supabase
           .from('profiles')
-          .select('first_name, last_name, email, mobile, onboarding_completed')
+          .select('first_name, last_name, email, onboarding_completed')
           .eq('id', userId)
           .single();
         
@@ -271,7 +270,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             firstName: data.first_name || '',
             lastName: data.last_name || '',
             email: data.email || '',
-            mobile: data.mobile || '',
+            mobile: '',
             onboardingCompleted: data.onboarding_completed || false
           };
           
@@ -381,7 +380,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.user) {
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
-          .select('first_name, last_name, email, mobile, onboarding_completed')
+          .select('first_name, last_name, email, onboarding_completed')
           .eq('id', data.user.id)
           .single();
           
@@ -390,7 +389,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             firstName: profileData.first_name || '',
             lastName: profileData.last_name || '',
             email: data.user.email || '',
-            mobile: profileData.mobile || '',
+            mobile: '',
             onboardingCompleted: profileData.onboarding_completed || false
           };
           
