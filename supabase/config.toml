@@ -1,5 +1,5 @@
 # A string used as a secret key for generating JWT tokens
-jwt_secret = "super-secret-jwt-token-with-at-least-32-characters-long"
+jwt_secret = "XqOcXPCuH4mK2ZxXp2iR3jYJEI2m3X4SME9LwRarwp7jm/abAzAfz7ngeWcaqawgWO9d9VUQHFiH5k5l8P8UpQ=="
 project_id = "leznzqfezoofngumpiqf"
 
 [api]
@@ -10,7 +10,7 @@ extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
 [db]
-port = 54322
+port = 5432
 shadow_port = 54320
 major_version = 15
 
@@ -39,7 +39,6 @@ enabled = true
 
 [auth]
 enabled = true
-port = 54325
 
 [analytics]
 enabled = false
