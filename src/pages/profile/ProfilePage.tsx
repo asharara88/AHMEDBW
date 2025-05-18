@@ -54,7 +54,10 @@ const ProfilePage = () => {
           .eq('id', user.id)
           .single();
         
-        if (error) throw error;
+        if (error) {
+          console.error('Error loading user profile:', error);
+          return;
+        }
         
         if (data) {
           setFirstName(data.first_name || '');

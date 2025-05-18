@@ -108,13 +108,6 @@ const BWScoreCard = ({
         </div>
         
         <div className="flex flex-col items-center">
-          <div className="text-center mb-4">
-            <h3 className={`text-base font-semibold sm:text-lg ${colorClass}`}>{category}</h3>
-            <p className="mt-1 text-xs text-text-light sm:text-sm">
-              Your overall health index based on all metrics
-            </p>
-          </div>
-          
           <div className="relative flex h-32 w-32 items-center justify-center sm:h-40 sm:w-40">
             <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
               {/* Background circle */}
@@ -153,6 +146,13 @@ const BWScoreCard = ({
               </motion.span>
               <span className="text-xs text-text-light">out of 100</span>
             </div>
+          </div>
+          
+          <div className="mt-3 text-center">
+            <h3 className="text-base font-semibold text-indigo-600 sm:text-lg">{category}</h3>
+            <p className="mt-1 text-xs text-text-light sm:text-sm">
+              Your overall health index based on all metrics
+            </p>
           </div>
         </div>
         

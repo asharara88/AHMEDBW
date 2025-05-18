@@ -8,7 +8,7 @@ export default function CoachChat() {
   const [input, setInput] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const { user, isDemo } = useAuth();
   const { sendMessage } = useChatApi();
 
@@ -16,7 +16,7 @@ export default function CoachChat() {
     if (!input.trim()) return;
     
     setLoading(true);
-    setError('');
+    setError(null);
     setResponse('');
 
     try {
