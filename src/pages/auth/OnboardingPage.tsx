@@ -59,30 +59,19 @@ const OnboardingPage = () => {
         throw profileError;
       }
       
-      // If profile doesn't exist, create it first
-      if (!existingProfile) {
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .insert({
-            id: user.id,
-            email: user.email,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          });
-        
-        if (insertError) throw insertError;
-      }
-      
-      // Now update the profile with onboarding data
+      // Update the profile with onboarding data
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: user.id,
+          email: user.email,
           first_name: formData.firstName,
           last_name: formData.lastName,
+          mobile: formData.mobile,
           onboarding_completed: true,
+          created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
+        });
       
       if (updateError) throw updateError;
       
@@ -136,7 +125,8 @@ const OnboardingPage = () => {
         sleepHours: formData.sleepHours,
         exerciseFrequency: formData.exerciseFrequency,
         dietPreference: formData.dietPreference,
-        stressLevel: formData.stressLevel
+        stressLevel: formData.stressLevel,
+        onboardingCompleted: true
       }));
       
       setSuccess(true);

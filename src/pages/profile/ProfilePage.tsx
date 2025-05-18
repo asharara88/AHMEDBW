@@ -50,9 +50,9 @@ const ProfilePage = () => {
 
         const { data, error } = await supabase
           .from('profiles')
-          .select('first_name, last_name')
+          .select('first_name, last_name, mobile')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
         
         if (error) {
           console.error('Error loading user profile:', error);
@@ -62,13 +62,14 @@ const ProfilePage = () => {
         if (data) {
           setFirstName(data.first_name || '');
           setLastName(data.last_name || '');
+          setMobile(data.mobile || '');
           
           // Save to localStorage for future use
           localStorage.setItem('biowell-user-data', JSON.stringify({
             firstName: data.first_name || '',
             lastName: data.last_name || '',
             email: user.email,
-            mobile: mobile || ''
+            mobile: data.mobile || ''
           }));
         }
       } catch (error) {
@@ -79,7 +80,7 @@ const ProfilePage = () => {
     };
     
     fetchProfile();
-  }, [user, supabase, isDemo, mobile]);
+  }, [user, supabase, isDemo]);
   
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,12 +96,13 @@ const ProfilePage = () => {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: user.id,
           first_name: firstName,
           last_name: lastName,
+          mobile: mobile,
           updated_at: new Date().toISOString(),
-        })
-        .eq('id', user.id);
+        });
       
       if (error) throw error;
       

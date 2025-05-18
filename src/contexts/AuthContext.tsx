@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // If not in localStorage, check database
       const { data, error } = await supabase
         .from('profiles')
-        .select('onboarding_completed, first_name, last_name, email, is_admin')
+        .select('onboarding_completed, first_name, last_name, email, is_admin, mobile')
         .eq('id', user.id)
         .maybeSingle();
       
@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!data) {
         const { error: insertError } = await supabase
           .from('profiles')
-          .insert({
+          .upsert({
             id: user.id,
             email: user.email,
             onboarding_completed: false,
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           firstName: data.first_name || '',
           lastName: data.last_name || '',
           email: user.email || '',
-          mobile: '',
+          mobile: data.mobile || '',
           onboardingCompleted: data.onboarding_completed || false
         };
         
@@ -134,13 +134,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Update profile in database
       const { error } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: user.id,
           first_name: profileData.firstName,
           last_name: profileData.lastName,
+          mobile: profileData.mobile,
           onboarding_completed: true,
           updated_at: new Date().toISOString(),
-        })
-        .eq('id', user.id);
+        });
       
       if (error) throw error;
       
@@ -256,7 +257,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const { data, error } = await supabase
           .from('profiles')
-          .select('first_name, last_name, email, onboarding_completed')
+          .select('first_name, last_name, email, onboarding_completed, mobile')
           .eq('id', userId)
           .maybeSingle();
         
@@ -270,7 +271,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             firstName: data.first_name || '',
             lastName: data.last_name || '',
             email: data.email || '',
-            mobile: '',
+            mobile: data.mobile || '',
             onboardingCompleted: data.onboarding_completed || false
           };
           
@@ -379,7 +380,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.user) {
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
-          .select('first_name, last_name, email, onboarding_completed')
+          .select('first_name, last_name, email, onboarding_completed, mobile')
           .eq('id', data.user.id)
           .maybeSingle();
           
@@ -388,7 +389,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             firstName: profileData.first_name || '',
             lastName: profileData.last_name || '',
             email: data.user.email || '',
-            mobile: '',
+            mobile: profileData.mobile || '',
             onboardingCompleted: profileData.onboarding_completed || false
           };
           
@@ -426,7 +427,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.user) {
         const { error: profileError } = await supabase
           .from('profiles')
-          .insert({
+          .upsert({
             id: data.user.id,
             email: data.user.email,
             onboarding_completed: false,

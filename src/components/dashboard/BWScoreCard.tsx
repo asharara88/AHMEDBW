@@ -149,7 +149,7 @@ const BWScoreCard = ({
           </div>
           
           <div className="mt-3 text-center">
-            <h3 className="text-base font-semibold text-indigo-600 sm:text-lg">{category}</h3>
+            <h3 className={`text-base font-semibold sm:text-lg ${colorClass}`}>{category}</h3>
             <p className="mt-1 text-xs text-text-light sm:text-sm">
               Your overall health index based on all metrics
             </p>
