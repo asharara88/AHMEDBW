@@ -13,6 +13,7 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [user, setUser] = useState<any>(null)
+  const [addingTodo, setAddingTodo] = useState(false)
 
   // Check for user session on load
   useEffect(() => {
@@ -75,7 +76,8 @@ function App() {
     if (!newTodo.trim()) return
     
     try {
-      setLoading(true)
+      setAddingTodo(true)
+      setError(null)
       
       // If no user, use demo user ID
       const userId = user?.id || '00000000-0000-0000-0000-000000000000'
@@ -97,13 +99,13 @@ function App() {
       console.error('Error adding todo:', error)
       setError(error instanceof Error ? error.message : 'An error occurred while adding todo')
     } finally {
-      setLoading(false)
+      setAddingTodo(false)
     }
   }
 
   const handleDeleteTodo = async (id: string) => {
     try {
-      setLoading(true)
+      setError(null)
       
       const { error } = await supabase
         .from('todos')
@@ -118,8 +120,6 @@ function App() {
     } catch (error) {
       console.error('Error deleting todo:', error)
       setError(error instanceof Error ? error.message : 'An error occurred while deleting todo')
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -135,13 +135,14 @@ function App() {
             onChange={(e) => setNewTodo(e.target.value)}
             placeholder="Add a new todo..."
             className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            disabled={addingTodo}
           />
           <button
             type="submit"
-            disabled={!newTodo.trim() || loading}
+            disabled={!newTodo.trim() || addingTodo}
             className="rounded-lg bg-blue-500 px-4 py-2 font-medium text-white hover:bg-blue-600 disabled:opacity-50"
           >
-            Add
+            {addingTodo ? 'Adding...' : 'Add'}
           </button>
         </div>
       </form>
@@ -152,10 +153,12 @@ function App() {
         </div>
       )}
       
-      {loading && <p className="text-gray-500">Loading todos...</p>}
-      
-      {!loading && todos.length === 0 ? (
-        <p className="text-gray-500">No todos found. Add some!</p>
+      {loading ? (
+        <div className="flex justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+        </div>
+      ) : todos.length === 0 ? (
+        <p className="text-gray-500 text-center py-4">No todos found. Add some!</p>
       ) : (
         <ul className="space-y-2">
           {todos.map((todo) => (
@@ -164,6 +167,7 @@ function App() {
               <button
                 onClick={() => handleDeleteTodo(todo.id)}
                 className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                aria-label="Delete todo"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
