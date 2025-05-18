@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
 import OnboardingForm from '../../components/auth/OnboardingForm';
+import ConversationalOnboarding from '../../components/onboarding/ConversationalOnboarding';
 import { AlertCircle, CheckCircle } from 'lucide-react';
 import Logo from '../../components/common/Logo';
 
@@ -11,6 +12,7 @@ const OnboardingPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [useConversational, setUseConversational] = useState(true);
   
   const { supabase } = useSupabase();
   const { user, checkOnboardingStatus } = useAuth();
@@ -154,6 +156,29 @@ const OnboardingPage = () => {
           <p className="mt-2 text-text-light">
             Let's personalize your health journey
           </p>
+          
+          <div className="mt-4 flex justify-center gap-4">
+            <button
+              onClick={() => setUseConversational(true)}
+              className={`px-4 py-2 text-sm rounded-lg transition-colors ${
+                useConversational 
+                  ? 'bg-primary text-white' 
+                  : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
+              }`}
+            >
+              Chat Style
+            </button>
+            <button
+              onClick={() => setUseConversational(false)}
+              className={`px-4 py-2 text-sm rounded-lg transition-colors ${
+                !useConversational 
+                  ? 'bg-primary text-white' 
+                  : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
+              }`}
+            >
+              Form Style
+            </button>
+          </div>
         </div>
         
         {error && (
@@ -178,8 +203,16 @@ const OnboardingPage = () => {
             </p>
           </motion.div>
         ) : (
-          <div className="rounded-xl bg-[hsl(var(--color-card))] p-8 shadow-lg dark:shadow-lg dark:shadow-black/10">
-            <OnboardingForm onComplete={handleOnboardingComplete} isLoading={loading} />
+          <div className="rounded-xl bg-[hsl(var(--color-card))] shadow-lg dark:shadow-lg dark:shadow-black/10">
+            {useConversational ? (
+              <div className="h-[600px]">
+                <ConversationalOnboarding />
+              </div>
+            ) : (
+              <div className="p-8">
+                <OnboardingForm onComplete={handleOnboardingComplete} isLoading={loading} />
+              </div>
+            )}
           </div>
         )}
       </div>
