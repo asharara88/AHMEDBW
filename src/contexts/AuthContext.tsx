@@ -258,7 +258,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .from('profiles')
           .select('first_name, last_name, email, onboarding_completed')
           .eq('id', userId)
-          .single();
+          .maybeSingle();
         
         if (error) {
           console.error('Error loading user profile:', error);
@@ -362,8 +362,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email, 
         password,
         options: {
-          captchaToken,
-          redirectTo: 'https://leznzqfezoofngumpiqf.supabase.co/auth/v1/callback'
+          captchaToken
         }
       });
       
@@ -382,7 +381,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .from('profiles')
           .select('first_name, last_name, email, onboarding_completed')
           .eq('id', data.user.id)
-          .single();
+          .maybeSingle();
           
         if (!profileError && profileData) {
           const userProfileData: UserProfileData = {
@@ -414,8 +413,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email, 
         password,
         options: {
-          captchaToken,
-          redirectTo: 'https://leznzqfezoofngumpiqf.supabase.co/auth/v1/callback'
+          captchaToken
         }
       });
       
