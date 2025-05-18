@@ -123,6 +123,20 @@ const DeploymentStatus = ({ deployId, onStatusChange, className = '' }: Deployme
           Last checked: {deploymentInfo.lastChecked.toLocaleTimeString()}
         </div>
       )}
+
+      {deploymentInfo?.claim_url && !deploymentInfo.claimed && (
+        <div className="mt-2 rounded-lg bg-primary/10 p-2 text-xs text-primary">
+          <p className="mb-1">You can claim this deployment to your own Netlify account:</p>
+          <a 
+            href={deploymentInfo.claim_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-primary underline hover:text-primary-dark"
+          >
+            Claim this site <ExternalLink className="h-3 w-3" />
+          </a>
+        </div>
+      )}
     </div>
   );
 };

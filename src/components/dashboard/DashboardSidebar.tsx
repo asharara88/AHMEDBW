@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Heart, Brain, Zap, ChevronRight, Bell, Settings, User, Package } from 'lucide-react';
+import { Activity, Heart, Brain, Zap, ChevronRight, Bell, Settings, User, Package, Rocket } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import DeviceDropdown from './DeviceDropdown';
 
@@ -46,6 +46,13 @@ const DashboardSidebar = ({ userId }: DashboardSidebarProps) => {
           >
             <Bell className="h-3.5 w-3.5" />
             Alerts
+          </Link>
+          <Link 
+            to="/deployment-status" 
+            className="flex items-center gap-1 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-3 py-1.5 text-xs text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
+          >
+            <Rocket className="h-3.5 w-3.5" />
+            Deployment
           </Link>
         </div>
       </div>

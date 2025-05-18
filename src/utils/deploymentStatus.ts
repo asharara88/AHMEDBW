@@ -9,10 +9,13 @@ export interface DeploymentInfo {
   deployUrl?: string;
   error?: string;
   lastChecked: Date;
+  claimed?: boolean;
+  claim_url?: string;
 }
 
 /**
  * Checks the deployment status of the application
+ * @param deployId Optional deployment ID to check
  * @returns Promise with deployment information
  */
 export async function checkDeploymentStatus(deployId?: string): Promise<DeploymentInfo> {
@@ -95,7 +98,9 @@ export async function checkDeploymentStatus(deployId?: string): Promise<Deployme
       deployId: deployment.id,
       deployUrl: deployment.url,
       error: deployment.error_message,
-      lastChecked: new Date()
+      lastChecked: new Date(),
+      claimed: deployment.claimed,
+      claim_url: deployment.claim_url
     };
   } catch (error) {
     console.error('Error checking deployment status:', error);
