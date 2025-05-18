@@ -2,22 +2,22 @@ import { createClient } from '@supabase/supabase-js';
 
 // Get environment variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Validate environment variables
-if (!supabaseUrl || !supabaseKey) {
+if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Missing Supabase environment variables. Check your .env file.');
 }
 
 // Create a single Supabase client instance to use throughout the app
 export const supabase = createClient(
   supabaseUrl || '',
-  supabaseKey || '',
+  supabaseAnonKey || '',
   {
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: true,
+      storage: localStorage
     }
   }
 );
@@ -32,5 +32,6 @@ supabase.auth.onAuthStateChange((event, session) => {
   
   if (event === 'SIGNED_OUT') {
     console.log('User signed out');
+    // Clear any local storage items related to auth if needed
   }
 });
