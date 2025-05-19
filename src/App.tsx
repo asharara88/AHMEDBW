@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { SupabaseProvider } from './contexts/SupabaseContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 
@@ -20,11 +19,10 @@ import DeploymentStatusPage from './pages/dashboard/DeploymentStatusPage';
 
 function App() {
   return (
-    <SupabaseProvider>
-      <ThemeProvider>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Layout />}>
+    <ThemeProvider>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Layout />}>
               <Route index element={<HomePage />} />
               <Route path="login" element={<LoginPage />} />
               <Route path="signup" element={<SignupPage />} />
@@ -61,12 +59,11 @@ function App() {
                   <DeploymentStatusPage />
                 </ProtectedRoute>
               } />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Route>
-          </Routes>
-        </AuthProvider>
-      </ThemeProvider>
-    </SupabaseProvider>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
