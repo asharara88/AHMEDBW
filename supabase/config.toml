@@ -47,4 +47,4 @@ port = 54327
 [db.seed]
 
 [functions.chat-assistant]
-verify_jwt = false
+verify_jwt = true
