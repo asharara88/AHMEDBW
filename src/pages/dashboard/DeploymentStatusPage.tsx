@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
 import DeploymentStatus from '../../components/deployment/DeploymentStatus';
 import { checkDeploymentStatus, DeploymentInfo } from '../../utils/deploymentStatus';
-import { getDeploymentStatus } from '../../utils/deploymentApi';
 
 const DeploymentStatusPage = () => {
   const [deploymentInfo, setDeploymentInfo] = useState<DeploymentInfo | null>(null);
@@ -14,7 +13,7 @@ const DeploymentStatusPage = () => {
   const handleRefresh = async () => {
     setLoading(true);
     try {
-      const status = await getDeploymentStatus();
+      const status = await checkDeploymentStatus();
       setDeploymentInfo(status);
     } catch (error) {
       console.error('Error refreshing deployment status:', error);
