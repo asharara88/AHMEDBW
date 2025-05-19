@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
 import HealthDashboard from '../../components/dashboard/HealthDashboard';
 import CoachChat from '../../components/chat/CoachChat';
-import DeploymentStatusWidget from '../../components/dashboard/DeploymentStatusWidget';
 
 const DashboardPage = () => {
   const { user, isDemo } = useAuth();
@@ -38,7 +37,6 @@ const DashboardPage = () => {
           <div className="md:col-span-4">
             <div className="space-y-6">
               <CoachChat />
-              <DeploymentStatusWidget />
             </div>
           </div>
         </div>
