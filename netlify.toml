@@ -9,3 +9,4 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  GIT_SUBMODULE_STRATEGY = "none"
