@@ -74,6 +74,7 @@ const ConversationalOnboarding = () => {
         setLoading(true);
         setError(null);
         
+        console.log('Checking onboarding status for user:', user.id);
         const { data, error } = await supabase
           .from('profiles')
           .select('onboarding_completed, first_name, last_name')
@@ -86,8 +87,11 @@ const ConversationalOnboarding = () => {
           return;
         }
         
+        console.log('Onboarding status data:', data);
+        
         // If onboarding is already completed, redirect to dashboard
         if (data?.onboarding_completed && data?.first_name && data?.last_name) {
+          console.log('Onboarding already completed, redirecting to dashboard');
           navigate('/dashboard');
         }
       } catch (err) {
