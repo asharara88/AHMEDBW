@@ -65,9 +65,15 @@ const ConversationalOnboarding = () => {
   // Check if onboarding is already completed
   useEffect(() => {
     const checkOnboardingStatus = async () => {
-      if (!user) return;
+      if (!user) {
+        console.log('No user found, skipping onboarding status check');
+        return;
+      }
       
       try {
+        setLoading(true);
+        setError(null);
+        
         const { data, error } = await supabase
           .from('profiles')
           .select('onboarding_completed, first_name, last_name')
@@ -75,7 +81,8 @@ const ConversationalOnboarding = () => {
           .maybeSingle();
         
         if (error) {
-          console.error('Error checking onboarding status:', error);
+          console.error('Supabase query error:', error);
+          setError('Failed to check onboarding status. Please try refreshing the page.');
           return;
         }
         
@@ -85,6 +92,9 @@ const ConversationalOnboarding = () => {
         }
       } catch (err) {
         console.error('Error checking onboarding status:', err);
+        setError('Failed to check onboarding status. Please try refreshing the page.');
+      } finally {
+        setLoading(false);
       }
     };
     
