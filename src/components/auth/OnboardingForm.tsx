@@ -414,7 +414,11 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     {healthGoalOptions.map((goal) => (
-                      <label key={goal} className="flex items-center gap-2 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-2 text-sm hover:bg-[hsl(var(--color-card-hover))]">
+                      <label key={goal} className={`flex items-center gap-2 rounded-lg border p-2 text-sm transition-colors ${
+                        formData.healthGoals.includes(goal) 
+                          ? 'border-primary bg-primary/5 text-primary' 
+                          : 'border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] hover:bg-[hsl(var(--color-card-hover))]'
+                      }`}>
                         <input
                           type="checkbox"
                           name="healthGoals"

@@ -34,7 +34,6 @@ const ConversationalOnboarding = () => {
     healthGoals: [],
     completed: false
   });
-  const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { supabase } = useSupabase();
@@ -78,8 +77,8 @@ const ConversationalOnboarding = () => {
         if (data?.onboarding_completed && data?.first_name && data?.last_name) {
           navigate('/dashboard');
         }
-      } catch (error) {
-        console.error('Error checking onboarding status:', error);
+      } catch (err) {
+        console.error('Error checking onboarding status:', err);
       }
     };
     
@@ -88,19 +87,17 @@ const ConversationalOnboarding = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() && currentStep !== 'goals') return;
+    if (!input.trim()) return;
     
     // Add user message to chat
-    if (input.trim()) {
-      const userMessage: Message = {
-        role: 'user',
-        content: input,
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, userMessage]);
-      setInput('');
-    }
+    const userMessage: Message = {
+      role: 'user',
+      content: input,
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
     
     // Process user input based on current step
     await processUserInput(input);
@@ -138,56 +135,16 @@ const ConversationalOnboarding = () => {
             mobile: userInput.trim()
           }));
           
-          systemResponse = "Thanks! Now, what are your main health goals? For example: 'improve sleep', 'increase energy', 'reduce stress', etc. You can select multiple goals.";
-          
-          // Display goal selection buttons
-          const goalOptions = [
-            'Improve sleep quality',
-            'Increase energy levels',
-            'Reduce stress',
-            'Optimize metabolic health',
-            'Enhance cognitive performance',
-            'Build muscle',
-            'Lose weight',
-            'Improve athletic performance',
-            'Support immune function',
-            'Balance hormones'
-          ];
-          
-          // Add goal selection buttons
-          setSelectedGoals([]);
+          systemResponse = "Thanks! Now, what are your main health goals? For example: 'improve sleep', 'increase energy', 'reduce stress', etc.";
           setCurrentStep('goals');
-          
-          // Add goal options as a system message
-          const goalOptionsMessage: Message = {
-            role: 'system',
-            content: `Please select your health goals from the options below or type your own goals.`,
-            timestamp: new Date()
-          };
-          
-          setMessages(prev => [...prev, goalOptionsMessage]);
           break;
           
         case 'goals':
           // Process health goals
-          let goals: string[] = [];
-          
-          // If we have selected goals from buttons, use those
-          if (selectedGoals.length > 0) {
-            goals = selectedGoals;
-          } else if (userInput.trim()) {
-            // Otherwise parse from text input
-            goals = userInput
-              .split(',')
-              .map(goal => goal.trim())
-              .filter(goal => goal.length > 0);
-          }
-          
-          if (goals.length === 0) {
-            setError("Please select at least one health goal");
-            setLoading(false);
-            return;
-          }
+          const goals = userInput
+            .split(',')
+            .map(goal => goal.trim())
+            .filter(goal => goal.length > 0);
           
           setOnboardingData(prev => ({
             ...prev,
@@ -225,9 +182,9 @@ const ConversationalOnboarding = () => {
       
       setMessages(prev => [...prev, systemMessage]);
       
-    } catch (err) {
-      console.error('Error processing user input:', err);
-      setError('Something went wrong. Please try again.');
+    } catch (err: any) {
+      console.error("Error processing user input:", err);
+      setError(err.message || "Failed to process your input. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -284,83 +241,6 @@ const ConversationalOnboarding = () => {
       console.error('Error saving onboarding data:', err);
       throw err;
     }
-  };
-
-  const handleGoalSelection = (goal: string) => {
-    setSelectedGoals(prev => {
-      // If goal is already selected, remove it
-      if (prev.includes(goal)) {
-        return prev.filter(g => g !== goal);
-      }
-      // Otherwise add it
-      return [...prev, goal];
-    });
-  };
-
-  const handleGoalsSubmit = () => {
-    if (selectedGoals.length === 0) {
-      setError("Please select at least one health goal");
-      return;
-    }
-    
-    // Create a user message with the selected goals
-    const userMessage: Message = {
-      role: 'user',
-      content: selectedGoals.join(', '),
-      timestamp: new Date()
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
-    
-    // Process the goals
-    processUserInput(selectedGoals.join(', '));
-  };
-
-  // Render goal selection buttons if we're at the goals step
-  const renderGoalSelectionButtons = () => {
-    if (currentStep !== 'goals') return null;
-    
-    const goalOptions = [
-      'Improve sleep quality',
-      'Increase energy levels',
-      'Reduce stress',
-      'Optimize metabolic health',
-      'Enhance cognitive performance',
-      'Build muscle',
-      'Lose weight',
-      'Improve athletic performance',
-      'Support immune function',
-      'Balance hormones'
-    ];
-    
-    return (
-      <div className="mb-4">
-        <div className="flex flex-wrap gap-2">
-          {goalOptions.map(goal => (
-            <button
-              key={goal}
-              onClick={() => handleGoalSelection(goal)}
-              className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
-                selectedGoals.includes(goal)
-                  ? 'bg-primary text-white'
-                  : 'bg-primary/10 text-primary hover:bg-primary/20'
-              }`}
-            >
-              {goal}
-            </button>
-          ))}
-        </div>
-        <div className="mt-4">
-          <button
-            onClick={handleGoalsSubmit}
-            disabled={selectedGoals.length === 0}
-            className="flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Submit Goals
-          </button>
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -427,9 +307,6 @@ const ConversationalOnboarding = () => {
           </div>
         ))}
 
-        {/* Render goal selection buttons */}
-        {renderGoalSelectionButtons()}
-
         {loading && (
           <div className="flex justify-start">
             <div className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -471,15 +348,15 @@ const ConversationalOnboarding = () => {
             placeholder={
               currentStep === 'name' ? "Enter your full name..." :
               currentStep === 'mobile' ? "Enter your mobile number..." :
-              currentStep === 'goals' ? "Or type your health goals (comma separated)..." :
+              currentStep === 'goals' ? "Enter your health goals (comma separated)..." :
               "Type your message..."
             }
             className="flex-1 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            disabled={loading || currentStep === 'complete' || currentStep === 'goals'}
+            disabled={loading || currentStep === 'complete'}
           />
           <button
             type="submit"
-            disabled={loading || !input.trim() || currentStep === 'complete' || currentStep === 'goals'}
+            disabled={loading || !input.trim() || currentStep === 'complete'}
             className="flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Send className="h-5 w-5" />
