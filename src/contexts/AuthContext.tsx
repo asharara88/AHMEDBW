@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { useSupabase } from './SupabaseContext';
 
@@ -55,12 +55,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isDemo, setIsDemo] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
+  const onboardingCheckRef = useRef(false);
 
   // Function to check if user has completed onboarding
-  const checkOnboardingStatus = async (): Promise<boolean> => {
+  const checkOnboardingStatus = useCallback(async (): Promise<boolean> => {
     if (!user) return false;
     if (isDemo) return true; // Demo users are considered onboarded
-    
+
+    if (onboardingCheckRef.current) return false;
+    onboardingCheckRef.current = true;
+
     try {
       // First check localStorage for saved profile data
       const savedUserData = localStorage.getItem('biowell-user-data');
@@ -121,11 +125,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error('Unexpected error checking onboarding status:', err);
       return false;
+    } finally {
+      onboardingCheckRef.current = false;
     }
-  };
+  }, [user, isDemo, supabase]);
 
   // Function to update user profile
-  const updateUserProfile = async (profileData: UserProfileData): Promise<{ error: any }> => {
+  const updateUserProfile = useCallback(async (profileData: UserProfileData): Promise<{ error: any }> => {
     if (!user || isDemo) {
       return { error: 'User not authenticated or in demo mode' };
     }
@@ -178,10 +184,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('Error updating profile:', err);
       return { error: err };
     }
-  };
+  }, [user, isDemo, supabase]);
 
   // Function to refresh the session
-  const refreshSession = async () => {
+  const refreshSession = useCallback(async () => {
     try {
       const { data, error } = await supabase.auth.refreshSession();
       
@@ -209,7 +215,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error('Unexpected error during session refresh:', err);
     }
-  };
+  }, [supabase]);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -354,7 +360,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     try {
       // Generate captcha token
       const captchaToken = await generateCaptchaToken();
@@ -403,9 +409,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('Unexpected error during sign in:', err);
       return { error: err };
     }
-  };
+  }, [supabase]);
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = useCallback(async (email: string, password: string) => {
     try {
       // Generate captcha token
       const captchaToken = await generateCaptchaToken();
@@ -445,9 +451,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('Unexpected error during sign up:', err);
       return { data: null, error: err };
     }
-  };
+  }, [supabase]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     try {
       if (!isDemo) {
         const { error } = await supabase.auth.signOut();
@@ -472,9 +478,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUserProfile(null);
       localStorage.removeItem('biowell-user-data');
     }
-  };
+  }, [isDemo, supabase]);
 
-  const startDemo = () => {
+  const startDemo = useCallback(() => {
     setIsDemo(true);
     setUser(DEMO_USER);
     setLoading(false);
@@ -492,22 +498,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Save demo user data to localStorage
     localStorage.setItem('biowell-user-data', JSON.stringify(demoProfile));
-  };
+  }, []);
 
-  const value = {
-    user: isDemo ? DEMO_USER : user,
-    session,
-    loading,
-    isDemo,
-    signIn,
-    signUp,
-    signOut,
-    startDemo,
-    refreshSession,
-    checkOnboardingStatus,
-    updateUserProfile,
-    userProfile
-  };
+  const value = useMemo(
+    () => ({
+      user: isDemo ? DEMO_USER : user,
+      session,
+      loading,
+      isDemo,
+      signIn,
+      signUp,
+      signOut,
+      startDemo,
+      refreshSession,
+      checkOnboardingStatus,
+      updateUserProfile,
+      userProfile
+    }),
+    [isDemo, user, session, loading, signIn, signUp, signOut, startDemo, refreshSession, checkOnboardingStatus, updateUserProfile, userProfile]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

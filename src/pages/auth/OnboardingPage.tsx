@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useSupabase } from '../../contexts/SupabaseContext';
@@ -16,6 +16,7 @@ const OnboardingPage = () => {
   
   const { supabase } = useSupabase();
   const { user, checkOnboardingStatus } = useAuth();
+  const hasCheckedRef = useRef(false);
   const navigate = useNavigate();
   
   // Check if user is logged in and has already completed onboarding
@@ -25,7 +26,7 @@ const OnboardingPage = () => {
         navigate('/login');
         return;
       }
-      
+
       try {
         const onboardingCompleted = await checkOnboardingStatus();
         if (onboardingCompleted) {
@@ -36,8 +37,11 @@ const OnboardingPage = () => {
         setError('Error checking onboarding status. Please try again.');
       }
     };
-    
-    checkUserStatus();
+
+    if (user && !hasCheckedRef.current) {
+      hasCheckedRef.current = true;
+      checkUserStatus();
+    }
   }, [user, navigate, checkOnboardingStatus]);
   
   const handleOnboardingComplete = async (formData: any) => {
