@@ -1,9 +1,3 @@
- (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/supabase/functions/openai-proxy/index.ts b/supabase/functions/openai-proxy/index.ts
-index c124361..a3a9cf9 100644
---- a/supabase/functions/openai-proxy/index.ts
-+++ b/supabase/functions/openai-proxy/index.ts
-@@ -1,35 +1,36 @@
  // Follow this setup guide to integrate the Deno runtime and use the OpenAI API:
  // https://supabase.com/docs/guides/functions/openai-api
  
