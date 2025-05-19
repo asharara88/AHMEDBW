@@ -75,6 +75,11 @@ supabase functions deploy openai-proxy
 supabase secrets set OPENAI_API_KEY=your-openai-api-key
 ```
 
+6. Set the JWT secret used for verifying Auth tokens:
+```bash
+supabase secrets set SUPABASE_JWT_SECRET=your-supabase-jwt-secret
+```
+
 ## Project Structure
 
 ```
