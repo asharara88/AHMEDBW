@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Package, Rocket } from 'lucide-react';
+import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Package, Rocket, Activity } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import Logo from '../common/Logo';
@@ -77,6 +77,12 @@ const Navbar = () => {
                     className={`nav-link ${isActive('/deployment-status') ? 'nav-link-active' : ''}`}
                   >
                     Deployment
+                  </Link>
+                  <Link 
+                    to="/diagnostics" 
+                    className={`nav-link ${isActive('/diagnostics') ? 'nav-link-active' : ''}`}
+                  >
+                    Diagnostics
                   </Link>
                 </>
               ) : (
@@ -167,6 +173,14 @@ const Navbar = () => {
                         <Rocket className="h-4 w-4" />
                         Deployment Status
                       </Link>
+                      <Link 
+                        to="/diagnostics" 
+                        className="dropdown-item"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                      >
+                        <Activity className="h-4 w-4" />
+                        Diagnostics
+                      </Link>
                       <button 
                         onClick={handleSignOut} 
                         className="dropdown-item text-error hover:bg-error/10"
@@ -237,6 +251,16 @@ const Navbar = () => {
                   >
                     <Rocket className="h-5 w-5" />
                     Deployment Status
+                  </Link>
+                  <Link 
+                    to="/diagnostics" 
+                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
+                      isActive('/diagnostics') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
+                    }`}
+                    onClick={toggleMenu}
+                  >
+                    <Activity className="h-5 w-5" />
+                    Diagnostics
                   </Link>
                   <Link 
                     to="/profile" 

@@ -17,6 +17,7 @@ import ProfilePage from './pages/profile/ProfilePage';
 import PricingPage from './pages/PricingPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import DeploymentStatusPage from './pages/dashboard/DeploymentStatusPage';
+import DiagnosticsPage from './pages/dashboard/DiagnosticsPage';
 
 function App() {
   return (
@@ -59,6 +60,11 @@ function App() {
               <Route path="deployment-status" element={
                 <ProtectedRoute>
                   <DeploymentStatusPage />
+                </ProtectedRoute>
+              } />
+              <Route path="diagnostics" element={
+                <ProtectedRoute>
+                  <DiagnosticsPage />
                 </ProtectedRoute>
               } />
               <Route path="*" element={<Navigate to="/" replace />} />

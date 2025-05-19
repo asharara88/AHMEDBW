@@ -7,7 +7,7 @@ export interface DiagnosticResult {
 }
 
 export function checkEnvironmentVariables(): { success: boolean; details: Record<string, boolean> } {
-  const requiredVars = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY', 'VITE_CAPTCHA_SECRET_KEY'];
+  const requiredVars = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'];
   const details: Record<string, boolean> = {};
   
   for (const varName of requiredVars) {
@@ -54,7 +54,7 @@ export async function runAllDiagnostics(): Promise<Record<string, any>> {
   
   // Check OpenAI proxy endpoint
   try {
-    const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openai-proxy`;
+    const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-assistant`;
     const response = await fetch(functionUrl, {
       method: 'OPTIONS',
       headers: {
@@ -159,7 +159,7 @@ export async function runDiagnostics(): Promise<DiagnosticResult[]> {
   
   // Check OpenAI proxy endpoint
   try {
-    const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openai-proxy`;
+    const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-assistant`;
     const response = await fetch(functionUrl, {
       method: 'OPTIONS',
       headers: {
