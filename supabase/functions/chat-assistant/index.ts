@@ -33,3 +33,6 @@
  - Always base recommendations on scientific research
  - Consider the user's health data, goals, and conditions
  - Be honest about limitations of current research
+ 
+EOF
+)
