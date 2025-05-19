@@ -6,8 +6,9 @@ import { createClient } from "npm:@supabase/supabase-js";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey",
-  "Access-Control-Allow-Credentials": "true"
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization, apikey, accept-profile, x-client-info, x-api-key",
+  "Access-Control-Allow-Credentials": "true",
 };
 
 // System prompt to enforce evidence-based recommendations
