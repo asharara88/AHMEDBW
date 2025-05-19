@@ -16,7 +16,10 @@ interface OnboardingData {
   lastName: string;
   email: string;
   mobile: string;
+  gender: string;
   healthGoals: string[];
+  supplementHabits: string[];
+  mainGoal: string;
   completed: boolean;
 }
 
@@ -25,13 +28,16 @@ const ConversationalOnboarding = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentStep, setCurrentStep] = useState<'greeting' | 'name' | 'mobile' | 'goals' | 'complete'>('greeting');
+  const [currentStep, setCurrentStep] = useState<'greeting' | 'name' | 'gender' | 'mainGoal' | 'healthGoals' | 'supplementHabits' | 'complete'>('greeting');
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     firstName: '',
     lastName: '',
     email: '',
     mobile: '',
+    gender: '',
     healthGoals: [],
+    supplementHabits: [],
+    mainGoal: '',
     completed: false
   });
   
@@ -124,64 +130,37 @@ const ConversationalOnboarding = () => {
             email: user?.email || prev.email
           }));
           
-          systemResponse = `Great to meet you, ${firstName}! Could you please share your mobile number? This helps us send you important health notifications.`;
-          setCurrentStep('mobile');
+          systemResponse = `Great to meet you, ${firstName}! What's your gender?`;
+          setCurrentStep('gender');
+          
+          // Add system response with buttons
+          addSystemResponseWithButtons(systemResponse, [
+            { label: 'Male', value: 'male' },
+            { label: 'Female', value: 'female' },
+            { label: 'Prefer not to say', value: 'not_specified' }
+          ]);
           break;
           
-        case 'mobile':
-          // Process mobile input
-          setOnboardingData(prev => ({
-            ...prev,
-            mobile: userInput.trim()
-          }));
-          
-          systemResponse = "Thanks! Now, what are your main health goals? For example: 'improve sleep', 'increase energy', 'reduce stress', etc.";
-          setCurrentStep('goals');
+        case 'gender':
+          // This will be handled by handleButtonClick
           break;
           
-        case 'goals':
-          // Process health goals
-          const goals = userInput
-            .split(',')
-            .map(goal => goal.trim())
-            .filter(goal => goal.length > 0);
+        case 'mainGoal':
+          // This will be handled by handleButtonClick
+          break;
           
-          setOnboardingData(prev => ({
-            ...prev,
-            healthGoals: goals,
-            completed: true
-          }));
+        case 'healthGoals':
+          // This will be handled by handleButtonClick
+          break;
           
-          // Save onboarding data to Supabase
-          await saveOnboardingData({
-            ...onboardingData,
-            healthGoals: goals,
-            completed: true
-          });
-          
-          systemResponse = `Perfect! I've noted your goals: ${goals.join(', ')}. Your profile is now set up, and I'm ready to help you achieve these goals. Let's get started with your health journey!`;
-          setCurrentStep('complete');
-          
-          // Redirect to dashboard after a short delay
-          setTimeout(() => {
-            navigate('/dashboard');
-          }, 3000);
-          
+        case 'supplementHabits':
+          // This will be handled by handleButtonClick
           break;
           
         default:
           systemResponse = "I didn't understand that. Could you please try again?";
+          addSystemResponse(systemResponse);
       }
-      
-      // Add system response to chat
-      const systemMessage: Message = {
-        role: 'system',
-        content: systemResponse,
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, systemMessage]);
-      
     } catch (err) {
       console.error('Error processing user input:', err);
       setError('Something went wrong. Please try again.');
@@ -190,24 +169,154 @@ const ConversationalOnboarding = () => {
     }
   };
 
-  const saveOnboardingData = async (data: OnboardingData) => {
+  const handleButtonClick = async (value: string, step: string) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Add user message to chat
+      const userMessage: Message = {
+        role: 'user',
+        content: value,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, userMessage]);
+      
+      let systemResponse = '';
+      
+      switch (step) {
+        case 'gender':
+          setOnboardingData(prev => ({
+            ...prev,
+            gender: value
+          }));
+          
+          systemResponse = "What's your main health goal?";
+          setCurrentStep('mainGoal');
+          
+          addSystemResponseWithButtons(systemResponse, [
+            { label: 'Improve Sleep', value: 'improve_sleep' },
+            { label: 'Increase Energy', value: 'increase_energy' },
+            { label: 'Lose Weight', value: 'lose_weight' },
+            { label: 'Build Muscle', value: 'build_muscle' },
+            { label: 'Reduce Stress', value: 'reduce_stress' },
+            { label: 'Optimize Metabolism', value: 'optimize_metabolism' }
+          ]);
+          break;
+          
+        case 'mainGoal':
+          setOnboardingData(prev => ({
+            ...prev,
+            mainGoal: value
+          }));
+          
+          systemResponse = "What specific health areas would you like to focus on?";
+          setCurrentStep('healthGoals');
+          
+          addSystemResponseWithButtons(systemResponse, [
+            { label: 'Sleep Quality', value: 'sleep_quality' },
+            { label: 'Energy Levels', value: 'energy_levels' },
+            { label: 'Stress Management', value: 'stress_management' },
+            { label: 'Metabolic Health', value: 'metabolic_health' },
+            { label: 'Cognitive Performance', value: 'cognitive_performance' },
+            { label: 'Fitness', value: 'fitness' },
+            { label: 'Nutrition', value: 'nutrition' },
+            { label: 'Longevity', value: 'longevity' }
+          ], true);
+          break;
+          
+        case 'healthGoals':
+          // Toggle the health goal
+          setOnboardingData(prev => {
+            const updatedGoals = prev.healthGoals.includes(value)
+              ? prev.healthGoals.filter(goal => goal !== value)
+              : [...prev.healthGoals, value];
+            
+            return {
+              ...prev,
+              healthGoals: updatedGoals
+            };
+          });
+          break;
+          
+        case 'supplementHabits':
+          // Toggle the supplement habit
+          setOnboardingData(prev => {
+            const updatedHabits = prev.supplementHabits.includes(value)
+              ? prev.supplementHabits.filter(habit => habit !== value)
+              : [...prev.supplementHabits, value];
+            
+            return {
+              ...prev,
+              supplementHabits: updatedHabits
+            };
+          });
+          break;
+          
+        case 'continueToSupplements':
+          systemResponse = "Do you currently take any supplements?";
+          setCurrentStep('supplementHabits');
+          
+          addSystemResponseWithButtons(systemResponse, [
+            { label: 'Multivitamin', value: 'multivitamin' },
+            { label: 'Vitamin D', value: 'vitamin_d' },
+            { label: 'Omega-3', value: 'omega_3' },
+            { label: 'Magnesium', value: 'magnesium' },
+            { label: 'Protein', value: 'protein' },
+            { label: 'Probiotics', value: 'probiotics' },
+            { label: 'None', value: 'none' }
+          ], true);
+          break;
+          
+        case 'complete':
+          await saveOnboardingData();
+          break;
+      }
+    } catch (err) {
+      console.error('Error handling button click:', err);
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addSystemResponse = (content: string) => {
+    const systemMessage: Message = {
+      role: 'system',
+      content,
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, systemMessage]);
+  };
+
+  const addSystemResponseWithButtons = (content: string, buttons: { label: string; value: string }[], isMultiSelect: boolean = false) => {
+    const systemMessage: Message = {
+      role: 'system',
+      content: `<strong>${content}</strong>`,
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, systemMessage]);
+  };
+
+  const saveOnboardingData = async () => {
     if (!user) {
       throw new Error('User not authenticated');
     }
     
     try {
-      // Update user profile in Supabase
+      // Update profile in database
       const { error } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
-          email: user.email,
-          first_name: data.firstName,
-          last_name: data.lastName,
-          mobile: data.mobile,
+          first_name: onboardingData.firstName,
+          last_name: onboardingData.lastName,
+          mobile: onboardingData.mobile,
           onboarding_completed: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         });
       
       if (error) throw error;
@@ -218,7 +327,8 @@ const ConversationalOnboarding = () => {
           .from('quiz_responses')
           .upsert({
             user_id: user.id,
-            health_goals: data.healthGoals,
+            health_goals: onboardingData.healthGoals,
+            gender: onboardingData.gender,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           });
@@ -229,18 +339,46 @@ const ConversationalOnboarding = () => {
       
       // Update auth context
       await updateUserProfile({
-        firstName: data.firstName,
-        lastName: data.lastName,
+        firstName: onboardingData.firstName,
+        lastName: onboardingData.lastName,
         email: user.email || '',
-        mobile: data.mobile,
-        healthGoals: data.healthGoals,
+        mobile: onboardingData.mobile,
+        healthGoals: onboardingData.healthGoals,
         onboardingCompleted: true
       });
       
+      // Add completion message
+      addSystemResponse("Perfect! Your profile is now set up, and I'm ready to help you achieve your health goals. Let's get started with your health journey!");
+      
+      setOnboardingData(prev => ({
+        ...prev,
+        completed: true
+      }));
+      
+      setCurrentStep('complete');
+      
+      // Redirect to dashboard after a short delay
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 3000);
     } catch (err) {
       console.error('Error saving onboarding data:', err);
       throw err;
     }
+  };
+
+  const handleContinueToSupplements = () => {
+    if (onboardingData.healthGoals.length === 0) {
+      setError('Please select at least one health goal');
+      return;
+    }
+    
+    setError(null);
+    handleButtonClick('continue', 'continueToSupplements');
+  };
+
+  const handleComplete = () => {
+    handleButtonClick('complete', 'complete');
   };
 
   return (
@@ -293,7 +431,7 @@ const ConversationalOnboarding = () => {
                   : 'bg-[hsl(var(--color-card-hover))] text-text'
               }`}
             >
-              <div>{message.content}</div>
+              <div dangerouslySetInnerHTML={{ __html: message.content }}></div>
               <div className="mt-1 text-xs opacity-70">
                 {message.timestamp.toLocaleTimeString()}
               </div>
@@ -306,6 +444,250 @@ const ConversationalOnboarding = () => {
             )}
           </div>
         ))}
+
+        {/* Button options based on current step */}
+        {currentStep === 'gender' && (
+          <div className="mb-4 flex flex-col gap-2">
+            <button
+              onClick={() => handleButtonClick('Male', 'gender')}
+              className="w-full rounded-lg bg-[hsl(var(--color-surface-1))] px-4 py-3 text-left font-medium hover:bg-primary/10"
+            >
+              Male
+            </button>
+            <button
+              onClick={() => handleButtonClick('Female', 'gender')}
+              className="w-full rounded-lg bg-[hsl(var(--color-surface-1))] px-4 py-3 text-left font-medium hover:bg-primary/10"
+            >
+              Female
+            </button>
+            <button
+              onClick={() => handleButtonClick('Prefer not to say', 'gender')}
+              className="w-full rounded-lg bg-[hsl(var(--color-surface-1))] px-4 py-3 text-left font-medium hover:bg-primary/10"
+            >
+              Prefer not to say
+            </button>
+          </div>
+        )}
+
+        {currentStep === 'mainGoal' && (
+          <div className="mb-4 flex flex-col gap-2">
+            <button
+              onClick={() => handleButtonClick('Improve Sleep', 'mainGoal')}
+              className="w-full rounded-lg bg-[hsl(var(--color-surface-1))] px-4 py-3 text-left font-medium hover:bg-primary/10"
+            >
+              Improve Sleep
+            </button>
+            <button
+              onClick={() => handleButtonClick('Increase Energy', 'mainGoal')}
+              className="w-full rounded-lg bg-[hsl(var(--color-surface-1))] px-4 py-3 text-left font-medium hover:bg-primary/10"
+            >
+              Increase Energy
+            </button>
+            <button
+              onClick={() => handleButtonClick('Lose Weight', 'mainGoal')}
+              className="w-full rounded-lg bg-[hsl(var(--color-surface-1))] px-4 py-3 text-left font-medium hover:bg-primary/10"
+            >
+              Lose Weight
+            </button>
+            <button
+              onClick={() => handleButtonClick('Build Muscle', 'mainGoal')}
+              className="w-full rounded-lg bg-[hsl(var(--color-surface-1))] px-4 py-3 text-left font-medium hover:bg-primary/10"
+            >
+              Build Muscle
+            </button>
+            <button
+              onClick={() => handleButtonClick('Reduce Stress', 'mainGoal')}
+              className="w-full rounded-lg bg-[hsl(var(--color-surface-1))] px-4 py-3 text-left font-medium hover:bg-primary/10"
+            >
+              Reduce Stress
+            </button>
+            <button
+              onClick={() => handleButtonClick('Optimize Metabolism', 'mainGoal')}
+              className="w-full rounded-lg bg-[hsl(var(--color-surface-1))] px-4 py-3 text-left font-medium hover:bg-primary/10"
+            >
+              Optimize Metabolism
+            </button>
+          </div>
+        )}
+
+        {currentStep === 'healthGoals' && (
+          <div className="mb-4">
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => handleButtonClick('sleep_quality', 'healthGoals')}
+                className={`w-full rounded-lg px-4 py-3 text-left font-medium ${
+                  onboardingData.healthGoals.includes('sleep_quality')
+                    ? 'bg-primary text-white'
+                    : 'bg-[hsl(var(--color-surface-1))] hover:bg-primary/10'
+                }`}
+              >
+                Sleep Quality
+              </button>
+              <button
+                onClick={() => handleButtonClick('energy_levels', 'healthGoals')}
+                className={`w-full rounded-lg px-4 py-3 text-left font-medium ${
+                  onboardingData.healthGoals.includes('energy_levels')
+                    ? 'bg-primary text-white'
+                    : 'bg-[hsl(var(--color-surface-1))] hover:bg-primary/10'
+                }`}
+              >
+                Energy Levels
+              </button>
+              <button
+                onClick={() => handleButtonClick('stress_management', 'healthGoals')}
+                className={`w-full rounded-lg px-4 py-3 text-left font-medium ${
+                  onboardingData.healthGoals.includes('stress_management')
+                    ? 'bg-primary text-white'
+                    : 'bg-[hsl(var(--color-surface-1))] hover:bg-primary/10'
+                }`}
+              >
+                Stress Management
+              </button>
+              <button
+                onClick={() => handleButtonClick('metabolic_health', 'healthGoals')}
+                className={`w-full rounded-lg px-4 py-3 text-left font-medium ${
+                  onboardingData.healthGoals.includes('metabolic_health')
+                    ? 'bg-primary text-white'
+                    : 'bg-[hsl(var(--color-surface-1))] hover:bg-primary/10'
+                }`}
+              >
+                Metabolic Health
+              </button>
+              <button
+                onClick={() => handleButtonClick('cognitive_performance', 'healthGoals')}
+                className={`w-full rounded-lg px-4 py-3 text-left font-medium ${
+                  onboardingData.healthGoals.includes('cognitive_performance')
+                    ? 'bg-primary text-white'
+                    : 'bg-[hsl(var(--color-surface-1))] hover:bg-primary/10'
+                }`}
+              >
+                Cognitive Performance
+              </button>
+              <button
+                onClick={() => handleButtonClick('fitness', 'healthGoals')}
+                className={`w-full rounded-lg px-4 py-3 text-left font-medium ${
+                  onboardingData.healthGoals.includes('fitness')
+                    ? 'bg-primary text-white'
+                    : 'bg-[hsl(var(--color-surface-1))] hover:bg-primary/10'
+                }`}
+              >
+                Fitness
+              </button>
+              <button
+                onClick={() => handleButtonClick('nutrition', 'healthGoals')}
+                className={`w-full rounded-lg px-4 py-3 text-left font-medium ${
+                  onboardingData.healthGoals.includes('nutrition')
+                    ? 'bg-primary text-white'
+                    : 'bg-[hsl(var(--color-surface-1))] hover:bg-primary/10'
+                }`}
+              >
+                Nutrition
+              </button>
+              <button
+                onClick={() => handleButtonClick('longevity', 'healthGoals')}
+                className={`w-full rounded-lg px-4 py-3 text-left font-medium ${
+                  onboardingData.healthGoals.includes('longevity')
+                    ? 'bg-primary text-white'
+                    : 'bg-[hsl(var(--color-surface-1))] hover:bg-primary/10'
+                }`}
+              >
+                Longevity
+              </button>
+            </div>
+            
+            <button
+              onClick={handleContinueToSupplements}
+              disabled={onboardingData.healthGoals.length === 0}
+              className="mt-4 w-full rounded-lg bg-primary px-4 py-3 text-white disabled:opacity-50"
+            >
+              Continue
+            </button>
+          </div>
+        )}
+
+        {currentStep === 'supplementHabits' && (
+          <div className="mb-4">
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => handleButtonClick('multivitamin', 'supplementHabits')}
+                className={`w-full rounded-lg px-4 py-3 text-left font-medium ${
+                  onboardingData.supplementHabits.includes('multivitamin')
+                    ? 'bg-primary text-white'
+                    : 'bg-[hsl(var(--color-surface-1))] hover:bg-primary/10'
+                }`}
+              >
+                Multivitamin
+              </button>
+              <button
+                onClick={() => handleButtonClick('vitamin_d', 'supplementHabits')}
+                className={`w-full rounded-lg px-4 py-3 text-left font-medium ${
+                  onboardingData.supplementHabits.includes('vitamin_d')
+                    ? 'bg-primary text-white'
+                    : 'bg-[hsl(var(--color-surface-1))] hover:bg-primary/10'
+                }`}
+              >
+                Vitamin D
+              </button>
+              <button
+                onClick={() => handleButtonClick('omega_3', 'supplementHabits')}
+                className={`w-full rounded-lg px-4 py-3 text-left font-medium ${
+                  onboardingData.supplementHabits.includes('omega_3')
+                    ? 'bg-primary text-white'
+                    : 'bg-[hsl(var(--color-surface-1))] hover:bg-primary/10'
+                }`}
+              >
+                Omega-3
+              </button>
+              <button
+                onClick={() => handleButtonClick('magnesium', 'supplementHabits')}
+                className={`w-full rounded-lg px-4 py-3 text-left font-medium ${
+                  onboardingData.supplementHabits.includes('magnesium')
+                    ? 'bg-primary text-white'
+                    : 'bg-[hsl(var(--color-surface-1))] hover:bg-primary/10'
+                }`}
+              >
+                Magnesium
+              </button>
+              <button
+                onClick={() => handleButtonClick('protein', 'supplementHabits')}
+                className={`w-full rounded-lg px-4 py-3 text-left font-medium ${
+                  onboardingData.supplementHabits.includes('protein')
+                    ? 'bg-primary text-white'
+                    : 'bg-[hsl(var(--color-surface-1))] hover:bg-primary/10'
+                }`}
+              >
+                Protein
+              </button>
+              <button
+                onClick={() => handleButtonClick('probiotics', 'supplementHabits')}
+                className={`w-full rounded-lg px-4 py-3 text-left font-medium ${
+                  onboardingData.supplementHabits.includes('probiotics')
+                    ? 'bg-primary text-white'
+                    : 'bg-[hsl(var(--color-surface-1))] hover:bg-primary/10'
+                }`}
+              >
+                Probiotics
+              </button>
+              <button
+                onClick={() => handleButtonClick('none', 'supplementHabits')}
+                className={`w-full rounded-lg px-4 py-3 text-left font-medium ${
+                  onboardingData.supplementHabits.includes('none')
+                    ? 'bg-primary text-white'
+                    : 'bg-[hsl(var(--color-surface-1))] hover:bg-primary/10'
+                }`}
+              >
+                None
+              </button>
+            </div>
+            
+            <button
+              onClick={handleComplete}
+              className="mt-4 w-full rounded-lg bg-primary px-4 py-3 text-white"
+            >
+              Complete Setup
+            </button>
+          </div>
+        )}
 
         {loading && (
           <div className="flex justify-start">
@@ -347,16 +729,14 @@ const ConversationalOnboarding = () => {
             onChange={(e) => setInput(e.target.value)}
             placeholder={
               currentStep === 'name' ? "Enter your full name..." :
-              currentStep === 'mobile' ? "Enter your mobile number..." :
-              currentStep === 'goals' ? "Enter your health goals (comma separated)..." :
               "Type your message..."
             }
             className="flex-1 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            disabled={loading || currentStep === 'complete'}
+            disabled={loading || currentStep === 'complete' || currentStep !== 'name'}
           />
           <button
             type="submit"
-            disabled={loading || !input.trim() || currentStep === 'complete'}
+            disabled={loading || !input.trim() || currentStep === 'complete' || currentStep !== 'name'}
             className="flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Send className="h-5 w-5" />
