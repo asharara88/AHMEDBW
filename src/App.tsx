@@ -11,6 +11,7 @@ import OnboardingPage from './pages/auth/OnboardingPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import ChatPage from './pages/chat/ChatPage';
+import QuickTipPage from './pages/chat/QuickTipPage';
 import SupplementsPage from './pages/supplements/SupplementsPage';
 import CheckoutPage from './pages/checkout/CheckoutPage';
 import ProfilePage from './pages/profile/ProfilePage';
@@ -40,6 +41,11 @@ function App() {
               <Route path="chat" element={
                 <ProtectedRoute>
                   <ChatPage />
+                </ProtectedRoute>
+              } />
+              <Route path="quick-tip" element={
+                <ProtectedRoute>
+                  <QuickTipPage />
                 </ProtectedRoute>
               } />
               <Route path="supplements" element={
