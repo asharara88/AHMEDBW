@@ -85,22 +85,50 @@ const ConversationalOnboarding = () => {
     checkOnboardingStatus();
   }, [user, navigate, supabase]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+  const handleSubmit = async (e: React.FormEvent | string) => {
+    e?.preventDefault?.();
+    const messageContent = typeof e === 'string' ? e : input;
     
-    // Add user message to chat
+    if (!messageContent.trim()) return;
+
+    setError(null); // Clear any previous errors
+
     const userMessage: Message = {
       role: 'user',
-      content: input,
-      timestamp: new Date()
+      content: messageContent,
+      timestamp: new Date(),
     };
     
     setMessages(prev => [...prev, userMessage]);
     setInput('');
-    
-    // Process user input based on current step
-    await processUserInput(input);
+    setShowSuggestions(false);
+
+    try {
+      if (!sendMessage) {
+        throw new Error("Chat service is not available");
+      }
+
+      const apiMessages = messages.concat(userMessage).map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+
+      const response = await sendMessage(apiMessages, user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined));
+      
+      if (response) {
+        setMessages(prev => [
+          ...prev, 
+          {
+            role: 'assistant',
+            content: response,
+            timestamp: new Date()
+          }
+        ]);
+      }
+    } catch (err: any) {
+      console.error("Error in chat submission:", err);
+      setError(err.message || "Failed to get a response. Please try again.");
+    }
   };
 
   const processUserInput = async (userInput: string) => {
@@ -182,9 +210,9 @@ const ConversationalOnboarding = () => {
       
       setMessages(prev => [...prev, systemMessage]);
       
-    } catch (err: any) {
-      console.error("Error processing user input:", err);
-      setError(err.message || "Failed to process your input. Please try again.");
+    } catch (err) {
+      console.error('Error processing user input:', err);
+      setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -340,7 +368,23 @@ const ConversationalOnboarding = () => {
       </div>
 
       <div className="border-t border-[hsl(var(--color-border))] p-4">
-        <form onSubmit={handleSubmit} className="flex gap-2">
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          if (!input.trim()) return;
+          
+          // Add user message to chat
+          const userMessage: Message = {
+            role: 'user',
+            content: input,
+            timestamp: new Date()
+          };
+          
+          setMessages(prev => [...prev, userMessage]);
+          setInput('');
+          
+          // Process user input based on current step
+          processUserInput(input);
+        }} className="flex gap-2">
           <input
             type="text"
             value={input}
