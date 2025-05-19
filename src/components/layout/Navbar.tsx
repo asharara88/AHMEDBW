@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Package, Rocket, Activity } from 'lucide-react';
+import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Package, Rocket, Activity, MessageSquare } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import Logo from '../common/Logo';
@@ -65,6 +65,12 @@ const Navbar = () => {
                     className={`nav-link ${isActive('/chat') ? 'nav-link-active' : ''}`}
                   >
                     Coach
+                  </Link>
+                  <Link 
+                    to="/quick-tip" 
+                    className={`nav-link ${isActive('/quick-tip') ? 'nav-link-active' : ''}`}
+                  >
+                    Quick Tips
                   </Link>
                   <Link 
                     to="/supplements" 
@@ -232,6 +238,16 @@ const Navbar = () => {
                     onClick={toggleMenu}
                   >
                     Coach
+                  </Link>
+                  <Link 
+                    to="/quick-tip" 
+                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
+                      isActive('/quick-tip') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
+                    }`}
+                    onClick={toggleMenu}
+                  >
+                    <MessageSquare className="h-5 w-5" />
+                    Quick Tips
                   </Link>
                   <Link 
                     to="/supplements" 

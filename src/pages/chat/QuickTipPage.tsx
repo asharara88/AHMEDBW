@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { MessageCircle } from 'lucide-react';
 import ChatButton from '../../components/chat/ChatButton';
 
 const QuickTipPage = () => {
@@ -20,7 +21,8 @@ const QuickTipPage = () => {
         <ChatButton />
         
         <div className="mt-8 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 text-sm text-text-light">
-          <p>
+          <p className="flex items-center gap-2">
+            <MessageCircle className="h-4 w-4 text-primary" />
             These tips are personalized based on your health data and goals. For more detailed
             conversations, visit the Coach page.
           </p>
