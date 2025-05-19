@@ -1,5 +1,5 @@
 # A string used as a secret key for generating JWT tokens
-jwt_secret = "XqOcXPCuH4mK2ZxXp2iR3jYJEI2m3X4SME9LwRarwp7jm/abAzAfz7ngeWcaqawgWO9d9VUQHFiH5k5l8P8UpQ=="
+jwt_secret = "YOUR_SUPABASE_JWT_SECRET"
 project_id = "leznzqfezoofngumpiqf"
 
 [api]
