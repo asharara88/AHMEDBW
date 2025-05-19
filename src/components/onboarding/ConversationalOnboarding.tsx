@@ -85,50 +85,22 @@ const ConversationalOnboarding = () => {
     checkOnboardingStatus();
   }, [user, navigate, supabase]);
 
-  const handleSubmit = async (e: React.FormEvent | string) => {
-    e?.preventDefault?.();
-    const messageContent = typeof e === 'string' ? e : input;
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
     
-    if (!messageContent.trim()) return;
-
-    setError(null); // Clear any previous errors
-
+    // Add user message to chat
     const userMessage: Message = {
       role: 'user',
-      content: messageContent,
-      timestamp: new Date(),
+      content: input,
+      timestamp: new Date()
     };
     
     setMessages(prev => [...prev, userMessage]);
     setInput('');
-    setShowSuggestions(false);
-
-    try {
-      if (!sendMessage) {
-        throw new Error("Chat service is not available");
-      }
-
-      const apiMessages = messages.concat(userMessage).map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
-
-      const response = await sendMessage(apiMessages, user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined));
-      
-      if (response) {
-        setMessages(prev => [
-          ...prev, 
-          {
-            role: 'assistant',
-            content: response,
-            timestamp: new Date()
-          }
-        ]);
-      }
-    } catch (err: any) {
-      console.error("Error in chat submission:", err);
-      setError(err.message || "Failed to get a response. Please try again.");
-    }
+    
+    // Process user input based on current step
+    processUserInput(input);
   };
 
   const processUserInput = async (userInput: string) => {
@@ -368,23 +340,7 @@ const ConversationalOnboarding = () => {
       </div>
 
       <div className="border-t border-[hsl(var(--color-border))] p-4">
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          if (!input.trim()) return;
-          
-          // Add user message to chat
-          const userMessage: Message = {
-            role: 'user',
-            content: input,
-            timestamp: new Date()
-          };
-          
-          setMessages(prev => [...prev, userMessage]);
-          setInput('');
-          
-          // Process user input based on current step
-          processUserInput(input);
-        }} className="flex gap-2">
+        <form onSubmit={handleSubmit} className="flex gap-2">
           <input
             type="text"
             value={input}
