@@ -9,13 +9,16 @@ console.log('Supabase URL configured:', !!supabaseUrl);
 console.log('Supabase Anon Key configured:', !!supabaseAnonKey);
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Check your .env file.');
+  console.error(
+    'Missing Supabase environment variables.\n' +
+      'The application will run in limited mode. Configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable full functionality.'
+  );
 }
 
 // Create a single Supabase client instance to use throughout the app
 export const supabase = createClient(
-  supabaseUrl,
-  supabaseAnonKey,
+  supabaseUrl || '',
+  supabaseAnonKey || '',
   {
     auth: {
       autoRefreshToken: true,

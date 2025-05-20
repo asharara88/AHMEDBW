@@ -75,6 +75,14 @@ supabase functions deploy openai-proxy
 supabase secrets set OPENAI_API_KEY=your-openai-api-key
 ```
 
+### Deployment
+
+When deploying to hosting platforms (e.g., **Vercel** or **Netlify**), copy the
+variables from `.env.example` into your project's environment settings. At a
+minimum, you must define `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. If
+these variables are missing, the application will run in a limited demo mode and
+authentication features will be unavailable.
+
 ## Project Structure
 
 ```
