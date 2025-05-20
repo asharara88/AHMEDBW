@@ -12,19 +12,15 @@ interface StackBuilderProps {
   onToggleSubscription: (supplementId: string) => void;
 }
 
-interface SupplementStack {
-  id?: string;
-  name: string;
-  description: string;
-  supplements: string[];
-  isActive?: boolean;
-}
-
 const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: StackBuilderProps) => {
-  const [stacks, setStacks] = useState<SupplementStack[]>([]);
+  const [stacks, setStacks] = useState<any[]>([]);
   const [activeStack, setActiveStack] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newStack, setNewStack] = useState<SupplementStack>({
+  const [newStack, setNewStack] = useState<{
+    name: string;
+    description: string;
+    supplements: string[];
+  }>({
     name: '',
     description: '',
     supplements: []
@@ -34,8 +30,8 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
   const [success, setSuccess] = useState<string | null>(null);
   
   const { supabase } = useSupabase();
-  const { user } = useAuth();
-  
+  const { user, isDemo } = useAuth();
+
   useEffect(() => {
     fetchUserStacks();
   }, [user]);
@@ -344,7 +340,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
             </div>
             
             <div className="mb-6 space-y-2">
-              {stack.supplements.map((supplementId) => {
+              {stack.supplements.map((supplementId: string) => {
                 const supplement = supplements.find(s => s.id === supplementId);
                 if (!supplement) return null;
                 
@@ -362,7 +358,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
                           fallbackSrc="https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg"
                         />
                       </div>
-                      <span className="text-sm truncate max-w-[120px]">{supplement.name}</span>
+                      <span className="truncate max-w-[120px]">{supplement.name}</span>
                     </div>
                     {userSupplements.includes(supplementId) ? (
                       <Check className="h-4 w-4 text-success" />
@@ -376,7 +372,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
             
             <div className="flex gap-2">
               <button
-                onClick={() => handleActivateStack(stack.id!)}
+                onClick={() => handleActivateStack(stack.id)}
                 disabled={stack.isActive}
                 className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                   stack.isActive
@@ -397,7 +393,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
                 )}
               </button>
               <button
-                onClick={() => handleDeleteStack(stack.id!)}
+                onClick={() => handleDeleteStack(stack.id)}
                 className="rounded-lg border border-[hsl(var(--color-border))] p-2 text-text-light transition-colors hover:bg-error/10 hover:text-error"
               >
                 <X className="h-4 w-4" />
