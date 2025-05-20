@@ -39,6 +39,14 @@ supabase.auth.onAuthStateChange((event, session) => {
   if (event === 'TOKEN_REFRESHED') {
     console.log('Token refreshed successfully');
   }
+
+  if (event === 'TOKEN_REFRESH_FAILED') {
+    console.warn('Token refresh failed, signing out');
+    supabase.auth
+      .signOut()
+      .catch((err) => console.error('Error during sign out:', err));
+    localStorage.removeItem('biowell-user-data');
+  }
   
   if (event === 'SIGNED_OUT') {
     console.log('User signed out');
