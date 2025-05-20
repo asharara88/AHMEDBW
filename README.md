@@ -44,15 +44,24 @@ cd biowell-ai
 npm install
 ```
 
-3. Create a `.env` file based on `.env.example` and add your Supabase credentials:
+3. Create a `.env` file based on `.env.example` and add your Supabase credentials.
+   Include a `DATABASE_URL` variable pointing to your Postgres connection string if
+   you want to test a direct database connection:
 
 ```
 VITE_SUPABASE_URL=your-supabase-url
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 VITE_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
+DATABASE_URL=postgresql://postgres:your-password@db.example.supabase.co:5432/postgres
 ```
 
-4. Start the development server:
+4. Verify the database connection (optional):
+
+```bash
+npm run test:db
+```
+
+5. Start the development server:
 
 ```bash
 npm run dev
