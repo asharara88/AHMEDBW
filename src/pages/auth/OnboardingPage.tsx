@@ -15,7 +15,7 @@ const OnboardingPage = () => {
   const [useConversational, setUseConversational] = useState(true);
   
   const { supabase } = useSupabase();
-  const { user, checkOnboardingStatus } = useAuth();
+  const { user, checkOnboardingStatus, updateUserProfile } = useAuth();
   const navigate = useNavigate();
   
   // Check if user is logged in and has already completed onboarding
@@ -114,6 +114,16 @@ const OnboardingPage = () => {
         console.error('Error updating user metadata:', metadataError);
         // Continue even if metadata update fails
       }
+      
+      // Update auth context with profile data
+      await updateUserProfile({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: user.email || '',
+        mobile: formData.mobile,
+        healthGoals: formData.healthGoals,
+        onboardingCompleted: true
+      });
       
       // Save user data to localStorage for persistence
       localStorage.setItem('biowell-user-data', JSON.stringify({
