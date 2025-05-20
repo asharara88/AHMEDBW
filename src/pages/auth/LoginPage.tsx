@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { AlertCircle } from 'lucide-react';
@@ -13,6 +13,7 @@ const LoginPage = () => {
   const { signIn, startDemo, user, checkOnboardingStatus } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const hasCheckedRef = useRef(false);
   
   // Check if user is already logged in
   useEffect(() => {
@@ -21,7 +22,7 @@ const LoginPage = () => {
         // Try to load user data from localStorage first
         const savedUserData = localStorage.getItem('biowell-user-data');
         let onboardingCompleted = false;
-        
+
         if (savedUserData) {
           const userData = JSON.parse(savedUserData);
           onboardingCompleted = !!(userData.firstName && userData.lastName);
@@ -29,18 +30,21 @@ const LoginPage = () => {
           // If not in localStorage, check database
           onboardingCompleted = await checkOnboardingStatus();
         }
-        
+
         if (!onboardingCompleted) {
           navigate('/onboarding');
           return;
         }
-        
+
         const redirectUrl = sessionStorage.getItem('redirectUrl') || '/dashboard';
         navigate(redirectUrl, { replace: true });
       }
     };
-    
-    checkUserStatus();
+
+    if (user && !hasCheckedRef.current) {
+      hasCheckedRef.current = true;
+      checkUserStatus();
+    }
   }, [user, navigate, checkOnboardingStatus]);
   
   // Check for auth error in URL params
