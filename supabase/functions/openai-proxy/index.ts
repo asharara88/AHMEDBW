@@ -3,13 +3,17 @@
 
 import { createClient } from "npm:@supabase/supabase-js";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey, x-api-key, accept-profile, x-client-info",
-  "Access-Control-Max-Age": "86400",
-  "Access-Control-Allow-Credentials": "true"
-};
+function getCorsHeaders(origin: string | null) {
+  return {
+    "Access-Control-Allow-Origin": origin ?? "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers":
+      "Content-Type, Authorization, apikey, x-api-key, accept-profile, x-client-info",
+    "Access-Control-Max-Age": "86400",
+    "Access-Control-Allow-Credentials": "true",
+    "Vary": "Origin",
+  };
+}
 
 // System prompt to enforce evidence-based recommendations
 const SYSTEM_PROMPT = `You are Biowell AI, a personalized health coach focused on providing evidence-based health advice and supplement recommendations.
@@ -33,6 +37,8 @@ Guidelines:
 Remember: You're a coach and guide, not a replacement for medical care.`;
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+
   // Handle CORS preflight request
   if (req.method === "OPTIONS") {
     return new Response(null, {
