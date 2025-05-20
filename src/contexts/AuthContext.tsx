@@ -183,6 +183,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Function to refresh the session
   const refreshSession = async () => {
     try {
+      const { data: current } = await supabase.auth.getSession();
+
+      // If no valid refresh token exists, skip the refresh attempt
+      if (!current.session?.refresh_token) {
+        console.warn('No refresh token available, skipping refresh');
+        return;
+      }
+
       const { data, error } = await supabase.auth.refreshSession();
       
       if (error) {

@@ -26,7 +26,12 @@ export async function validateSession(): Promise<boolean> {
     
     if (expiresAt && expiresAt - now < 300) {
       console.log('Session expiring soon, refreshing...');
-      
+
+      if (!session.refresh_token) {
+        console.warn('No refresh token available, skipping refresh');
+        return false;
+      }
+
       // Try to refresh the session
       const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
       
