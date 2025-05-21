@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
+import { logError } from '../utils/logger';
 
 export const sendChatMessage = async (messages: any[]) => {
   const { data: { session } } = await supabase.auth.getSession();
