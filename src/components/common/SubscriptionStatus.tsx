@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { CheckCircle, AlertCircle, Clock, CreditCard, Loader } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface SubscriptionStatusProps {
   className?: string;
@@ -46,46 +47,67 @@ const SubscriptionStatus = ({ className = '' }: SubscriptionStatusProps) => {
 
   if (loading) {
     return (
-      <div className={`flex items-center gap-2 rounded-lg bg-[hsl(var(--color-card))] p-3 ${className}`}>
-        <Loader className="h-4 w-4 animate-spin text-primary" />
-        <span className="text-sm">Loading subscription status...</span>
+      <div className={`rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 ${className}`}>
+        <div className="flex items-center gap-2">
+          <Loader className="h-4 w-4 animate-spin text-primary" />
+          <span className="text-sm">Loading subscription status...</span>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={`flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error ${className}`}>
-        <AlertCircle className="h-4 w-4 flex-shrink-0" />
-        <span>Error loading subscription: {error}</span>
+      <div className={`rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 ${className}`}>
+        <div className="flex items-center gap-2 text-error">
+          <AlertCircle className="h-4 w-4 flex-shrink-0" />
+          <span className="text-sm">Error loading subscription</span>
+        </div>
       </div>
     );
   }
 
   if (!subscription || subscription.subscription_status === 'not_started') {
     return (
-      <div className={`flex items-center gap-2 rounded-lg bg-warning/10 p-3 text-sm text-warning ${className}`}>
-        <AlertCircle className="h-4 w-4 flex-shrink-0" />
-        <span>No active subscription. <a href="/pricing" className="underline">Subscribe now</a> to access premium features.</span>
+      <div className={`rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 ${className}`}>
+        <div className="flex flex-col space-y-3">
+          <div className="flex items-center gap-2 text-warning">
+            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            <span className="text-sm font-medium">No active subscription</span>
+          </div>
+          <p className="text-xs text-text-light">
+            Upgrade to access premium features and personalized health recommendations.
+          </p>
+          <Link 
+            to="/pricing" 
+            className="rounded-lg bg-primary px-4 py-2 text-center text-sm font-medium text-white hover:bg-primary-dark"
+          >
+            View Plans
+          </Link>
+        </div>
       </div>
     );
   }
 
   if (subscription.subscription_status === 'active') {
     return (
-      <div className={`flex items-center gap-2 rounded-lg bg-success/10 p-3 text-sm text-success ${className}`}>
-        <CheckCircle className="h-4 w-4 flex-shrink-0" />
-        <div>
-          <span className="font-medium">Active Subscription</span>
+      <div className={`rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 ${className}`}>
+        <div className="flex flex-col space-y-3">
+          <div className="flex items-center gap-2 text-success">
+            <CheckCircle className="h-4 w-4 flex-shrink-0" />
+            <span className="text-sm font-medium">Active Subscription</span>
+          </div>
+          
           {subscription.current_period_end && (
-            <span className="ml-2 text-xs">
-              (Renews: {new Date(subscription.current_period_end * 1000).toLocaleDateString()})
-            </span>
+            <p className="text-xs text-text-light">
+              Your subscription renews on {new Date(subscription.current_period_end * 1000).toLocaleDateString()}.
+            </p>
           )}
+          
           {subscription.payment_method_last4 && (
-            <div className="mt-1 flex items-center gap-1 text-xs text-text-light">
+            <div className="flex items-center gap-2 rounded-lg bg-[hsl(var(--color-surface-1))] p-2 text-xs text-text-light">
               <CreditCard className="h-3 w-3" />
-              {subscription.payment_method_brand} •••• {subscription.payment_method_last4}
+              Payment method: {subscription.payment_method_brand} •••• {subscription.payment_method_last4}
             </div>
           )}
         </div>
@@ -95,14 +117,17 @@ const SubscriptionStatus = ({ className = '' }: SubscriptionStatusProps) => {
 
   if (subscription.subscription_status === 'trialing') {
     return (
-      <div className={`flex items-center gap-2 rounded-lg bg-primary/10 p-3 text-sm text-primary ${className}`}>
-        <Clock className="h-4 w-4 flex-shrink-0" />
-        <div>
-          <span className="font-medium">Trial Active</span>
+      <div className={`rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 ${className}`}>
+        <div className="flex flex-col space-y-3">
+          <div className="flex items-center gap-2 text-primary">
+            <Clock className="h-4 w-4 flex-shrink-0" />
+            <span className="text-sm font-medium">Trial Active</span>
+          </div>
+          
           {subscription.current_period_end && (
-            <span className="ml-2 text-xs">
-              (Ends: {new Date(subscription.current_period_end * 1000).toLocaleDateString()})
-            </span>
+            <p className="text-xs text-text-light">
+              Your trial ends on {new Date(subscription.current_period_end * 1000).toLocaleDateString()}.
+            </p>
           )}
         </div>
       </div>
@@ -111,25 +136,54 @@ const SubscriptionStatus = ({ className = '' }: SubscriptionStatusProps) => {
 
   if (['past_due', 'incomplete', 'unpaid'].includes(subscription.subscription_status)) {
     return (
-      <div className={`flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error ${className}`}>
-        <AlertCircle className="h-4 w-4 flex-shrink-0" />
-        <span>Payment issue with your subscription. Please update your payment method.</span>
+      <div className={`rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 ${className}`}>
+        <div className="flex flex-col space-y-3">
+          <div className="flex items-center gap-2 text-error">
+            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            <span className="text-sm font-medium">Payment Issue</span>
+          </div>
+          
+          <p className="text-xs text-text-light">
+            There's an issue with your payment method. Please update your payment details to continue your subscription.
+          </p>
+          
+          <button className="rounded-lg bg-primary px-4 py-2 text-center text-sm font-medium text-white hover:bg-primary-dark">
+            Update Payment Method
+          </button>
+        </div>
       </div>
     );
   }
 
   if (subscription.subscription_status === 'canceled') {
     return (
-      <div className={`flex items-center gap-2 rounded-lg bg-[hsl(var(--color-card-hover))] p-3 text-sm text-text-light ${className}`}>
-        <AlertCircle className="h-4 w-4 flex-shrink-0" />
-        <span>Your subscription has been canceled. <a href="/pricing" className="text-primary underline">Resubscribe</a> to continue accessing premium features.</span>
+      <div className={`rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 ${className}`}>
+        <div className="flex flex-col space-y-3">
+          <div className="flex items-center gap-2 text-text-light">
+            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            <span className="text-sm font-medium">Subscription Canceled</span>
+          </div>
+          
+          <p className="text-xs text-text-light">
+            Your subscription has been canceled. Resubscribe to continue accessing premium features.
+          </p>
+          
+          <Link 
+            to="/pricing" 
+            className="rounded-lg bg-primary px-4 py-2 text-center text-sm font-medium text-white hover:bg-primary-dark"
+          >
+            Resubscribe
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={`flex items-center gap-2 rounded-lg bg-[hsl(var(--color-card))] p-3 text-sm ${className}`}>
-      <span>Subscription status: {subscription.subscription_status}</span>
+    <div className={`rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 ${className}`}>
+      <div className="flex items-center gap-2">
+        <span className="text-sm">Subscription status: {subscription.subscription_status}</span>
+      </div>
     </div>
   );
 };
