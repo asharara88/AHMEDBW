@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
+import { logError } from './logger';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -58,7 +59,7 @@ export async function callOpenAiFunction(prompt: string, context?: Record<string
       const data = await response.json();
       return data.choices?.[0]?.message?.content || "No response received.";
     } catch (error) {
-      console.error(`Attempt ${retries + 1} failed:`, error);
+      logError(`Attempt ${retries + 1} failed`, error);
       lastError = error instanceof Error ? error : new Error('Unknown error occurred');
       
       // If we get a 429 (rate limit) error, wait and retry
@@ -91,7 +92,7 @@ export async function sendChatMessage(message: string, userId?: string, context?
           response: content
         });
       } catch (error) {
-        console.error("Failed to store chat history:", error);
+        logError('Failed to store chat history', error, { userId });
       }
     }
     
@@ -101,7 +102,7 @@ export async function sendChatMessage(message: string, userId?: string, context?
       timestamp: new Date(),
     };
   } catch (error) {
-    console.error("Error in chat message:", error);
+    logError('Error in chat message', error);
     throw error;
   }
 }

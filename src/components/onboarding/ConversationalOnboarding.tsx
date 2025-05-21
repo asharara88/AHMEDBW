@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Send, User, Loader, CheckCircle, AlertCircle } from 'lucide-react';
+import { logError } from '../../utils/logger';
 
 interface Message {
   role: 'system' | 'user';
@@ -82,7 +83,7 @@ const ConversationalOnboarding = () => {
           .maybeSingle();
         
         if (error) {
-          console.error('Supabase query error:', error);
+          logError('Supabase query error', error);
           setError('Failed to check onboarding status. Please try refreshing the page.');
           return;
         }
@@ -95,7 +96,7 @@ const ConversationalOnboarding = () => {
           navigate('/dashboard');
         }
       } catch (err) {
-        console.error('Error checking onboarding status:', err);
+        logError('Error checking onboarding status', err);
         setError('Failed to check onboarding status. Please try refreshing the page.');
       } finally {
         setLoading(false);
@@ -176,7 +177,7 @@ const ConversationalOnboarding = () => {
           addSystemResponse(systemResponse);
       }
     } catch (err) {
-      console.error('Error processing user input:', err);
+      logError('Error processing user input', err);
       setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
@@ -288,7 +289,7 @@ const ConversationalOnboarding = () => {
           break;
       }
     } catch (err) {
-      console.error('Error handling button click:', err);
+      logError('Error handling button click', err);
       setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
@@ -376,7 +377,7 @@ const ConversationalOnboarding = () => {
         navigate('/dashboard');
       }, 3000);
     } catch (err) {
-      console.error('Error saving onboarding data:', err);
+      logError('Error saving onboarding data', err);
       throw err;
     }
   };

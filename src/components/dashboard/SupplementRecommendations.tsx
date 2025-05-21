@@ -4,6 +4,7 @@ import { useSupabase } from '../../contexts/SupabaseContext';
 import { Package, ChevronDown, ChevronUp, Plus, Check, AlertCircle } from 'lucide-react';
 import ImageWithFallback from '../common/ImageWithFallback';
 import { getSupplementFormImage } from '../../utils/supplementForms';
+import { logError } from '../../utils/logger';
 
 interface SupplementRecommendationsProps {
   userId: string;
@@ -42,7 +43,7 @@ const SupplementRecommendations = ({ userId }: SupplementRecommendationsProps) =
       setSupplements(suppData || []);
       setUserSupplements(userSuppData?.map(us => us.supplement_id) || []);
     } catch (error) {
-      console.error('Error fetching supplements:', error);
+      logError('Error fetching supplements', error);
       
       // Fallback data
       setSupplements([
@@ -102,7 +103,7 @@ const SupplementRecommendations = ({ userId }: SupplementRecommendationsProps) =
         setUserSupplements(prev => [...prev, supplementId]);
       }
     } catch (error) {
-      console.error('Error updating subscription:', error);
+      logError('Error updating subscription', error);
     }
   };
 

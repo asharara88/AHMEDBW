@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useOpenAi } from '../../hooks/useOpenAi';
 import { useAuth } from '../../contexts/AuthContext';
 import { Loader, AlertCircle } from 'lucide-react';
+import { logError } from '../../utils/logger';
 
 interface SupplementRecommenderProps {
   onRecommendationsReceived?: (recommendations: string) => void;
@@ -31,7 +32,7 @@ const SupplementRecommender = ({ onRecommendationsReceived }: SupplementRecommen
         onRecommendationsReceived(response);
       }
     } catch (err) {
-      console.error('Error getting recommendations:', err);
+      logError('Error getting recommendations', err);
     }
   };
 

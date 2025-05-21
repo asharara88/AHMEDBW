@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { logError } from '../../utils/logger';
 
 interface ActionFetchBlockProps {
   id: string;
@@ -55,7 +56,7 @@ const ActionFetchBlock = ({
       setAiResponse(data.response || data.message || JSON.stringify(data));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Fetch error:', err);
+      logError('Fetch error', err);
     } finally {
       setLoading(false);
     }

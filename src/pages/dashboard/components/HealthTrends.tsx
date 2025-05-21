@@ -13,6 +13,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import { useSupabase } from '../../../contexts/SupabaseContext';
 import { useAuth } from '../../../contexts/AuthContext';
+import { logError } from '../../../utils/logger';
 
 ChartJS.register(
   CategoryScale,
@@ -99,7 +100,7 @@ const HealthTrends = ({ userId }: HealthTrendsProps) => {
         
         setChartData(chartData);
       } catch (error) {
-        console.error('Error fetching trend data:', error);
+        logError('Error fetching trend data', error);
       } finally {
         setLoading(false);
       }

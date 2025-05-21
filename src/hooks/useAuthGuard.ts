@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { validateSession } from '../utils/authHelpers';
+import { logError } from '../utils/logger';
 
 /**
  * Hook to guard routes that require authentication
@@ -29,7 +30,7 @@ export function useAuthGuard(redirectTo: string = '/login') {
           // Try to refresh the session
           await refreshSession();
         } catch (error) {
-          console.error('Session refresh failed:', error);
+          logError('Session refresh failed', error);
           navigate(redirectTo, { replace: true });
         }
       }

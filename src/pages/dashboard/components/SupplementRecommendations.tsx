@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSupabase } from '../../../contexts/SupabaseContext';
+import { logError } from '../../../utils/logger';
 import { ShoppingCart, Pill, AlertCircle, CheckCircle, ArrowRight } from 'lucide-react';
 
 interface SupplementRecommendationsProps {
@@ -39,7 +40,7 @@ const SupplementRecommendations = ({ userId }: SupplementRecommendationsProps) =
         setSupplements(suppData || []);
         setUserSupplements(userSuppData?.map((item) => item.supplement_id) || []);
       } catch (error) {
-        console.error('Error fetching supplements:', error);
+        logError('Error fetching supplements', error);
         
         // Mock data for demo
         setSupplements([
@@ -107,7 +108,7 @@ const SupplementRecommendations = ({ userId }: SupplementRecommendationsProps) =
         setUserSupplements([...userSupplements, supplementId]);
       }
     } catch (error) {
-      console.error('Error toggling subscription:', error);
+      logError('Error toggling subscription', error);
       
       // For demo, just toggle the state
       if (isSubscribed) {

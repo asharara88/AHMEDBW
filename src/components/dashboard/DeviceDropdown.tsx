@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { logError } from '../../utils/logger';
 import { Watch, ChevronDown, ChevronUp, Plus, Check, Loader, AlertCircle } from 'lucide-react';
 import { getDeviceImage } from '../../utils/deviceImages';
 import ImageWithFallback from '../common/ImageWithFallback';
@@ -87,7 +88,7 @@ const DeviceDropdown = () => {
           })));
         }
       } catch (error) {
-        console.error('Error fetching connected devices:', error);
+        logError('Error fetching connected devices', error);
       }
     };
     
@@ -130,7 +131,7 @@ const DeviceDropdown = () => {
         setSuccessMessage(`Successfully connected to ${devices.find(d => d.id === deviceId)?.name}`);
       }
     } catch (error) {
-      console.error('Error connecting device:', error);
+      logError('Error connecting device', error);
       setErrorMessage(`Failed to connect to ${devices.find(d => d.id === deviceId)?.name}. Please try again.`);
     } finally {
       setConnecting(null);
@@ -168,7 +169,7 @@ const DeviceDropdown = () => {
         setSuccessMessage(`Successfully disconnected from ${devices.find(d => d.id === deviceId)?.name}`);
       }
     } catch (error) {
-      console.error('Error disconnecting device:', error);
+      logError('Error disconnecting device', error);
       setErrorMessage(`Failed to disconnect from ${devices.find(d => d.id === deviceId)?.name}. Please try again.`);
     } finally {
       setConnecting(null);

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { callOpenAiFunction } from '../utils/openai';
+import { logError } from '../utils/logger';
 
 export function useOpenAi() {
   const [loading, setLoading] = useState(false);
@@ -13,8 +14,8 @@ export function useOpenAi() {
       const response = await callOpenAiFunction(prompt, context);
       return response;
     } catch (err) {
-      console.error("OpenAI API error:", err);
-      const errorMessage = err instanceof Error ? err.message : "Failed to generate response";
+      logError('OpenAI API error', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to generate response';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { logError } from "../utils/logger";
 
 export function useChatApi() {
   const [loading, setLoading] = useState(false);
@@ -73,7 +74,7 @@ export function useChatApi() {
             errorMessage = errorData.error.message;
           }
         } catch (parseError) {
-          console.error("Error parsing error response:", parseError);
+          logError('Error parsing error response', parseError);
         }
 
         // Handle specific status codes
@@ -92,7 +93,7 @@ export function useChatApi() {
       const data = await response.json();
       return data.choices?.[0]?.message?.content || "";
     } catch (err: any) {
-      console.error("Chat API error:", err);
+      logError('Chat API error', err);
       
       let errorMessage: string;
       if (err.name === 'AbortError') {

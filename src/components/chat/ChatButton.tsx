@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useChatApi } from '../../hooks/useChatApi';
 import { useAuth } from '../../contexts/AuthContext';
 import { Loader, AlertCircle } from 'lucide-react';
+import { logError } from '../../utils/logger';
 
 export default function ChatButton() {
   const [loading, setLoading] = useState(false);
@@ -22,7 +23,7 @@ export default function ChatButton() {
       const reply = await sendMessage(messages, userId);
       setResponse(reply || 'No response received.');
     } catch (err) {
-      console.error('Error in chat:', err);
+      logError('Error in chat', err);
       setResponse('Failed to fetch assistant reply.');
     } finally {
       setLoading(false);

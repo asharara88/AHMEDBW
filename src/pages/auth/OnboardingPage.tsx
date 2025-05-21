@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { logError } from '../../utils/logger';
 import OnboardingForm from '../../components/auth/OnboardingForm';
 import ConversationalOnboarding from '../../components/onboarding/ConversationalOnboarding';
 import { AlertCircle, CheckCircle } from 'lucide-react';
@@ -32,7 +33,7 @@ const OnboardingPage = () => {
           navigate('/dashboard');
         }
       } catch (err) {
-        console.error('Error checking onboarding status:', err);
+        logError('Error checking onboarding status', err);
         setError('Error checking onboarding status. Please try again.');
       }
     };
@@ -93,7 +94,7 @@ const OnboardingPage = () => {
           });
         
         if (quizError) {
-          console.error('Error saving quiz responses:', quizError);
+          logError('Error saving quiz responses', quizError);
           // Continue even if quiz responses fail
         }
       }
@@ -111,7 +112,7 @@ const OnboardingPage = () => {
       });
       
       if (metadataError) {
-        console.error('Error updating user metadata:', metadataError);
+        logError('Error updating user metadata', metadataError);
         // Continue even if metadata update fails
       }
       
@@ -148,7 +149,7 @@ const OnboardingPage = () => {
         navigate('/dashboard');
       }, 2000);
     } catch (err: any) {
-      console.error('Error completing onboarding:', err);
+      logError('Error completing onboarding', err);
       setError(err.message || 'An error occurred during onboarding');
     } finally {
       setLoading(false);
