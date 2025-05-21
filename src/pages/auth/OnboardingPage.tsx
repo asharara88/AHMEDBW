@@ -8,20 +8,7 @@ import ConversationalOnboarding from '../../components/onboarding/Conversational
 import { AlertCircle, CheckCircle } from 'lucide-react';
 import Logo from '../../components/common/Logo';
 import { logError } from '../../utils/logger';
-
-// Define a proper interface for form data
-interface OnboardingFormData {
-  firstName: string;
-  lastName: string;
-  mobile?: string;
-  age?: number;
-  gender?: string;
-  healthGoals?: string[];
-  sleepHours?: number;
-  exerciseFrequency?: string;
-  dietPreference?: string;
-  stressLevel?: string;
-}
+import { onboardingApi, OnboardingFormData } from '../../api/onboardingApi';
 
 const OnboardingPage = () => {
   const [loading, setLoading] = useState(false);
@@ -65,55 +52,8 @@ const OnboardingPage = () => {
     setError(null);
     
     try {
-      // Use Promise.allSettled to allow failures in quiz/meta without blocking main onboarding
-      const results = await Promise.allSettled([
-        // Update profile in database
-        supabase
-          .from('profiles')
-          .upsert({
-            id: user.id,
-            email: user.email,
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            mobile: formData.mobile,
-            onboarding_completed: true,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }),
-        
-        // Save quiz responses
-        supabase
-          .from('quiz_responses')
-          .upsert({
-            user_id: user.id,
-            age: formData.age,
-            gender: formData.gender,
-            health_goals: formData.healthGoals,
-            sleep_hours: formData.sleepHours,
-            exercise_frequency: formData.exerciseFrequency,
-            diet_preference: formData.dietPreference,
-            stress_level: formData.stressLevel,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }),
-        
-        // Update user metadata
-        supabase.auth.updateUser({
-          data: { 
-            onboarding_completed: true,
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            mobile: formData.mobile,
-            age: formData.age,
-            gender: formData.gender
-          }
-        })
-      ]);
-      
-      // Check for errors in the main profile update
-      if (results[0].status === 'rejected') {
-        throw results[0].reason;
-      }
+      // Use the onboardingApi to handle all the steps
+      await onboardingApi.completeOnboarding(user, formData);
       
       // Update auth context with profile data
       await updateProfile({
@@ -124,22 +64,6 @@ const OnboardingPage = () => {
         healthGoals: formData.healthGoals,
         onboardingCompleted: true
       });
-      
-      // Save user data to localStorage for persistence
-      localStorage.setItem('biowell-user-data', JSON.stringify({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: user.email,
-        mobile: formData.mobile,
-        age: formData.age,
-        gender: formData.gender,
-        healthGoals: formData.healthGoals,
-        sleepHours: formData.sleepHours,
-        exerciseFrequency: formData.exerciseFrequency,
-        dietPreference: formData.dietPreference,
-        stressLevel: formData.stressLevel,
-        onboardingCompleted: true
-      }));
       
       setSuccess(true);
       

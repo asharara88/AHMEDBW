@@ -1,20 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, AlertCircle, ArrowRight, Shield } from 'lucide-react';
-
-interface FormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  mobile: string;
-  age: number | '';
-  gender: string;
-  healthGoals: string[];
-  sleepHours: number | '';
-  exerciseFrequency: string;
-  dietPreference: string;
-  stressLevel: string;
-}
+import { OnboardingFormData } from '../../api/onboardingApi';
 
 interface ValidationErrors {
   firstName?: string;
@@ -27,13 +14,13 @@ interface ValidationErrors {
 }
 
 interface OnboardingFormProps {
-  onComplete: (formData: FormData) => void;
+  onComplete: (formData: OnboardingFormData) => void;
   isLoading?: boolean;
 }
 
 const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<OnboardingFormData>({
     firstName: '',
     lastName: '',
     email: '',
@@ -52,12 +39,12 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
   // Calculate form completion percentage
   const calculateProgress = () => {
     const requiredFields = ['firstName', 'lastName', 'email'];
-    const filledFields = requiredFields.filter(field => formData[field as keyof FormData]?.toString().trim() !== '');
+    const filledFields = requiredFields.filter(field => formData[field as keyof OnboardingFormData]?.toString().trim() !== '');
     return (filledFields.length / requiredFields.length) * 100;
   };
 
   // Validate form field in real-time
-  const validateField = (name: keyof FormData, value: any) => {
+  const validateField = (name: keyof OnboardingFormData, value: any) => {
     const newErrors = { ...errors };
 
     switch (name) {
@@ -130,16 +117,16 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
       setFormData(prev => ({
         ...prev,
         healthGoals: isChecked 
-          ? [...prev.healthGoals, goalValue]
-          : prev.healthGoals.filter(goal => goal !== goalValue)
+          ? [...prev.healthGoals!, goalValue]
+          : prev.healthGoals!.filter(goal => goal !== goalValue)
       }));
       
       validateField('healthGoals', isChecked 
-        ? [...formData.healthGoals, goalValue]
-        : formData.healthGoals.filter(goal => goal !== goalValue));
+        ? [...formData.healthGoals!, goalValue]
+        : formData.healthGoals!.filter(goal => goal !== goalValue));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
-      validateField(name as keyof FormData, value);
+      validateField(name as keyof OnboardingFormData, value);
     }
   };
 
@@ -159,7 +146,7 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
       
       // Validate mobile format if provided
       const phoneRegex = /^\+?[0-9\s()-]{10,}$/;
-      if (formData.mobile.trim() && !phoneRegex.test(formData.mobile)) {
+      if (formData.mobile && formData.mobile.toString().trim() && !phoneRegex.test(formData.mobile.toString())) {
         newErrors.mobile = 'Please enter a valid phone number';
       }
     } else if (step === 2) {
@@ -167,7 +154,7 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
         newErrors.age = 'Please enter a valid age between 18 and 120';
       }
       if (!formData.gender) newErrors.gender = 'Please select your gender';
-      if (formData.healthGoals.length === 0) newErrors.healthGoals = 'Please select at least one health goal';
+      if (formData.healthGoals!.length === 0) newErrors.healthGoals = 'Please select at least one health goal';
     }
     
     setErrors(newErrors);
@@ -188,7 +175,14 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
     e.preventDefault();
     
     if (validateStep(currentStep)) {
-      onComplete(formData);
+      // Convert string values to appropriate types
+      const processedData: OnboardingFormData = {
+        ...formData,
+        age: formData.age !== '' ? Number(formData.age) : undefined,
+        sleepHours: formData.sleepHours !== '' ? Number(formData.sleepHours) : undefined
+      };
+      
+      onComplete(processedData);
     }
   };
 
@@ -394,6 +388,7 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
                       <option value="">Select gender</option>
                       <option value="male">Male</option>
                       <option value="female">Female</option>
+                      <option value="not_specified">Prefer not to say</option>
                     </select>
                     {errors.gender && (
                       <motion.p
@@ -415,7 +410,7 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
                   <div className="grid grid-cols-2 gap-2">
                     {healthGoalOptions.map((goal) => (
                       <label key={goal} className={`flex items-center gap-2 rounded-lg border p-2 text-sm transition-colors ${
-                        formData.healthGoals.includes(goal) 
+                        formData.healthGoals!.includes(goal) 
                           ? 'border-primary bg-primary/5 text-primary' 
                           : 'border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] hover:bg-[hsl(var(--color-card-hover))]'
                       }`}>
@@ -423,7 +418,7 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
                           type="checkbox"
                           name="healthGoals"
                           value={goal}
-                          checked={formData.healthGoals.includes(goal)}
+                          checked={formData.healthGoals!.includes(goal)}
                           onChange={handleChange}
                           className="h-4 w-4 rounded border-[hsl(var(--color-border))] text-primary focus:ring-primary"
                         />
@@ -545,7 +540,7 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
                   <button
                     type="submit"
                     className="btn-primary"
-                    disabled={isLoading || formData.healthGoals.length === 0}
+                    disabled={isLoading || formData.healthGoals!.length === 0}
                   >
                     {isLoading ? (
                       <span className="flex items-center justify-center">

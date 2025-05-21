@@ -7,23 +7,12 @@ import { Send, User, Loader, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAutoScroll } from '../../hooks/useAutoScroll';
 import { openaiApi } from '../../api/openaiApi';
 import { logError } from '../../utils/logger';
+import { onboardingApi, OnboardingFormData } from '../../api/onboardingApi';
 
 interface Message {
   role: 'system' | 'user';
   content: string;
   timestamp: Date;
-}
-
-interface OnboardingData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  mobile: string;
-  gender: string;
-  healthGoals: string[];
-  supplementHabits: string[];
-  mainGoal: string;
-  completed: boolean;
 }
 
 const ConversationalOnboarding = () => {
@@ -32,7 +21,7 @@ const ConversationalOnboarding = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<'greeting' | 'name' | 'gender' | 'mainGoal' | 'healthGoals' | 'supplementHabits' | 'complete'>('greeting');
-  const [onboardingData, setOnboardingData] = useState<OnboardingData>({
+  const [onboardingData, setOnboardingData] = useState<OnboardingFormData>({
     firstName: '',
     lastName: '',
     email: '',
@@ -41,7 +30,6 @@ const ConversationalOnboarding = () => {
     healthGoals: [],
     supplementHabits: [],
     mainGoal: '',
-    completed: false
   });
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -168,11 +156,11 @@ const ConversationalOnboarding = () => {
       
       setMessages(prev => [...prev, systemMessage]);
       
-      // Check if we should move to the next step
+      // Extract data and update onboarding progress
       await updateOnboardingProgress(formattedMessages);
       
     } catch (err: any) {
-      console.error('Error processing user input:', err);
+      logError('Error processing user input', err);
       setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
@@ -207,57 +195,18 @@ const ConversationalOnboarding = () => {
         });
       }
     } catch (err) {
-      console.error('Error updating onboarding progress:', err);
+      logError('Error updating onboarding progress', err);
     }
   };
 
-  const saveOnboardingData = async (data: OnboardingData) => {
+  const saveOnboardingData = async (data: OnboardingFormData) => {
     if (!user) {
       throw new Error('User not authenticated');
     }
     
     try {
-      // Use Promise.allSettled to allow failures in quiz/meta without blocking main onboarding
-      const results = await Promise.allSettled([
-        // Update profile in database
-        supabase
-          .from('profiles')
-          .upsert({
-            id: user.id,
-            first_name: data.firstName,
-            last_name: data.lastName,
-            mobile: data.mobile,
-            onboarding_completed: true,
-            updated_at: new Date().toISOString(),
-          }),
-        
-        // Save quiz responses
-        supabase
-          .from('quiz_responses')
-          .upsert({
-            user_id: user.id,
-            health_goals: data.healthGoals,
-            gender: data.gender,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }),
-        
-        // Update user metadata
-        supabase.auth.updateUser({
-          data: { 
-            onboarding_completed: true,
-            first_name: data.firstName,
-            last_name: data.lastName,
-            mobile: data.mobile,
-            gender: data.gender
-          }
-        })
-      ]);
-      
-      // Check for errors in the main profile update
-      if (results[0].status === 'rejected') {
-        throw results[0].reason;
-      }
+      // Use the onboardingApi to handle all the steps
+      await onboardingApi.completeOnboarding(user, data);
       
       // Update auth context with profile data
       await updateProfile({
@@ -278,11 +227,6 @@ const ConversationalOnboarding = () => {
       
       setMessages(prev => [...prev, completionMessage]);
       
-      setOnboardingData(prev => ({
-        ...prev,
-        completed: true
-      }));
-      
       setCurrentStep('complete');
       
       // Redirect to dashboard after a short delay
@@ -290,7 +234,7 @@ const ConversationalOnboarding = () => {
         navigate('/dashboard');
       }, 3000);
     } catch (err) {
-      logError('Error saving onboarding data:', err);
+      logError('Error saving onboarding data', err);
       throw err;
     }
   };
