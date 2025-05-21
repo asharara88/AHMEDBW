@@ -5,6 +5,7 @@ import { useChatApi } from '../../hooks/useChatApi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { logError } from '../../utils/logger';
+import { useAutoScroll } from '../../hooks/useAutoScroll';
 import ReactMarkdown from 'react-markdown';
 
 interface Message {
@@ -37,9 +38,7 @@ export default function HealthCoach() {
   const { currentTheme } = useTheme();
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  useAutoScroll(messagesEndRef, [messages]);
 
   useEffect(() => {
     // Select 5 random questions on component mount
