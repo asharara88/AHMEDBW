@@ -19,12 +19,14 @@ import CheckoutCancelPage from './pages/checkout/CheckoutCancelPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import PricingPage from './pages/PricingPage';
 import HowItWorksPage from './pages/HowItWorksPage';
+import ErrorHandler from './components/common/ErrorHandler';
 
 function App() {
   return (
     <SupabaseProvider>
       <ThemeProvider>
         <AuthProvider>
+          <ErrorHandler />
           <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<HomePage />} />

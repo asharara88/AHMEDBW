@@ -7,6 +7,7 @@ import { logError } from '../../utils/logger';
 import { useAutoScroll } from '../../hooks/useAutoScroll';
 import ReactMarkdown from 'react-markdown';
 import { useChatStore } from '../../store';
+import ApiErrorDisplay from '../common/ApiErrorDisplay';
 
 const suggestedQuestions = [
   "What's my current health status?",
@@ -85,12 +86,7 @@ export default function HealthCoach() {
       </div>
       
       <div className="flex-1 overflow-y-auto p-4 overscroll-contain">
-        {error && (
-          <div className="mb-4 flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error">
-            <AlertCircle className="h-5 w-5" />
-            <p>{error}</p>
-          </div>
-        )}
+        {error && <ApiErrorDisplay error={{ type: 'unknown', message: error }} />}
 
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">

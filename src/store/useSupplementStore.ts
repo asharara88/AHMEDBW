@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { supabase } from '../lib/supabaseClient';
+import { supplementApi } from '../api/supplementApi';
 import { Supplement, SupplementStack } from '../types/supplements';
 import { logError } from '../utils/logger';
 
@@ -31,16 +31,10 @@ export const useSupplementStore = create<SupplementState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const { data, error } = await supabase
-        .from('supplements')
-        .select('*')
-        .eq('is_active', true);
-      
-      if (error) throw error;
-      
-      set({ supplements: data || [], loading: false });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch supplements';
+      const supplements = await supplementApi.getSupplements();
+      set({ supplements, loading: false });
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to fetch supplements';
       logError('Error fetching supplements', err);
       set({ error: errorMessage, loading: false });
     }
@@ -52,19 +46,10 @@ export const useSupplementStore = create<SupplementState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const { data, error } = await supabase
-        .from('user_supplements')
-        .select('supplement_id')
-        .eq('user_id', userId);
-      
-      if (error) throw error;
-      
-      set({ 
-        userSupplements: data?.map(us => us.supplement_id) || [],
-        loading: false 
-      });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch user supplements';
+      const userSupplements = await supplementApi.getUserSupplements(userId);
+      set({ userSupplements, loading: false });
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to fetch user supplements';
       logError('Error fetching user supplements', err);
       set({ error: errorMessage, loading: false });
     }
@@ -74,15 +59,10 @@ export const useSupplementStore = create<SupplementState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const { data, error } = await supabase
-        .from('supplement_stacks')
-        .select('*');
-      
-      if (error) throw error;
-      
-      set({ stacks: data || [], loading: false });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch supplement stacks';
+      const stacks = await supplementApi.getStacks();
+      set({ stacks, loading: false });
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to fetch supplement stacks';
       logError('Error fetching supplement stacks', err);
       set({ error: errorMessage, loading: false });
     }
@@ -91,34 +71,17 @@ export const useSupplementStore = create<SupplementState>((set, get) => ({
   toggleSubscription: async (userId, supplementId) => {
     if (!userId) return;
     
-    const { userSupplements } = get();
-    const isSubscribed = userSupplements.includes(supplementId);
-    
     try {
-      if (isSubscribed) {
-        // Remove subscription
-        await supabase
-          .from('user_supplements')
-          .delete()
-          .eq('user_id', userId)
-          .eq('supplement_id', supplementId);
-        
-        set({ 
-          userSupplements: userSupplements.filter(id => id !== supplementId) 
-        });
+      await supplementApi.toggleSubscription(userId, supplementId);
+      
+      // Update local state based on the current subscription status
+      const { userSupplements } = get();
+      const isCurrentlySubscribed = userSupplements.includes(supplementId);
+      
+      if (isCurrentlySubscribed) {
+        set({ userSupplements: userSupplements.filter(id => id !== supplementId) });
       } else {
-        // Add subscription
-        await supabase
-          .from('user_supplements')
-          .insert({
-            user_id: userId,
-            supplement_id: supplementId,
-            subscription_active: true
-          });
-        
-        set({ 
-          userSupplements: [...userSupplements, supplementId] 
-        });
+        set({ userSupplements: [...userSupplements, supplementId] });
       }
     } catch (err) {
       logError('Error toggling subscription', err);
@@ -132,26 +95,28 @@ export const useSupplementStore = create<SupplementState>((set, get) => ({
     }
     
     try {
+      const { supplements } = get();
+      
+      // Calculate total price
+      const totalPrice = stackData.supplements.reduce((total, supplementId) => {
+        const supplement = supplements.find(s => s.id === supplementId);
+        return total + (supplement?.price_aed || 0);
+      }, 0);
+      
       const newStack: Partial<SupplementStack> = {
         name: stackData.name,
         description: stackData.description || '',
         category: stackData.category || 'Custom',
         supplements: stackData.supplements,
-        total_price: calculateStackPrice(get().supplements, stackData.supplements),
+        total_price: totalPrice,
       };
       
-      const { data, error } = await supabase
-        .from('supplement_stacks')
-        .insert(newStack)
-        .select()
-        .single();
-      
-      if (error) throw error;
+      const createdStack = await supplementApi.createStack(newStack);
       
       // Update local state
-      set({ stacks: [...get().stacks, data] });
+      set({ stacks: [...get().stacks, createdStack] });
       
-      return data;
+      return createdStack;
     } catch (err) {
       logError('Error creating stack', err);
       return null;
@@ -183,27 +148,12 @@ export const useSupplementStore = create<SupplementState>((set, get) => ({
     if (!userId) return;
     
     try {
-      const { error } = await supabase
-        .from('supplement_stacks')
-        .delete()
-        .eq('id', stackId);
-      
-      if (error) throw error;
+      await supplementApi.deleteStack(stackId);
       
       // Update local state
-      set({ 
-        stacks: get().stacks.filter(stack => stack.id !== stackId) 
-      });
+      set({ stacks: get().stacks.filter(stack => stack.id !== stackId) });
     } catch (err) {
       logError('Error deleting stack', err);
     }
   }
 }));
-
-// Helper function to calculate stack price
-function calculateStackPrice(supplements: Supplement[], stackSupplements: string[]): number {
-  return stackSupplements.reduce((total, supplementId) => {
-    const supplement = supplements.find(s => s.id === supplementId);
-    return total + (supplement?.price_aed || 0);
-  }, 0);
-}
