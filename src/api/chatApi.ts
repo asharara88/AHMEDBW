@@ -1,6 +1,7 @@
 import { apiClient } from './apiClient';
 import { supabase } from '../lib/supabaseClient';
 import { logError } from '../utils/logger';
+import { openaiApi } from './openaiApi';
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
@@ -28,14 +29,21 @@ export const chatApi = {
         device: "Apple Watch"
       };
       
-      // Call the chat-assistant function
-      const response = await apiClient.callFunction<any>(
-        'chat-assistant',
-        { messages: formattedMessages, userId, context },
-        'Failed to get response from assistant'
-      );
+      // Use OpenAI API directly instead of Supabase Edge Function
+      const lastMessage = formattedMessages[formattedMessages.length - 1].content;
+      const response = await openaiApi.generateResponse(lastMessage, context);
       
-      return response.choices?.[0]?.message?.content || '';
+      // Save to chat history if userId is provided
+      if (userId) {
+        try {
+          await this.saveChatMessage(userId, lastMessage, response);
+        } catch (error) {
+          logError('Failed to save chat message', error);
+          // Continue even if saving fails
+        }
+      }
+      
+      return response;
     } catch (error) {
       logError('Error in chat message', error);
       throw error;

@@ -1,6 +1,7 @@
 import { apiClient } from './apiClient';
 import { supabase } from '../lib/supabaseClient';
 import type { Supplement, SupplementStack } from '../types/supplements';
+import { openaiApi } from './openaiApi';
 
 export const supplementApi = {
   /**
@@ -131,13 +132,6 @@ export const supplementApi = {
       userType: 'health optimizer'
     };
     
-    return apiClient.callFunction<any>(
-      'openai-proxy',
-      { 
-        messages: [{ role: 'user', content: prompt }],
-        context
-      },
-      'Failed to get supplement recommendations'
-    ).then(data => data.choices?.[0]?.message?.content || '');
+    return openaiApi.generateResponse(prompt, context);
   }
 };

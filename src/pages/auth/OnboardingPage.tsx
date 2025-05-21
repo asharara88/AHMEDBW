@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useSupabase } from '../../contexts/SupabaseContext';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuthStore } from '../../store';
 import OnboardingForm from '../../components/auth/OnboardingForm';
 import ConversationalOnboarding from '../../components/onboarding/ConversationalOnboarding';
 import { AlertCircle, CheckCircle } from 'lucide-react';
@@ -15,7 +15,7 @@ const OnboardingPage = () => {
   const [useConversational, setUseConversational] = useState(true);
   
   const { supabase } = useSupabase();
-  const { user, checkOnboardingStatus, updateUserProfile } = useAuth();
+  const { user, checkOnboardingStatus, updateProfile } = useAuthStore();
   const navigate = useNavigate();
   
   // Check if user is logged in and has already completed onboarding
@@ -116,7 +116,7 @@ const OnboardingPage = () => {
       }
       
       // Update auth context with profile data
-      await updateUserProfile({
+      await updateProfile({
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: user.email || '',

@@ -5,3 +5,4 @@ export * from './chatApi';
 export * from './healthApi';
 export * from './supplementApi';
 export * from './userApi';
+export * from './openaiApi';

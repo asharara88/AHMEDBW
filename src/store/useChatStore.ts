@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { chatApi, ChatMessage } from '../api/chatApi';
 import { logError } from '../utils/logger';
+import { openaiApi } from '../api/openaiApi';
 
 interface ChatState {
   messages: ChatMessage[];
@@ -33,17 +34,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
       
       set({ messages: [...get().messages, userMessage] });
       
-      // Format messages for the API
-      const apiMessages = get().messages.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
-      
-      // Send message to API
-      const response = await chatApi.sendMessage([...apiMessages, {
-        role: 'user',
-        content: message
-      }], userId);
+      // Use OpenAI API directly
+      const response = await openaiApi.generateResponse(message, { userId });
       
       // Add assistant response to state
       const assistantMessage: ChatMessage = {
@@ -56,6 +48,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
         messages: [...get().messages, assistantMessage],
         loading: false 
       });
+      
+      // Save to chat history if userId is provided
+      if (userId) {
+        try {
+          await chatApi.saveChatMessage(userId, message, response);
+        } catch (error) {
+          logError('Failed to save chat message', error);
+          // Continue even if saving fails
+        }
+      }
       
       return response;
     } catch (err: any) {

@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Loader, AlertCircle, MessageCircle } from 'lucide-react';
-import { useChatApi } from '../../hooks/useChatApi';
+import { Send, Loader, MessageCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { openaiApi } from '../../api/openaiApi';
+import ApiErrorDisplay from '../common/ApiErrorDisplay';
+import { ApiError, ErrorType } from '../../api/apiClient';
 
 export default function CoachChat() {
   const [input, setInput] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
   const { user, isDemo } = useAuth();
-  const { sendMessage } = useChatApi();
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -20,13 +21,16 @@ export default function CoachChat() {
     setResponse('');
 
     try {
-      const messages = [{ role: 'user', content: input }];
       const userId = user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined);
       
-      const content = await sendMessage(messages, userId);
+      const content = await openaiApi.generateResponse(input, { userId });
       setResponse(content);
     } catch (err: any) {
-      setError(err.message || "Failed to fetch");
+      const apiError: ApiError = {
+        type: ErrorType.UNKNOWN,
+        message: err.message || "Failed to fetch"
+      };
+      setError(apiError);
       console.error("Chat error:", err);
     } finally {
       setLoading(false);
@@ -78,12 +82,7 @@ export default function CoachChat() {
           </button>
         </div>
 
-        {error && (
-          <div className="mt-4 flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error">
-            <AlertCircle className="h-5 w-5" />
-            <p>{error}</p>
-          </div>
-        )}
+        {error && <ApiErrorDisplay error={error} className="mt-4" />}
         
         {response && (
           <motion.div
