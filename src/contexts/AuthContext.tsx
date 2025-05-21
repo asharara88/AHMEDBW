@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { useSupabase } from './SupabaseContext';
+import { logError, logInfo, logWarning } from '../utils/logger';
 
 interface AuthContextType {
   user: User | null;
@@ -80,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .maybeSingle();
       
       if (error) {
-        console.error('Error checking onboarding status:', error);
+        logError('Error checking onboarding status', error);
         return false;
       }
       
@@ -97,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
         
         if (insertError) {
-          console.error('Error creating default profile:', insertError);
+          logError('Error creating default profile', insertError);
         }
         return false;
       }
@@ -119,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       return false;
     } catch (err) {
-      console.error('Unexpected error checking onboarding status:', err);
+      logError('Unexpected error checking onboarding status', err);
       return false;
     }
   };
@@ -156,7 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       
       if (metadataError) {
-        console.error('Error updating user metadata:', metadataError);
+        logWarning('Error updating user metadata', metadataError);
       }
       
       // Save to localStorage for future use
@@ -175,7 +176,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       return { error: null };
     } catch (err) {
-      console.error('Error updating profile:', err);
+      logError('Error updating profile', err);
       return { error: err };
     }
   };
@@ -187,19 +188,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // If no valid refresh token exists, skip the refresh attempt
       if (!current.session?.refresh_token) {
-        console.warn('No refresh token available, skipping refresh');
+        logWarning('No refresh token available, skipping refresh');
         return;
       }
 
       const { data, error } = await supabase.auth.refreshSession();
       
       if (error) {
-        console.error('Error refreshing session:', error);
+        logError('Error refreshing session', error);
         
         // If the error is about invalid refresh token, clear the session
         if (error.message.includes('Invalid Refresh Token') || 
             error.message.includes('Refresh Token Not Found')) {
-          console.log('Invalid refresh token detected, clearing session');
+          logInfo('Invalid refresh token detected, clearing session');
           await supabase.auth.signOut();
           setUser(null);
           setSession(null);
@@ -215,7 +216,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(data.session);
       setUser(data.session?.user ?? null);
     } catch (err) {
-      console.error('Unexpected error during session refresh:', err);
+      logError('Unexpected error during session refresh', err);
     }
   };
 
@@ -231,7 +232,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Error getting session:', error);
+          logError('Error getting session', error);
           setLoading(false);
           return;
         }
@@ -255,7 +256,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
       } catch (err) {
-        console.error('Error initializing auth:', err);
+        logError('Error initializing auth', err);
       } finally {
         setLoading(false);
       }
@@ -270,7 +271,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .maybeSingle();
         
         if (error) {
-          console.error('Error loading user profile:', error);
+          logError('Error loading user profile', error);
           return;
         }
         
@@ -287,7 +288,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           localStorage.setItem('biowell-user-data', JSON.stringify(profileData));
         }
       } catch (err) {
-        console.error('Error loading user profile:', err);
+        logError('Error loading user profile', err);
       }
     };
 
@@ -297,7 +298,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event);
+        logInfo('Auth state changed', event);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -308,7 +309,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // If the event is SIGNED_OUT, clear the session and profile
         if (event === 'SIGNED_OUT') {
-          console.log('User signed out');
+          logInfo('User signed out');
           setUser(null);
           setSession(null);
           setUserProfile(null);
@@ -327,7 +328,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // If session expires in less than 5 minutes (300 seconds), refresh it
         if (expiresAt && expiresAt - now < 300) {
-          console.log('Session expiring soon, refreshing...');
+          logInfo('Session expiring soon, refreshing...');
           await refreshSession();
         }
       }
@@ -349,7 +350,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const captchaSecretKey = import.meta.env.VITE_CAPTCHA_SECRET_KEY;
       
       if (!captchaSecretKey) {
-        console.warn('Captcha secret key not found in environment variables');
+        logWarning('Captcha secret key not found in environment variables');
         return null;
       }
       
@@ -357,7 +358,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // In production, this would be a real API call to verify the captcha
       return `${captchaSecretKey}-${Date.now()}`;
     } catch (error) {
-      console.error('Error generating captcha token:', error);
+      logError('Error generating captcha token', error);
       return null;
     }
   };
@@ -376,7 +377,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       
       if (error) {
-        console.error('Sign in error:', error);
+        logError('Sign in error', error);
         return { error };
       }
       
@@ -408,7 +409,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       return { error: null };
     } catch (err) {
-      console.error('Unexpected error during sign in:', err);
+      logError('Unexpected error during sign in', err);
       return { error: err };
     }
   };
@@ -427,7 +428,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       
       if (error) {
-        console.error('Sign up error:', error);
+        logError('Sign up error', error);
         return { data: null, error };
       }
       
@@ -444,13 +445,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
         
         if (profileError) {
-          console.error('Error creating default profile:', profileError);
+          logError('Error creating default profile', profileError);
         }
       }
       
       return { data, error: null };
     } catch (err) {
-      console.error('Unexpected error during sign up:', err);
+      logError('Unexpected error during sign up', err);
       return { data: null, error: err };
     }
   };
@@ -460,7 +461,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!isDemo) {
         const { error } = await supabase.auth.signOut();
         if (error) {
-          console.error('Sign out error:', error);
+          logError('Sign out error', error);
           throw error;
         }
       }
@@ -472,7 +473,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Clear user data from localStorage
       localStorage.removeItem('biowell-user-data');
     } catch (err) {
-      console.error('Unexpected error during sign out:', err);
+      logError('Unexpected error during sign out', err);
       // Even if there's an error, we should still clear the local state
       setIsDemo(false);
       setUser(null);
