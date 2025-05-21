@@ -1,0 +1,39 @@
+import { useState } from 'react';
+import { ShoppingCart } from 'lucide-react';
+import { useCart } from './CartProvider';
+import ShoppingCartComponent from './ShoppingCart';
+import CartButton from './CartButton';
+
+const CartWidget = () => {
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const { items } = useCart();
+  const itemCount = items.reduce((count, item) => count + item.quantity, 0);
+
+  return (
+    <>
+      <CartButton onClick={() => setIsCartOpen(true)} />
+      
+      <ShoppingCartComponent
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+      />
+      
+      {/* Mobile floating cart button */}
+      <div className="fixed bottom-4 right-4 z-40 md:hidden">
+        <button
+          onClick={() => setIsCartOpen(true)}
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-lg"
+        >
+          <ShoppingCart className="h-6 w-6" />
+          {itemCount > 0 && (
+            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-error text-xs font-bold text-white">
+              {itemCount}
+            </span>
+          )}
+        </button>
+      </div>
+    </>
+  );
+};
+
+export default CartWidget;

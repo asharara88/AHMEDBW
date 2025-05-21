@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Minus, ExternalLink, AlertCircle, Info, ChevronDown, ChevronUp, ShoppingCart, Heart, Star } from 'lucide-react';
 import { Supplement } from '../../types/supplements';
+import { useCart } from '../shopping/CartProvider';
 
 interface SupplementCardProps {
   supplement: Supplement;
   onAddToStack?: () => void;
   onRemoveFromStack?: () => void;
-  onAddToCart?: () => void;
   onViewDetails?: () => void;
   isInStack?: boolean;
 }
@@ -16,11 +16,11 @@ const SupplementCard = ({
   supplement, 
   onAddToStack,
   onRemoveFromStack,
-  onAddToCart,
   onViewDetails,
   isInStack = false 
 }: SupplementCardProps) => {
   const [showDetails, setShowDetails] = useState(false);
+  const { addItem } = useCart();
   
   // Safely access properties with fallbacks
   const categories = supplement?.categories || [];
@@ -35,6 +35,10 @@ const SupplementCard = ({
   };
   
   const rating = generateRating(supplement.id);
+
+  const handleAddToCart = () => {
+    addItem(supplement);
+  };
 
   return (
     <motion.div
@@ -133,7 +137,7 @@ const SupplementCard = ({
             </button>
             
             <button
-              onClick={onAddToCart}
+              onClick={handleAddToCart}
               className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-dark"
               aria-label="Add to cart"
             >
