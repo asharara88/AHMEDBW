@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSupabase } from '../../contexts/SupabaseContext';
 import { stripeProducts } from '../../stripe-config';
 import { AlertCircle, CheckCircle, CreditCard, Loader } from 'lucide-react';
 
@@ -20,6 +21,7 @@ export default function StripeProductCard({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
+  const { supabase } = useSupabase();
   const navigate = useNavigate();
 
   const product = stripeProducts[productId];
