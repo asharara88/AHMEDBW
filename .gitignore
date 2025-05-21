@@ -7,26 +7,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Dependencies
 node_modules
-.pnp
-.pnp.js
-
-# Testing
-coverage
-*.lcov
-.nyc_output
-
-# Build
 dist
 dist-ssr
 *.local
-build
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-!.vscode/settings.json
 .idea
 .DS_Store
 *.suo
@@ -43,7 +31,12 @@ build
 # Supabase
 .supabase
 
+# Build files
+/build
+
+# Testing
+/coverage
+
 # Misc
-*.pem
-.vercel
-.netlify
+.cache
+.temp
