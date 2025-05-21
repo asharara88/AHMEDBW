@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useToggle } from '../../hooks/useToggle';
 import { motion } from 'framer-motion';
 import { Plus, Minus, ExternalLink, AlertCircle, Info, ChevronDown, ChevronUp, ShoppingCart, Heart, Star } from 'lucide-react';
 import { Supplement } from '../../types/supplements';
@@ -20,7 +20,7 @@ const SupplementCard = ({
   onViewDetails,
   isInStack = false 
 }: SupplementCardProps) => {
-  const [showDetails, setShowDetails] = useState(false);
+  const { value: showDetails, toggle: toggleDetails } = useToggle(false);
   
   // Safely access properties with fallbacks
   const categories = supplement?.categories || [];
@@ -145,7 +145,7 @@ const SupplementCard = ({
 
         {/* Expand/Collapse Toggle */}
         <button
-          onClick={() => setShowDetails(!showDetails)}
+          onClick={toggleDetails}
           className="mt-3 flex w-full items-center justify-center gap-1 rounded-lg border border-[hsl(var(--color-border))] px-3 py-2 text-xs text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
           aria-expanded={showDetails}
           aria-controls={`details-${supplement.id}`}

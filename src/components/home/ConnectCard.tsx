@@ -1,13 +1,9 @@
-import { useState } from 'react';
+import { useToggle } from '../../hooks/useToggle';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Watch, CheckCircle } from 'lucide-react';
 
 const ConnectCard = () => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
-  };
+  const { value: isExpanded, toggle: toggleExpanded } = useToggle(false);
 
   return (
     <motion.div
