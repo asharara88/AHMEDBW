@@ -217,23 +217,22 @@ const ConversationalOnboarding = () => {
     }
     
     try {
-      // Update profile in database
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          first_name: data.firstName,
-          last_name: data.lastName,
-          mobile: data.mobile,
-          onboarding_completed: true,
-          updated_at: new Date().toISOString(),
-        });
-      
-      if (error) throw error;
-      
-      // Save health goals to quiz_responses if the table exists
-      try {
-        await supabase
+      // Use Promise.allSettled to allow failures in quiz/meta without blocking main onboarding
+      const results = await Promise.allSettled([
+        // Update profile in database
+        supabase
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            first_name: data.firstName,
+            last_name: data.lastName,
+            mobile: data.mobile,
+            onboarding_completed: true,
+            updated_at: new Date().toISOString(),
+          }),
+        
+        // Save quiz responses
+        supabase
           .from('quiz_responses')
           .upsert({
             user_id: user.id,
@@ -241,13 +240,26 @@ const ConversationalOnboarding = () => {
             gender: data.gender,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
-          });
-      } catch (err) {
-        // If quiz_responses table doesn't exist, just log the error but continue
-        console.warn('Could not save health goals to quiz_responses:', err);
+          }),
+        
+        // Update user metadata
+        supabase.auth.updateUser({
+          data: { 
+            onboarding_completed: true,
+            first_name: data.firstName,
+            last_name: data.lastName,
+            mobile: data.mobile,
+            gender: data.gender
+          }
+        })
+      ]);
+      
+      // Check for errors in the main profile update
+      if (results[0].status === 'rejected') {
+        throw results[0].reason;
       }
       
-      // Update auth context
+      // Update auth context with profile data
       await updateProfile({
         firstName: data.firstName,
         lastName: data.lastName,
@@ -278,7 +290,7 @@ const ConversationalOnboarding = () => {
         navigate('/dashboard');
       }, 3000);
     } catch (err) {
-      console.error('Error saving onboarding data:', err);
+      logError('Error saving onboarding data:', err);
       throw err;
     }
   };

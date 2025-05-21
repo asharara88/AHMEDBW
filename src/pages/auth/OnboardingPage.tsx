@@ -7,6 +7,21 @@ import OnboardingForm from '../../components/auth/OnboardingForm';
 import ConversationalOnboarding from '../../components/onboarding/ConversationalOnboarding';
 import { AlertCircle, CheckCircle } from 'lucide-react';
 import Logo from '../../components/common/Logo';
+import { logError } from '../../utils/logger';
+
+// Define a proper interface for form data
+interface OnboardingFormData {
+  firstName: string;
+  lastName: string;
+  mobile?: string;
+  age?: number;
+  gender?: string;
+  healthGoals?: string[];
+  sleepHours?: number;
+  exerciseFrequency?: string;
+  dietPreference?: string;
+  stressLevel?: string;
+}
 
 const OnboardingPage = () => {
   const [loading, setLoading] = useState(false);
@@ -32,7 +47,7 @@ const OnboardingPage = () => {
           navigate('/dashboard');
         }
       } catch (err) {
-        console.error('Error checking onboarding status:', err);
+        logError('Error checking onboarding status', err);
         setError('Error checking onboarding status. Please try again.');
       }
     };
@@ -40,7 +55,7 @@ const OnboardingPage = () => {
     checkUserStatus();
   }, [user, navigate, checkOnboardingStatus]);
   
-  const handleOnboardingComplete = async (formData: any) => {
+  const handleOnboardingComplete = async (formData: OnboardingFormData) => {
     if (!user) {
       setError('You must be logged in to complete onboarding');
       return;
@@ -50,69 +65,54 @@ const OnboardingPage = () => {
     setError(null);
     
     try {
-      // First check if profile exists
-      const { data: existingProfile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', user.id)
-        .maybeSingle();
-      
-      if (profileError && !profileError.message.includes('contains 0 rows')) {
-        throw profileError;
-      }
-      
-      // Update the profile with onboarding data
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          email: user.email,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          mobile: formData.mobile,
-          onboarding_completed: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
-      
-      if (updateError) throw updateError;
-      
-      // Save quiz responses if applicable
-      if (formData.healthGoals?.length > 0 || formData.age || formData.gender) {
-        const { error: quizError } = await supabase
-          .from('quiz_responses')
-          .insert({
-            user_id: user.id,
-            age: formData.age || null,
-            gender: formData.gender || null,
-            health_goals: formData.healthGoals || [],
-            sleep_hours: formData.sleepHours || null,
-            exercise_frequency: formData.exerciseFrequency || null,
-            diet_preference: formData.dietPreference || null,
-            stress_level: formData.stressLevel || null
-          });
+      // Use Promise.allSettled to allow failures in quiz/meta without blocking main onboarding
+      const results = await Promise.allSettled([
+        // Update profile in database
+        supabase
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            email: user.email,
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            mobile: formData.mobile,
+            onboarding_completed: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }),
         
-        if (quizError) {
-          console.error('Error saving quiz responses:', quizError);
-          // Continue even if quiz responses fail
-        }
-      }
+        // Save quiz responses
+        supabase
+          .from('quiz_responses')
+          .upsert({
+            user_id: user.id,
+            age: formData.age,
+            gender: formData.gender,
+            health_goals: formData.healthGoals,
+            sleep_hours: formData.sleepHours,
+            exercise_frequency: formData.exerciseFrequency,
+            diet_preference: formData.dietPreference,
+            stress_level: formData.stressLevel,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }),
+        
+        // Update user metadata
+        supabase.auth.updateUser({
+          data: { 
+            onboarding_completed: true,
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            mobile: formData.mobile,
+            age: formData.age,
+            gender: formData.gender
+          }
+        })
+      ]);
       
-      // Update user metadata
-      const { error: metadataError } = await supabase.auth.updateUser({
-        data: { 
-          onboarding_completed: true,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          mobile: formData.mobile,
-          age: formData.age,
-          gender: formData.gender
-        }
-      });
-      
-      if (metadataError) {
-        console.error('Error updating user metadata:', metadataError);
-        // Continue even if metadata update fails
+      // Check for errors in the main profile update
+      if (results[0].status === 'rejected') {
+        throw results[0].reason;
       }
       
       // Update auth context with profile data
@@ -148,7 +148,7 @@ const OnboardingPage = () => {
         navigate('/dashboard');
       }, 2000);
     } catch (err: any) {
-      console.error('Error completing onboarding:', err);
+      logError('Error completing onboarding', err);
       setError(err.message || 'An error occurred during onboarding');
     } finally {
       setLoading(false);
