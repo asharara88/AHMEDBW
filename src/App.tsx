@@ -14,6 +14,8 @@ import ChatPage from './pages/chat/ChatPage';
 import QuickTipPage from './pages/chat/QuickTipPage';
 import SupplementsPage from './pages/supplements/SupplementsPage';
 import CheckoutPage from './pages/checkout/CheckoutPage';
+import CheckoutSuccessPage from './pages/checkout/CheckoutSuccessPage';
+import CheckoutCancelPage from './pages/checkout/CheckoutCancelPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import PricingPage from './pages/PricingPage';
 import HowItWorksPage from './pages/HowItWorksPage';
@@ -54,6 +56,16 @@ function App() {
               <Route path="checkout" element={
                 <ProtectedRoute>
                   <CheckoutPage />
+                </ProtectedRoute>
+              } />
+              <Route path="checkout/success" element={
+                <ProtectedRoute>
+                  <CheckoutSuccessPage />
+                </ProtectedRoute>
+              } />
+              <Route path="checkout/cancel" element={
+                <ProtectedRoute>
+                  <CheckoutCancelPage />
                 </ProtectedRoute>
               } />
               <Route path="profile" element={

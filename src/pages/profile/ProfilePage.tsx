@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { CheckCircle, AlertCircle, Sun, Moon, Laptop } from 'lucide-react';
 import ThemeStatus from '../../components/ThemeStatus';
 import { useTheme } from '../../contexts/ThemeContext';
+import SubscriptionStatus from '../../components/common/SubscriptionStatus';
 
 const DEMO_PROFILE = {
   first_name: 'Demo',
@@ -170,6 +171,11 @@ const ProfilePage = () => {
             <span>{message.text}</span>
           </div>
         )}
+        
+        {/* Subscription Status */}
+        <div className="mb-6">
+          <SubscriptionStatus />
+        </div>
         
         <div className="rounded-xl bg-[hsl(var(--color-card))] p-6 shadow-md">
           <h2 className="mb-4 text-lg font-semibold">Personal Information</h2>
