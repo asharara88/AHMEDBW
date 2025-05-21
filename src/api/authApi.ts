@@ -4,7 +4,7 @@ import { logError, logInfo } from '../utils/logger';
 import type { User, Session } from '@supabase/supabase-js';
 import type { UserProfile } from '../store/useAuthStore';
 
-// Helper function to generate a captcha token
+// Helper function to generate a Google reCAPTCHA token
 const generateCaptchaToken = async () => {
   try {
     // For Google reCAPTCHA integration

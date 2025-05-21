@@ -33,7 +33,8 @@ export const apiClient = {
         // Handle Supabase errors
         const apiError: ApiError = {
           message: error.message || errorMessage,
-          originalError: error
+          originalError: error,
+          type: ErrorType.UNKNOWN
         };
         
         // Determine error type
@@ -137,7 +138,8 @@ export const apiClient = {
         const apiError: ApiError = {
           message: errorData.error?.message || errorMessage,
           status: response.status,
-          originalError: errorData
+          originalError: errorData,
+          type: ErrorType.UNKNOWN
         };
         
         // Determine error type based on status code
@@ -147,8 +149,6 @@ export const apiClient = {
           apiError.type = ErrorType.VALIDATION;
         } else if (response.status >= 500) {
           apiError.type = ErrorType.SERVER;
-        } else {
-          apiError.type = ErrorType.UNKNOWN;
         }
         
         throw apiError;

@@ -13,6 +13,8 @@ export interface OnboardingFormData {
   exerciseFrequency?: string;
   dietPreference?: string;
   stressLevel?: string;
+  mainGoal?: string;
+  supplementHabits?: string[];
 }
 
 export const onboardingApi = {
@@ -117,6 +119,8 @@ export const onboardingApi = {
       exerciseFrequency: data.exerciseFrequency,
       dietPreference: data.dietPreference,
       stressLevel: data.stressLevel,
+      mainGoal: data.mainGoal,
+      supplementHabits: data.supplementHabits,
       onboardingCompleted: true
     }));
   }

@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { apiClient, ApiError, ErrorType } from './apiClient';
+import { ApiError, ErrorType } from './apiClient';
 import { logError } from '../utils/logger';
 
 // Initialize OpenAI client

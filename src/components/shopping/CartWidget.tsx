@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from './CartProvider';
-import ShoppingCartComponent from './ShoppingCart';
+import ShoppingCartComponent from '../supplements/ShoppingCart';
 import CartButton from './CartButton';
 
 const CartWidget = () => {
