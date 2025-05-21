@@ -59,7 +59,8 @@ export function useChatApi() {
             device: "Apple Watch"
           }
         }),
-        signal: controller.signal
+        signal: controller.signal,
+        credentials: 'include'
       });
 
       clearTimeout(timeoutId);
