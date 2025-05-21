@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabaseClient';
 import { logError, logInfo } from '../utils/logger';
 import type { User, Session } from '@supabase/supabase-js';
 import type { UserProfile } from '../store/useAuthStore';
+import { refreshSessionIfNeeded } from '../lib/sessionManager';
 
 // Helper function to generate a Google reCAPTCHA token
 const generateCaptchaToken = async () => {
@@ -123,46 +124,10 @@ export const authApi = {
   },
 
   /**
-   * Get the current session
-   */
-  async getCurrentSession(): Promise<Session | null> {
-    try {
-      const { data, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        throw error;
-      }
-      
-      return data.session;
-    } catch (error) {
-      logError('Get session error', error);
-      throw error;
-    }
-  },
-
-  /**
    * Refresh the current session
    */
   async refreshSession(): Promise<Session | null> {
-    try {
-      const { data, error } = await supabase.auth.refreshSession();
-      
-      if (error) {
-        // If the error is about invalid refresh token, clear the session
-        if (error.message.includes('Invalid Refresh Token') || 
-            error.message.includes('Refresh Token Not Found')) {
-          logInfo('Invalid refresh token detected, clearing session');
-          await supabase.auth.signOut();
-        }
-        
-        throw error;
-      }
-      
-      return data.session;
-    } catch (error) {
-      logError('Refresh session error', error);
-      throw error;
-    }
+    return refreshSessionIfNeeded();
   },
 
   /**

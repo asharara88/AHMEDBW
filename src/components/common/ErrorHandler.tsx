@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ApiError, ErrorType } from '../../api/apiClient';
 import { useAuthStore } from '../../store';
 import { logError } from '../../utils/logger';
+import { refreshSessionIfNeeded } from '../../lib/sessionManager';
 
 /**
  * Global error handler component that handles API errors
@@ -27,16 +28,18 @@ const ErrorHandler = () => {
           
           // Try to refresh the session
           try {
-            await refreshSession();
-          } catch (refreshError) {
-            // If refresh fails, redirect to login
-            logError('Session refresh failed', refreshError);
-            
-            // Save the current URL to redirect back after login
-            if (window.location.pathname !== '/login') {
-              sessionStorage.setItem('redirectUrl', window.location.pathname);
+            const session = await refreshSessionIfNeeded();
+            if (!session) {
+              // If refresh fails, redirect to login
+              // Save the current URL to redirect back after login
+              if (window.location.pathname !== '/login') {
+                sessionStorage.setItem('redirectUrl', window.location.pathname);
+              }
+              
+              navigate('/login', { replace: true });
             }
-            
+          } catch (refreshError) {
+            logError('Session refresh failed', refreshError);
             navigate('/login', { replace: true });
           }
         }

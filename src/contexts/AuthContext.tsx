@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useAuthStore } from '../store';
 import { supabase } from '../lib/supabaseClient';
 import { logError, logInfo } from '../utils/logger';
+import { restoreSession, refreshSessionIfNeeded } from '../lib/sessionManager';
 
 // Create context with the same shape as the auth store
 const AuthContext = createContext<ReturnType<typeof useAuthStore.getState> | undefined>(undefined);
@@ -20,28 +21,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           useAuthStore.setState({ profile: userData });
         }
         
-        const { data, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          logError('Error getting session', error);
-          authStore.setLoading(false);
-          return;
-        }
+        // Get the current session
+        const session = await restoreSession();
         
         useAuthStore.setState({ 
-          session: data.session,
-          user: data.session?.user ?? null,
+          session,
+          user: session?.user ?? null,
           loading: false
         });
         
         // If session exists but is close to expiry, refresh it
-        if (data.session) {
-          const expiresAt = data.session.expires_at;
+        if (session) {
+          const expiresAt = session.expires_at;
           const now = Math.floor(Date.now() / 1000);
           
           // If session expires in less than 5 minutes (300 seconds), refresh it
           if (expiresAt && expiresAt - now < 300) {
-            await authStore.refreshSession();
+            await refreshSessionIfNeeded();
           }
         }
       } catch (err) {

@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { authApi } from '../api/authApi';
 import { logError, logInfo } from '../utils/logger';
 import type { User, Session } from '@supabase/supabase-js';
+import { restoreSession, refreshSessionIfNeeded } from '../lib/sessionManager';
 
 export interface UserProfile {
   firstName: string;
@@ -175,12 +176,14 @@ export const useAuthStore = create<AuthState>()(
       
       refreshSession: async () => {
         try {
-          const session = await authApi.refreshSession();
+          const session = await refreshSessionIfNeeded();
           
-          set({ 
-            session,
-            user: session?.user ?? null
-          });
+          if (session) {
+            set({ 
+              session,
+              user: session.user ?? null
+            });
+          }
         } catch (err) {
           logError('Unexpected error during session refresh', err);
         }
