@@ -34,10 +34,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
       set({ messages: [...get().messages, userMessage] });
       
       // Format messages for the API
-      const apiMessages = get().messages.concat(userMessage);
+      const apiMessages = get().messages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
       
       // Send message to API
-      const response = await chatApi.sendMessage(apiMessages, userId);
+      const response = await chatApi.sendMessage([...apiMessages, {
+        role: 'user',
+        content: message
+      }], userId);
       
       // Add assistant response to state
       const assistantMessage: ChatMessage = {

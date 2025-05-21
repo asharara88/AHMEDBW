@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { supabase } from '../lib/supabaseClient';
+import { healthApi } from '../api/healthApi';
 import { logError } from '../utils/logger';
 
 export interface HealthMetric {
@@ -36,17 +36,10 @@ export const useUserStore = create<UserState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const { data, error } = await supabase
-        .from('health_metrics')
-        .select('*')
-        .eq('user_id', userId)
-        .order('timestamp', { ascending: false });
-      
-      if (error) throw error;
-      
-      set({ healthMetrics: data || [], loading: false });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch health metrics';
+      const metrics = await healthApi.getHealthMetrics(userId);
+      set({ healthMetrics: metrics, loading: false });
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to fetch health metrics';
       logError('Error fetching health metrics', err);
       set({ error: errorMessage, loading: false });
     }
@@ -58,26 +51,13 @@ export const useUserStore = create<UserState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const newMetric = {
-        ...metric,
-        user_id: userId,
-        timestamp: metric.timestamp || new Date().toISOString()
-      };
-      
-      const { data, error } = await supabase
-        .from('health_metrics')
-        .insert(newMetric)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      
+      const newMetric = await healthApi.addHealthMetric(userId, metric);
       set({ 
-        healthMetrics: [data, ...get().healthMetrics],
+        healthMetrics: [newMetric, ...get().healthMetrics],
         loading: false 
       });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to add health metric';
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to add health metric';
       logError('Error adding health metric', err);
       set({ error: errorMessage, loading: false });
     }
@@ -87,12 +67,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const { error } = await supabase
-        .from('health_metrics')
-        .update(updates)
-        .eq('id', metricId);
-      
-      if (error) throw error;
+      await healthApi.updateHealthMetric(metricId, updates);
       
       set({ 
         healthMetrics: get().healthMetrics.map(metric => 
@@ -100,8 +75,8 @@ export const useUserStore = create<UserState>((set, get) => ({
         ),
         loading: false 
       });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update health metric';
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to update health metric';
       logError('Error updating health metric', err);
       set({ error: errorMessage, loading: false });
     }
@@ -111,19 +86,14 @@ export const useUserStore = create<UserState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const { error } = await supabase
-        .from('health_metrics')
-        .delete()
-        .eq('id', metricId);
-      
-      if (error) throw error;
+      await healthApi.deleteHealthMetric(metricId);
       
       set({ 
         healthMetrics: get().healthMetrics.filter(metric => metric.id !== metricId),
         loading: false 
       });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete health metric';
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to delete health metric';
       logError('Error deleting health metric', err);
       set({ error: errorMessage, loading: false });
     }

@@ -10,7 +10,10 @@ interface ShoppingCartProps {
   onClose: () => void;
 }
 
-const ShoppingCart = ({ isOpen, onClose }: ShoppingCartProps) => {
+const ShoppingCart = ({
+  isOpen,
+  onClose
+}: ShoppingCartProps) => {
   const { items, total, updateQuantity, removeItem, clearCart } = useCart();
   const navigate = useNavigate();
   

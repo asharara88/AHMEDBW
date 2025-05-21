@@ -1,4 +1,5 @@
 // Main API module that exports all API services
+export * from './apiClient';
 export * from './authApi';
 export * from './chatApi';
 export * from './healthApi';

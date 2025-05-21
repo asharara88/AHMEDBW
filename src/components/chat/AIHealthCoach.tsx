@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, AlertCircle, Info, User } from 'lucide-react';
+import { Send, Loader, Info, User } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { logError } from '../../utils/logger';
@@ -151,7 +151,7 @@ export default function HealthCoach() {
                   <div>{message.content}</div>
                 )}
                 <div className="mt-1 text-xs opacity-70">
-                  {message.timestamp.toLocaleTimeString()}
+                  {message.timestamp?.toLocaleTimeString()}
                 </div>
               </div>
               

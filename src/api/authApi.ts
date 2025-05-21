@@ -7,17 +7,17 @@ import type { UserProfile } from '../store/useAuthStore';
 // Helper function to generate a captcha token
 const generateCaptchaToken = async () => {
   try {
-    // In a real implementation, this would integrate with a captcha provider
-    // For development, we're using a dummy token
-    const captchaSecretKey = import.meta.env.VITE_CAPTCHA_SECRET_KEY;
+    // For Google reCAPTCHA integration
+    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     
-    if (!captchaSecretKey) {
-      logInfo('Captcha secret key not found in environment variables');
+    if (!googleClientId) {
+      logInfo('Google Client ID not found in environment variables');
       return null;
     }
     
-    // Simulate a captcha verification request
-    return `${captchaSecretKey}-${Date.now()}`;
+    // In a real implementation, this would integrate with Google reCAPTCHA
+    // For development, we're using a dummy token
+    return `${googleClientId}-${Date.now()}`;
   } catch (error) {
     logError('Error generating captcha token', error);
     return null;
