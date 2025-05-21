@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { logError } from '../../utils/logger';
 import { motion } from 'framer-motion';
 import { ChevronRight, CreditCard, Truck, ShoppingBag, Check, Shield, ArrowLeft } from 'lucide-react';
 import { Supplement } from '../../types/supplements';
@@ -42,7 +43,7 @@ const CheckoutPage = () => {
       try {
         setCartItems(JSON.parse(savedCart));
       } catch (err) {
-        console.error('Error loading cart from localStorage:', err);
+        logError('Error loading cart from localStorage', err);
       }
     }
   }, []);
@@ -80,7 +81,7 @@ const CheckoutPage = () => {
       alert('Order placed successfully! Thank you for your purchase.');
       navigate('/supplements');
     } catch (error) {
-      console.error('Error placing order:', error);
+      logError('Error placing order', error);
       alert('There was an error processing your order. Please try again.');
     } finally {
       setLoading(false);

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Send, Loader, AlertCircle, MessageCircle } from 'lucide-react';
 import { useChatApi } from '../../hooks/useChatApi';
 import { useAuth } from '../../contexts/AuthContext';
+import { logError } from '../../utils/logger';
 
 export default function CoachChat() {
   const [input, setInput] = useState('');
@@ -26,8 +27,8 @@ export default function CoachChat() {
       const content = await sendMessage(messages, userId);
       setResponse(content);
     } catch (err: any) {
-      setError(err.message || "Failed to fetch");
-      console.error("Chat error:", err);
+      setError(err.message || 'Failed to fetch');
+      logError('Chat error', err);
     } finally {
       setLoading(false);
     }

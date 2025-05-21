@@ -5,6 +5,7 @@ import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Supplement } from '../../types/supplements';
 import ImageWithFallback from '../common/ImageWithFallback';
+import { logError } from '../../utils/logger';
 
 interface StackBuilderProps {
   supplements: Supplement[];
@@ -70,7 +71,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
       
       setActiveStack('sleep-stack');
     } catch (error) {
-      console.error('Error fetching stacks:', error);
+      logError('Error fetching stacks', error);
       setError('Failed to load your supplement stacks');
     } finally {
       setLoading(false);
@@ -107,7 +108,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } catch (error) {
-      console.error('Error creating stack:', error);
+      logError('Error creating stack', error);
       setError('Failed to create stack');
     } finally {
       setLoading(false);
@@ -142,7 +143,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } catch (error) {
-      console.error('Error activating stack:', error);
+      logError('Error activating stack', error);
       setError('Failed to activate stack');
     } finally {
       setLoading(false);
@@ -166,7 +167,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } catch (error) {
-      console.error('Error deleting stack:', error);
+      logError('Error deleting stack', error);
       setError('Failed to delete stack');
     } finally {
       setLoading(false);

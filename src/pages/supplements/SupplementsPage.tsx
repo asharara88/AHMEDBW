@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { logError } from '../../utils/logger';
 import { motion } from 'framer-motion';
 import { Search, ShoppingCart } from 'lucide-react';
 import SupplementCard from '../../components/supplements/SupplementCard';
@@ -66,7 +67,7 @@ const SupplementsPage = () => {
       try {
         setCartItems(JSON.parse(savedCart));
       } catch (err) {
-        console.error('Error loading cart from localStorage:', err);
+        logError('Error loading cart from localStorage', err);
       }
     }
   }, [user]);
@@ -85,7 +86,7 @@ const SupplementsPage = () => {
       if (error) throw error;
       setSupplements(data || []);
     } catch (err) {
-      console.error('Error fetching supplements:', err);
+      logError('Error fetching supplements', err);
     } finally {
       setLoading(false);
     }
@@ -100,7 +101,7 @@ const SupplementsPage = () => {
       if (error) throw error;
       setStacks(data || []);
     } catch (err) {
-      console.error('Error fetching supplement stacks:', err);
+      logError('Error fetching supplement stacks', err);
     }
   };
 
@@ -114,7 +115,7 @@ const SupplementsPage = () => {
       if (error) throw error;
       setUserSupplements(data?.map(us => us.supplement_id) || []);
     } catch (err) {
-      console.error('Error fetching user supplements:', err);
+      logError('Error fetching user supplements', err);
     }
   };
 
@@ -145,7 +146,7 @@ const SupplementsPage = () => {
         setUserSupplements(prev => [...prev, supplementId]);
       }
     } catch (err) {
-      console.error('Error updating subscription:', err);
+      logError('Error updating subscription', err);
     }
   };
 

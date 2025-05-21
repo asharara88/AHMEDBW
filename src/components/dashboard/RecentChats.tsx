@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSupabase } from '../../contexts/SupabaseContext';
+import { logError } from '../../utils/logger';
 import { MessageCircle, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface RecentChatsProps {
@@ -28,7 +29,7 @@ const RecentChats = ({ userId }: RecentChatsProps) => {
         if (error) throw error;
         setChatHistory(data || []);
       } catch (error) {
-        console.error('Error fetching chat history:', error);
+        logError('Error fetching chat history', error);
         
         // Mock data for demo
         setChatHistory([

@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { logError } from './logger';
 
 /**
  * Checks if the current session is valid and refreshes it if needed
@@ -10,7 +11,7 @@ export async function validateSession(): Promise<boolean> {
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     
     if (sessionError) {
-      console.error('Error getting session:', sessionError);
+      logError('Error getting session', sessionError);
       return false;
     }
     
@@ -36,7 +37,7 @@ export async function validateSession(): Promise<boolean> {
       const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
       
       if (refreshError) {
-        console.error('Error refreshing session:', refreshError);
+        logError('Error refreshing session', refreshError);
         
         // If the error is about invalid refresh token, clear the session
         if (refreshError.message.includes('Invalid Refresh Token') || 
@@ -55,7 +56,7 @@ export async function validateSession(): Promise<boolean> {
     // Session is valid and not expiring soon
     return true;
   } catch (error) {
-    console.error('Error validating session:', error);
+    logError('Error validating session', error);
     return false;
   }
 }
@@ -69,7 +70,7 @@ export async function handleAuthError(error: any): Promise<void> {
   if (!error) return;
   
   const errorMessage = error.message || error.toString();
-  console.error('Auth error:', errorMessage);
+  logError('Auth error', errorMessage);
   
   // Handle specific auth errors
   if (errorMessage.includes('Invalid Refresh Token') || 

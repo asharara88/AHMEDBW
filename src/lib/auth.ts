@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import type { User, Session } from '@supabase/supabase-js';
+import { logError } from '../utils/logger';
 
 export interface AuthResponse {
   user: User | null;
@@ -21,7 +22,7 @@ const generateCaptchaToken = async () => {
     // Simulate a captcha verification request
     return `${captchaSecretKey}-${Date.now()}`;
   } catch (error) {
-    console.error('Error generating captcha token:', error);
+    logError('Error generating captcha token', error);
     return null;
   }
 };
@@ -44,14 +45,14 @@ export async function login(email: string, password: string): Promise<AuthRespon
     });
 
     if (error) {
-      console.error('Login error:', error.message);
+      logError('Login error', error.message);
       throw new Error(error.message);
     }
 
     console.log('Login success');
     return data;
   } catch (error) {
-    console.error('Login error:', error);
+    logError('Login error', error);
     throw error;
   }
 }
@@ -77,14 +78,14 @@ export async function signUp(email: string, password: string): Promise<{ data: a
     });
 
     if (error) {
-      console.error('Signup error:', error.message);
+      logError('Signup error', error.message);
       return { data: null, error };
     }
 
     console.log('Signup success');
     return { data, error: null };
   } catch (error) {
-    console.error('Signup error:', error);
+    logError('Signup error', error);
     return { data: null, error };
   }
 }
@@ -97,13 +98,13 @@ export async function signOut(): Promise<void> {
     const { error } = await supabase.auth.signOut();
     
     if (error) {
-      console.error('Signout error:', error.message);
+      logError('Signout error', error.message);
       throw new Error(error.message);
     }
     
     console.log('Signout success');
   } catch (error) {
-    console.error('Signout error:', error);
+    logError('Signout error', error);
     throw error;
   }
 }
@@ -116,13 +117,13 @@ export async function getCurrentSession(): Promise<Session | null> {
     const { data, error } = await supabase.auth.getSession();
     
     if (error) {
-      console.error('Get session error:', error.message);
+      logError('Get session error', error.message);
       throw new Error(error.message);
     }
     
     return data.session;
   } catch (error) {
-    console.error('Get session error:', error);
+    logError('Get session error', error);
     throw error;
   }
 }
@@ -135,7 +136,7 @@ export async function refreshSession(): Promise<Session | null> {
     const { data, error } = await supabase.auth.refreshSession();
     
     if (error) {
-      console.error('Refresh session error:', error.message);
+      logError('Refresh session error', error.message);
       
       // If the error is about invalid refresh token, clear the session
       if (error.message.includes('Invalid Refresh Token') || 
@@ -149,7 +150,7 @@ export async function refreshSession(): Promise<Session | null> {
     
     return data.session;
   } catch (error) {
-    console.error('Refresh session error:', error);
+    logError('Refresh session error', error);
     throw error;
   }
 }
@@ -162,13 +163,13 @@ export async function getCurrentUser(): Promise<User | null> {
     const { data, error } = await supabase.auth.getUser();
     
     if (error) {
-      console.error('Get user error:', error.message);
+      logError('Get user error', error.message);
       throw new Error(error.message);
     }
     
     return data.user;
   } catch (error) {
-    console.error('Get user error:', error);
+    logError('Get user error', error);
     throw error;
   }
 }
@@ -183,13 +184,13 @@ export async function resetPassword(email: string): Promise<void> {
     });
     
     if (error) {
-      console.error('Reset password error:', error.message);
+      logError('Reset password error', error.message);
       throw new Error(error.message);
     }
     
     console.log('Reset password email sent');
   } catch (error) {
-    console.error('Reset password error:', error);
+    logError('Reset password error', error);
     throw error;
   }
 }
@@ -204,13 +205,13 @@ export async function updatePassword(password: string): Promise<void> {
     });
     
     if (error) {
-      console.error('Update password error:', error.message);
+      logError('Update password error', error.message);
       throw new Error(error.message);
     }
     
     console.log('Password updated successfully');
   } catch (error) {
-    console.error('Update password error:', error);
+    logError('Update password error', error);
     throw error;
   }
 }

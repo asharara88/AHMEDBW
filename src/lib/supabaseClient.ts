@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { logError } from '../utils/logger';
 
 // Get environment variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -26,7 +27,7 @@ export const supabase = createClient(
     global: {
       fetch: (...args) => {
         return fetch(...args).catch(err => {
-          console.error('Supabase fetch error:', err);
+          logError('Supabase fetch error', err);
           throw err;
         });
       }
@@ -44,7 +45,7 @@ supabase.auth.onAuthStateChange((event, session) => {
     console.warn('Token refresh failed, signing out');
     supabase.auth
       .signOut()
-      .catch((err) => console.error('Error during sign out:', err));
+      .catch((err) => logError('Error during sign out', err));
     localStorage.removeItem('biowell-user-data');
   }
   

@@ -1,11 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
+import { logError } from './logger';
 
 // Get environment variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase environment variables. Check your .env file.');
+  logError('Missing Supabase environment variables', {});
 }
 
 // Create a single Supabase client instance to use throughout the app

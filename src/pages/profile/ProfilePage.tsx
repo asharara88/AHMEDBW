@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { logError } from '../../utils/logger';
 import { CheckCircle, AlertCircle, Sun, Moon, Laptop } from 'lucide-react';
 import ThemeStatus from '../../components/ThemeStatus';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -55,7 +56,7 @@ const ProfilePage = () => {
           .maybeSingle();
         
         if (error) {
-          console.error('Error loading user profile:', error);
+          logError('Error loading user profile', error);
           return;
         }
         
@@ -73,7 +74,7 @@ const ProfilePage = () => {
           }));
         }
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        logError('Error fetching profile', error);
       } finally {
         setLoading(false);
       }
@@ -116,7 +117,7 @@ const ProfilePage = () => {
       });
       
       if (metadataError) {
-        console.error('Error updating user metadata:', metadataError);
+        logError('Error updating user metadata', metadataError);
       }
       
       // Update localStorage
@@ -130,7 +131,7 @@ const ProfilePage = () => {
       setMessage({ type: 'success', text: 'Profile updated successfully' });
       navigate('/dashboard');
     } catch (error) {
-      console.error('Error updating profile:', error);
+      logError('Error updating profile', error);
       setMessage({ type: 'error', text: 'Failed to update profile' });
     } finally {
       setUpdating(false);

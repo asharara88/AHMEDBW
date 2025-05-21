@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Rocket, ExternalLink } from 'lucide-react';
 import { checkDeploymentStatus, DeploymentInfo } from '../../utils/deploymentStatus';
+import { logError } from '../../utils/logger';
 
 const DeploymentStatusWidget = () => {
   const [deploymentInfo, setDeploymentInfo] = useState<DeploymentInfo | null>(null);
@@ -13,7 +14,7 @@ const DeploymentStatusWidget = () => {
         const status = await checkDeploymentStatus();
         setDeploymentInfo(status);
       } catch (error) {
-        console.error('Error fetching deployment status:', error);
+        logError('Error fetching deployment status', error);
       } finally {
         setLoading(false);
       }

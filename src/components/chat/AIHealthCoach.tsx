@@ -4,6 +4,7 @@ import { Send, Loader, AlertCircle, Info, User } from 'lucide-react';
 import { useChatApi } from '../../hooks/useChatApi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { logError } from '../../utils/logger';
 import ReactMarkdown from 'react-markdown';
 
 interface Message {
@@ -92,7 +93,7 @@ export default function HealthCoach() {
         ]);
       }
     } catch (err: any) {
-      console.error("Error in chat submission:", err);
+      logError('Error in chat submission', err);
       setError(err.message || "Failed to get a response. Please try again.");
     }
   };

@@ -124,7 +124,7 @@ const HealthTrends = ({ userId }: HealthTrendsProps) => {
         const demoData = generateDemoGlucoseData(timeRange);
         processGlucoseData(demoData);
       } catch (error) {
-        console.error('Error fetching glucose data:', error);
+        logError('Error fetching glucose data', error);
         // Fallback to demo data on error
         const demoData = generateDemoGlucoseData(timeRange);
         processGlucoseData(demoData);

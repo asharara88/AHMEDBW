@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSupabase } from '../../contexts/SupabaseContext';
+import { logError } from '../../utils/logger';
 import { motion } from 'framer-motion';
 import { Search } from 'lucide-react';
 import SupplementCard from './SupplementCard';
@@ -35,7 +36,7 @@ const SupplementList = () => {
       if (userSupplementsError) throw userSupplementsError;
       setUserSupplements(userSupplementsData?.map(us => us.supplement_id) || []);
     } catch (error) {
-      console.error('Error fetching supplements:', error);
+      logError('Error fetching supplements', error);
     } finally {
       setLoading(false);
     }
@@ -60,7 +61,7 @@ const SupplementList = () => {
         setUserSupplements(prev => [...prev, supplementId]);
       }
     } catch (error) {
-      console.error('Error updating subscription:', error);
+      logError('Error updating subscription', error);
     }
   };
 

@@ -4,6 +4,7 @@ import { Check, Shield, ArrowRight, CreditCard, Building, User } from 'lucide-re
 import { Link } from 'react-router-dom';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { logError } from '../../utils/logger';
 
 interface Plan {
   id: string;
@@ -121,7 +122,7 @@ const PricingSection = () => {
       
       console.log(`Added plan ${planId} to cart with annual billing: ${isAnnual}`);
     } catch (error) {
-      console.error('Error adding plan to cart:', error);
+      logError('Error adding plan to cart', error);
     }
   };
 
@@ -166,7 +167,7 @@ const PricingSection = () => {
       // Show success message or redirect to success page
       alert('Your subscription has been processed successfully!');
     } catch (error) {
-      console.error('Error processing payment:', error);
+      logError('Error processing payment', error);
       alert('There was an error processing your payment. Please try again.');
     } finally {
       setLoading(false);

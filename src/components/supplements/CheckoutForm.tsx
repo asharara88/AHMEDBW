@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ChevronRight, CreditCard, Truck, ShoppingBag, Check, Shield, ArrowLeft } from 'lucide-react';
 import { Supplement } from '../../types/supplements';
 import ImageWithFallback from '../common/ImageWithFallback';
+import { logError } from '../../utils/logger';
 
 interface CartItem {
   supplement: Supplement;
@@ -68,7 +69,7 @@ const CheckoutForm = ({ cartItems, onCheckoutComplete, onBack }: CheckoutFormPro
       alert('Order placed successfully! Thank you for your purchase.');
       onCheckoutComplete();
     } catch (error) {
-      console.error('Error placing order:', error);
+      logError('Error placing order', error);
       alert('There was an error processing your order. Please try again.');
     } finally {
       setLoading(false);
