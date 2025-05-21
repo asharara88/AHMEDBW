@@ -1,18 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Loader, AlertCircle, Info, User } from 'lucide-react';
-import { useChatApi } from '../../hooks/useChatApi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { logError } from '../../utils/logger';
 import { useAutoScroll } from '../../hooks/useAutoScroll';
 import ReactMarkdown from 'react-markdown';
-
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-}
+import { useChatStore } from '../../store';
 
 const suggestedQuestions = [
   "What's my current health status?",
@@ -28,15 +22,14 @@ const suggestedQuestions = [
 ];
 
 export default function HealthCoach() {
-  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { sendMessage, loading, error: apiError } = useChatApi();
+  
   const { user, isDemo } = useAuth();
   const { currentTheme } = useTheme();
-  const [error, setError] = useState<string | null>(null);
+  const { messages, loading, error, sendMessage } = useChatStore();
 
   useAutoScroll(messagesEndRef, [messages]);
 
@@ -46,54 +39,19 @@ export default function HealthCoach() {
     setSelectedSuggestions(shuffled.slice(0, 5));
   }, []);
 
-  useEffect(() => {
-    // Update local error state when API error changes
-    setError(apiError);
-  }, [apiError]);
-
   const handleSubmit = async (e: React.FormEvent | string) => {
     e?.preventDefault?.();
     const messageContent = typeof e === 'string' ? e : input;
     
     if (!messageContent.trim()) return;
-
-    setError(null); // Clear any previous errors
-
-    const userMessage: Message = {
-      role: 'user',
-      content: messageContent,
-      timestamp: new Date(),
-    };
     
-    setMessages(prev => [...prev, userMessage]);
     setInput('');
     setShowSuggestions(false);
 
     try {
-      if (!sendMessage) {
-        throw new Error("Chat service is not available");
-      }
-
-      const apiMessages = messages.concat(userMessage).map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
-
-      const response = await sendMessage(apiMessages, user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined));
-      
-      if (response) {
-        setMessages(prev => [
-          ...prev, 
-          {
-            role: 'assistant',
-            content: response,
-            timestamp: new Date()
-          }
-        ]);
-      }
+      await sendMessage(messageContent, user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined));
     } catch (err: any) {
       logError('Error in chat submission', err);
-      setError(err.message || "Failed to get a response. Please try again.");
     }
   };
 

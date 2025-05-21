@@ -1,196 +1,37 @@
 import { useState, useEffect } from 'react';
-import { useSupabase } from '../../contexts/SupabaseContext';
-import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, ShoppingCart } from 'lucide-react';
 import SupplementCard from '../../components/supplements/SupplementCard';
-import ShoppingCartSidebar from '../../components/supplements/ShoppingCartSidebar';
+import ShoppingCart from '../../components/supplements/ShoppingCart';
 import StackBuilder from '../../components/supplements/StackBuilder';
 import CheckoutForm from '../../components/supplements/CheckoutForm';
 import SupplementRecommender from '../../components/supplements/SupplementRecommender';
-
-interface Supplement {
-  id: string;
-  name: string;
-  description: string;
-  benefits: string[] | null;
-  dosage: string | null;
-  price: number;
-  price_aed: number;
-  image_url: string | null;
-  categories?: string[];
-  evidence_level?: string;
-  use_cases?: string[];
-  form_type?: string;
-  form_image_url?: string;
-}
-
-interface SupplementStack {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  supplements: string[];
-  total_price: number;
-}
-
-interface CartItem {
-  supplement: Supplement;
-  quantity: number;
-}
+import { useAuthStore, useSupplementStore, useCartStore } from '../../store';
 
 const SupplementsPage = () => {
-  const { supabase } = useSupabase();
-  const { user } = useAuth();
-  const [supplements, setSupplements] = useState<Supplement[]>([]);
-  const [stacks, setStacks] = useState<SupplementStack[]>([]);
-  const [userSupplements, setUserSupplements] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuthStore();
+  const { supplements, userSupplements, stacks, loading, fetchSupplements, fetchUserSupplements, fetchStacks, toggleSubscription } = useSupplementStore();
+  const { items, total, addItem } = useCartStore();
+  
   const [searchQuery, setSearchQuery] = useState('');
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [activeView, setActiveView] = useState<'browse' | 'stacks' | 'recommend' | 'checkout'>('browse');
   
+  const navigate = useNavigate();
   const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
     fetchSupplements();
     fetchStacks();
     if (user) {
-      fetchUserSupplements();
-    }
-    
-    const savedCart = localStorage.getItem('biowell-cart');
-    if (savedCart) {
-      try {
-        setCartItems(JSON.parse(savedCart));
-      } catch (err) {
-        console.error('Error loading cart from localStorage:', err);
-      }
+      fetchUserSupplements(user.id);
     }
   }, [user]);
 
-  useEffect(() => {
-    localStorage.setItem('biowell-cart', JSON.stringify(cartItems));
-  }, [cartItems]);
-
-  const fetchSupplements = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('supplements')
-        .select('*')
-        .eq('is_active', true);
-
-      if (error) throw error;
-      setSupplements(data || []);
-    } catch (err) {
-      console.error('Error fetching supplements:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchStacks = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('supplement_stacks')
-        .select('*');
-
-      if (error) throw error;
-      setStacks(data || []);
-    } catch (err) {
-      console.error('Error fetching supplement stacks:', err);
-    }
-  };
-
-  const fetchUserSupplements = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('user_supplements')
-        .select('supplement_id')
-        .eq('user_id', user?.id);
-
-      if (error) throw error;
-      setUserSupplements(data?.map(us => us.supplement_id) || []);
-    } catch (err) {
-      console.error('Error fetching user supplements:', err);
-    }
-  };
-
-  const toggleSubscription = async (supplementId: string) => {
-    if (!user) return;
-
-    const isSubscribed = userSupplements.includes(supplementId);
-
-    try {
-      if (isSubscribed) {
-        await supabase
-          .from('user_supplements')
-          .delete()
-          .eq('supplement_id', supplementId)
-          .eq('user_id', user.id);
-
-        setUserSupplements(prevSupplements =>
-          prevSupplements.filter(us => us !== supplementId)
-        );
-      } else {
-        await supabase
-          .from('user_supplements')
-          .insert({
-            user_id: user.id,
-            supplement_id: supplementId,
-            subscription_active: true
-          });
-        setUserSupplements(prev => [...prev, supplementId]);
-      }
-    } catch (err) {
-      console.error('Error updating subscription:', err);
-    }
-  };
-
-  const addToCart = (supplement: Supplement) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.supplement.id === supplement.id);
-      if (existingItem) {
-        return prevItems.map(item => 
-          item.supplement.id === supplement.id 
-            ? { ...item, quantity: item.quantity + 1 } 
-            : item
-        );
-      } else {
-        return [...prevItems, { supplement, quantity: 1 }];
-      }
-    });
-  };
-
-  const updateCartQuantity = (supplementId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(supplementId);
-      return;
-    }
-    
-    setCartItems(prevItems => 
-      prevItems.map(item => 
-        item.supplement.id === supplementId 
-          ? { ...item, quantity } 
-          : item
-      )
-    );
-  };
-
-  const removeFromCart = (supplementId: string) => {
-    setCartItems(prevItems => 
-      prevItems.filter(item => item.supplement.id !== supplementId)
-    );
-  };
-
-  const clearCart = () => {
-    setCartItems([]);
-  };
-
   const handleCheckoutComplete = () => {
-    clearCart();
+    useCartStore.getState().clearCart();
     setActiveView('browse');
   };
 
@@ -222,11 +63,6 @@ const SupplementsPage = () => {
   const totalItems = filteredSupplements.length + filteredStacks.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
-  // Calculate cart total
-  const cartTotal = cartItems.reduce((total, item) => 
-    total + (item.supplement.price_aed * item.quantity), 0
-  );
-
   if (loading) {
     return (
       <div className="flex h-[calc(100vh-64px)] items-center justify-center">
@@ -238,7 +74,7 @@ const SupplementsPage = () => {
   if (activeView === 'checkout') {
     return (
       <CheckoutForm 
-        cartItems={cartItems} 
+        cartItems={items} 
         onCheckoutComplete={handleCheckoutComplete}
         onBack={() => setActiveView('browse')}
       />
@@ -305,7 +141,7 @@ const SupplementsPage = () => {
             <ShoppingCart className="h-5 w-5" />
             <span className="hidden sm:inline">Cart</span>
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-bold text-primary">
-              {cartItems.reduce((count, item) => count + item.quantity, 0)}
+              {items.reduce((count, item) => count + item.quantity, 0)}
             </span>
           </button>
         </div>
@@ -326,9 +162,9 @@ const SupplementsPage = () => {
                         key={supplement.id}
                         supplement={supplement}
                         isInStack={userSupplements.includes(supplement.id)}
-                        onAddToStack={() => toggleSubscription(supplement.id)}
-                        onRemoveFromStack={() => toggleSubscription(supplement.id)}
-                        onAddToCart={() => addToCart(supplement)}
+                        onAddToStack={() => toggleSubscription(user?.id || '', supplement.id)}
+                        onRemoveFromStack={() => toggleSubscription(user?.id || '', supplement.id)}
+                        onAddToCart={() => addItem(supplement)}
                       />
                     ))}
                   </div>
@@ -417,7 +253,7 @@ const SupplementsPage = () => {
               <StackBuilder 
                 supplements={supplements}
                 userSupplements={userSupplements}
-                onToggleSubscription={toggleSubscription}
+                onToggleSubscription={(supplementId) => toggleSubscription(user?.id || '', supplementId)}
               />
             </div>
           ) : activeView === 'recommend' && (
@@ -429,12 +265,7 @@ const SupplementsPage = () => {
 
         {/* Sidebar */}
         <div className="md:col-span-3">
-          <ShoppingCartSidebar
-            cartItems={cartItems}
-            updateQuantity={updateCartQuantity}
-            removeItem={removeFromCart}
-            clearCart={clearCart}
-            total={cartTotal}
+          <ShoppingCart
             isOpen={isCartOpen}
             onClose={() => setIsCartOpen(false)}
           />
