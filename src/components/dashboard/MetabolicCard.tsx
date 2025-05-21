@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useToggle } from '../../hooks/useToggle';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Activity, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
 
@@ -17,7 +18,7 @@ const MetabolicCard = ({
   variability,
   trend,
 }: MetabolicCardProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const { value: isExpanded, toggle: toggleExpanded } = useToggle(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState(0);
 
@@ -51,7 +52,7 @@ const MetabolicCard = ({
       className="w-full overflow-hidden rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] shadow-sm transition-shadow hover:shadow-md"
     >
       <button
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={toggleExpanded}
         className="flex w-full flex-col p-3 text-left focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 sm:p-4"
         aria-expanded={isExpanded}
       >
