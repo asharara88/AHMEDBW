@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Send, User, Loader, CheckCircle, AlertCircle } from 'lucide-react';
+import { useAutoScroll } from '../../hooks/useAutoScroll';
 
 interface Message {
   role: 'system' | 'user';
@@ -58,9 +59,7 @@ const ConversationalOnboarding = () => {
   }, []);
 
   // Auto-scroll to bottom of messages
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  useAutoScroll(messagesEndRef, [messages]);
 
   // Check if onboarding is already completed
   useEffect(() => {
