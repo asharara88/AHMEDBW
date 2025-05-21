@@ -43,7 +43,13 @@ const AuthErrorHandler = () => {
     // Create a fetch interceptor
     const originalFetch = window.fetch;
     window.fetch = async function(input, init) {
-      const response = await originalFetch(input, init);
+      // Add credentials to all requests
+      const modifiedInit = {
+        ...init,
+        credentials: 'include'
+      };
+      
+      const response = await originalFetch(input, modifiedInit);
       await handleApiResponse(response);
       return response;
     };

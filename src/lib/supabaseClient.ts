@@ -24,6 +24,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     storage: localStorage, // use sessionStorage if tokens must clear on tab close
   },
   global: {
+    headers: {
+      'X-Client-Info': 'biowell-ai-web'
+    },
     fetch: async (...args) => {
       try {
         return await fetch(...args);
