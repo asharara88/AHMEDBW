@@ -11,10 +11,10 @@ const Logo = ({ className = '', variant = 'default' }: LogoProps) => {
   const { currentTheme } = useTheme();
 
   // Dark theme logo URL - high resolution SVG
-  const darkThemeLogoUrl = 'https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/logos/white%20Log%20trnspt%20bg.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2UyYTcyNGEyLTZkNTctNDk4YS04ZGU1LWY2Y2Q4MjAyNjA3YiJ9.eyJ1cmwiOiJsb2dvcy93aGl0ZSBMb2cgdHJuc3B0IGJnLnN2ZyIsImlhdCI6MTc0NzI3MzEwNywiZXhwIjoxNzc4ODA5MTA3fQ.GI2ed8ie67PgVxVEoJsSWQXsv_Zki1V5ub7jfQCW-hg';
+  const darkThemeLogoUrl = 'https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/logos/white%20Log%20trnspt%20bg.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzZmNzI4ZWExLWMxN2MtNDYxNi05YWVhLWZmYjcyYTIzZTljYSJ9.eyJ1cmwiOiJsb2dvcy93aGl0ZSBMb2cgdHJuc3B0IGJnLnN2ZyIsImlhdCI6MTc0Nzc5ODQ4NCwiZXhwIjoxNzc5MzM0NDg0fQ.3cQ7IGxwQvRgrE2GzpkhvTbmgZ1dg7FCmQjr68KL708';
   
   // Light theme logo URL - high resolution SVG
-  const lightThemeLogoUrl = 'https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/logos/logo-light.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2UyYTcyNGEyLTZkNTctNDk4YS04ZGU1LWY2Y2Q4MjAyNjA3YiJ9.eyJ1cmwiOiJsb2dvcy9sb2dvLWxpZ2h0LnN2ZyIsImlhdCI6MTc0NzI3MzIwMSwiZXhwIjoxNzc4ODA5MjAxfQ.i8q67OTuH9eIiXxe8EaePs3JRxRuPhexJfsSzT4Q0iQ';
+  const lightThemeLogoUrl = 'https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/logos/logo-light.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzZmNzI4ZWExLWMxN2MtNDYxNi05YWVhLWZmYjcyYTIzZTljYSJ9.eyJ1cmwiOiJsb2dvcy9sb2dvLWxpZ2h0LnN2ZyIsImlhdCI6MTc0Nzc5ODQ0NSwiZXhwIjoxNzc5MzM0NDQ1fQ.kf-cz394l3wxH4wmwJBZzgxlsSmOINlJvDNFmoaVxt0';
 
   // Determine which logo to use based on variant and theme
   const logoUrl = variant === 'light' ? darkThemeLogoUrl : 
