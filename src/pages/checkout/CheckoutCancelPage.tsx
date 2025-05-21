@@ -2,6 +2,8 @@ import { motion } from 'framer-motion';
 import { XCircle, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+// This component has been modified to remove Stripe integration
+// It now serves as a placeholder for checkout cancel page
 const CheckoutCancelPage = () => {
   return (
     <div className="container mx-auto px-4 py-12">

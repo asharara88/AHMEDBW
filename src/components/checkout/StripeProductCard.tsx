@@ -1,30 +1,30 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { useSupabase } from '../../contexts/SupabaseContext';
-import { stripeProducts } from '../../stripe-config';
 import { AlertCircle, CheckCircle, CreditCard, Loader } from 'lucide-react';
+import { products } from '../../stripe-config';
 
-interface StripeProductCardProps {
+interface ProductCardProps {
   productId: string;
   className?: string;
   buttonText?: string;
   showDetails?: boolean;
 }
 
-export default function StripeProductCard({
+// This component has been modified to remove Stripe integration
+// It now serves as a placeholder for future payment integration
+export default function ProductCard({
   productId,
   className = '',
   buttonText,
   showDetails = true
-}: StripeProductCardProps) {
+}: ProductCardProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
-  const { supabase } = useSupabase();
   const navigate = useNavigate();
 
-  const product = stripeProducts[productId];
+  const product = products[productId];
 
   if (!product) {
     return (
@@ -47,41 +47,14 @@ export default function StripeProductCard({
     setError(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      // Simulate checkout process
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      if (!session) {
-        throw new Error('You must be logged in to make a purchase');
-      }
-
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          price_id: product.priceId,
-          success_url: `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${window.location.origin}/checkout/cancel`,
-          mode: product.mode,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create checkout session');
-      }
-
-      const { url } = await response.json();
-
-      if (url) {
-        window.location.href = url;
-      } else {
-        throw new Error('No checkout URL returned');
-      }
+      // Redirect to success page
+      navigate('/checkout/success');
     } catch (err: any) {
       console.error('Checkout error:', err);
-      setError(err.message || 'An error occurred during checkout');
+      setError('An error occurred during checkout. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -116,7 +89,7 @@ export default function StripeProductCard({
         ) : (
           <>
             <CreditCard className="h-5 w-5" />
-            {buttonText || (product.mode === 'subscription' ? 'Subscribe Now' : 'Buy Now')}
+            {buttonText || 'Subscribe Now'}
           </>
         )}
       </button>

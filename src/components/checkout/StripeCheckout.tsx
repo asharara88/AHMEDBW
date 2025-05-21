@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSupabase } from '../../contexts/SupabaseContext';
-import { stripeProducts } from '../../stripe-config';
 import { AlertCircle, CheckCircle, CreditCard, Loader } from 'lucide-react';
 
-interface StripeCheckoutProps {
+interface CheckoutProps {
   productId: string;
   onSuccess?: () => void;
   onCancel?: () => void;
@@ -12,70 +10,41 @@ interface StripeCheckoutProps {
   className?: string;
 }
 
-export default function StripeCheckout({
+// This component has been modified to remove Stripe integration
+// It now serves as a placeholder for future payment integration
+export default function Checkout({
   productId,
   onSuccess,
   onCancel,
   buttonText = 'Subscribe Now',
   className = ''
-}: StripeCheckoutProps) {
+}: CheckoutProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const { supabase } = useSupabase();
   const navigate = useNavigate();
-
-  const product = stripeProducts[productId];
-
-  if (!product) {
-    return (
-      <div className="rounded-lg bg-error/10 p-3 text-sm text-error">
-        <AlertCircle className="mb-2 h-5 w-5" />
-        <p>Product not found: {productId}</p>
-      </div>
-    );
-  }
 
   const handleCheckout = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      // Simulate checkout process
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      if (!session) {
-        throw new Error('You must be logged in to make a purchase');
-      }
-
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          price_id: product.priceId,
-          success_url: `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${window.location.origin}/checkout/cancel`,
-          mode: product.mode,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create checkout session');
-      }
-
-      const { url } = await response.json();
-
-      if (url) {
-        window.location.href = url;
-      } else {
-        throw new Error('No checkout URL returned');
-      }
+      setSuccess(true);
+      
+      // Simulate redirect after successful checkout
+      setTimeout(() => {
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          navigate('/checkout/success');
+        }
+      }, 1000);
     } catch (err: any) {
       console.error('Checkout error:', err);
-      setError(err.message || 'An error occurred during checkout');
+      setError('An error occurred during checkout. Please try again later.');
       if (onCancel) onCancel();
     } finally {
       setLoading(false);

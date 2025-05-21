@@ -10,6 +10,8 @@ interface CartItem {
   quantity: number;
 }
 
+// This component has been modified to remove Stripe integration
+// It now serves as a placeholder for checkout page
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -70,15 +72,14 @@ const CheckoutPage = () => {
     setLoading(true);
     
     try {
-      // In a real app, send order to API
+      // Simulate order processing
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       // Clear cart
       localStorage.removeItem('biowell-cart');
       
       // Show success message and redirect
-      alert('Order placed successfully! Thank you for your purchase.');
-      navigate('/supplements');
+      navigate('/checkout/success?order_id=DEMO-ORDER');
     } catch (error) {
       console.error('Error placing order:', error);
       alert('There was an error processing your order. Please try again.');

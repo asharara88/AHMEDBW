@@ -1,15 +1,19 @@
-export interface StripeProduct {
-  priceId: string;
+// This file previously contained Stripe product configurations
+// It has been emptied as part of removing Stripe integration
+
+export interface Product {
+  id: string;
   name: string;
   description: string;
-  mode: 'subscription' | 'payment';
+  price: number;
 }
 
-export const stripeProducts: Record<string, StripeProduct> = {
+// Placeholder for product configurations that can be used with alternative payment methods
+export const products: Record<string, Product> = {
   subscription: {
-    priceId: 'price_1RR5Q2C7KFs4iH9MPadqbiDw',
+    id: 'subscription',
     name: 'Biowell Subscription',
     description: 'Subscribe to Biowell for personalized health coaching and supplement recommendations',
-    mode: 'subscription'
+    price: 199
   }
 };

@@ -4,11 +4,13 @@ import { motion } from 'framer-motion';
 import { CheckCircle, ArrowRight, Loader } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+// This component has been modified to remove Stripe integration
+// It now serves as a placeholder for checkout success page
 const CheckoutSuccessPage = () => {
-  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const sessionId = searchParams.get('session_id');
+  const [searchParams] = useSearchParams();
+  const orderId = searchParams.get('order_id') || 'DEMO-ORDER';
 
   useEffect(() => {
     // Simulate verification process
@@ -57,7 +59,7 @@ const CheckoutSuccessPage = () => {
             <div className="mb-6 w-full rounded-lg bg-[hsl(var(--color-surface-1))] p-4 text-left">
               <h3 className="mb-2 font-medium">Order Details</h3>
               <p className="text-sm text-text-light">
-                <strong>Order ID:</strong> {sessionId?.substring(0, 8) || 'N/A'}<br />
+                <strong>Order ID:</strong> {orderId}<br />
                 <strong>Status:</strong> Completed<br />
                 <strong>Date:</strong> {new Date().toLocaleDateString()}
               </p>

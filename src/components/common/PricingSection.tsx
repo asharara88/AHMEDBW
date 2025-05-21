@@ -1,17 +1,11 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Shield, ArrowRight, CreditCard, Building, User } from 'lucide-react';
+import { Check, Shield, ArrowRight, Building, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
-import StripeCheckout from '../checkout/StripeCheckout';
 
 const PricingSection = () => {
   const [isAnnual, setIsAnnual] = useState(true);
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [showCheckout, setShowCheckout] = useState(false);
-  
-  const { supabase } = useSupabase();
   const { user } = useAuth();
 
   const plans = [
@@ -68,8 +62,8 @@ const PricingSection = () => {
       return;
     }
     
-    setSelectedPlan(planId);
-    setShowCheckout(true);
+    // Redirect to checkout page
+    window.location.href = `/checkout/${planId}`;
   };
 
   return (
@@ -115,114 +109,86 @@ const PricingSection = () => {
           </div>
         </motion.div>
 
-        {showCheckout ? (
-          <div className="mx-auto max-w-md">
-            <div className="rounded-xl bg-[hsl(var(--color-card))] p-6 shadow-lg">
-              <h3 className="mb-4 text-xl font-bold">Complete Your Subscription</h3>
-              <p className="mb-6 text-text-light">You're subscribing to the {selectedPlan === 'pro' ? 'Pro' : 'Essential'} plan.</p>
-              
-              <StripeCheckout 
-                productId="subscription"
-                onSuccess={() => {
-                  setShowCheckout(false);
-                  setSelectedPlan(null);
-                }}
-                onCancel={() => {
-                  setShowCheckout(false);
-                  setSelectedPlan(null);
-                }}
-              />
-              
-              <button
-                onClick={() => setShowCheckout(false)}
-                className="mt-4 w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 text-text-light hover:bg-[hsl(var(--color-card-hover))]"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="grid gap-6 md:grid-cols-3">
-            {plans.map((plan, index) => (
-              <motion.div
-                key={plan.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`relative overflow-hidden rounded-2xl border ${
-                  plan.isPopular
-                    ? 'border-primary bg-primary/5'
-                    : 'border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))]'
-                } p-6 shadow-lg transition-shadow hover:shadow-xl`}
-              >
-                {plan.tag && (
-                  <div className={`absolute right-0 top-0 ${
-                    plan.isPopular 
-                      ? 'bg-primary text-white' 
-                      : plan.tag === 'Essential'
-                        ? 'bg-secondary text-white'
-                        : 'bg-gray-700 text-white'
-                  } px-4 py-1 text-xs font-medium`}>
-                    {plan.tag}
-                  </div>
-                )}
+        <div className="grid gap-6 md:grid-cols-3">
+          {plans.map((plan, index) => (
+            <motion.div
+              key={plan.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className={`relative overflow-hidden rounded-2xl border ${
+                plan.isPopular
+                  ? 'border-primary bg-primary/5'
+                  : 'border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))]'
+              } p-6 shadow-lg transition-shadow hover:shadow-xl`}
+            >
+              {plan.tag && (
+                <div className={`absolute right-0 top-0 ${
+                  plan.isPopular 
+                    ? 'bg-primary text-white' 
+                    : plan.tag === 'Essential'
+                      ? 'bg-secondary text-white'
+                      : 'bg-gray-700 text-white'
+                } px-4 py-1 text-xs font-medium`}>
+                  {plan.tag}
+                </div>
+              )}
 
-                <div className="mb-6">
-                  <div className="flex items-center gap-2">
-                    {plan.id === 'essential' && <User className="h-5 w-5 text-secondary" />}
-                    {plan.id === 'pro' && <Shield className="h-5 w-5 text-primary" />}
-                    {plan.id === 'enterprise' && <Building className="h-5 w-5 text-gray-700" />}
-                    <h3 className="text-xl font-bold">{plan.name}</h3>
-                  </div>
-                  <div className="mt-4 flex items-baseline">
-                    <span className="text-3xl font-bold">{plan.price.split('/')[0]}</span>
-                    {plan.price.includes('/') && (
-                      <span className="ml-2 text-text-light">
-                        /{plan.price.split('/')[1]}
-                      </span>
-                    )}
-                  </div>
-                  {plan.price.includes('month') && isAnnual && (
-                    <p className="mt-1 text-sm text-success">Save 20% with annual billing</p>
+              <div className="mb-6">
+                <div className="flex items-center gap-2">
+                  {plan.id === 'essential' && <User className="h-5 w-5 text-secondary" />}
+                  {plan.id === 'pro' && <Shield className="h-5 w-5 text-primary" />}
+                  {plan.id === 'enterprise' && <Building className="h-5 w-5 text-gray-700" />}
+                  <h3 className="text-xl font-bold">{plan.name}</h3>
+                </div>
+                <div className="mt-4 flex items-baseline">
+                  <span className="text-3xl font-bold">{plan.price.split('/')[0]}</span>
+                  {plan.price.includes('/') && (
+                    <span className="ml-2 text-text-light">
+                      /{plan.price.split('/')[1]}
+                    </span>
                   )}
                 </div>
-
-                <div className="mb-6 space-y-4">
-                  {plan.features.map((feature) => (
-                    <div key={feature} className="flex items-start gap-2">
-                      <Check className="mt-1 h-4 w-4 flex-shrink-0 text-success" />
-                      <span>{feature}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {plan.id === 'enterprise' ? (
-                  <Link
-                    to={plan.buttonLink}
-                    className={`block w-full rounded-xl px-6 py-3 text-center font-medium transition-colors ${
-                      plan.isPopular
-                        ? 'bg-primary text-white hover:bg-primary-dark'
-                        : 'bg-[hsl(var(--color-card-hover))] hover:bg-[hsl(var(--color-border))]'
-                    }`}
-                  >
-                    {plan.buttonText}
-                  </Link>
-                ) : (
-                  <button
-                    onClick={() => handlePlanSelect(plan.id)}
-                    className={`block w-full rounded-xl px-6 py-3 text-center font-medium transition-colors ${
-                      plan.isPopular
-                        ? 'bg-primary text-white hover:bg-primary-dark'
-                        : 'bg-[hsl(var(--color-card-hover))] hover:bg-[hsl(var(--color-border))]'
-                    }`}
-                  >
-                    {plan.buttonText}
-                  </button>
+                {plan.price.includes('month') && isAnnual && (
+                  <p className="mt-1 text-sm text-success">Save 20% with annual billing</p>
                 )}
-              </motion.div>
-            ))}
-          </div>
-        )}
+              </div>
+
+              <div className="mb-6 space-y-4">
+                {plan.features.map((feature) => (
+                  <div key={feature} className="flex items-start gap-2">
+                    <Check className="mt-1 h-4 w-4 flex-shrink-0 text-success" />
+                    <span>{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              {plan.id === 'enterprise' ? (
+                <Link
+                  to={plan.buttonLink}
+                  className={`block w-full rounded-xl px-6 py-3 text-center font-medium transition-colors ${
+                    plan.isPopular
+                      ? 'bg-primary text-white hover:bg-primary-dark'
+                      : 'bg-[hsl(var(--color-card-hover))] hover:bg-[hsl(var(--color-border))]'
+                  }`}
+                >
+                  {plan.buttonText}
+                </Link>
+              ) : (
+                <button
+                  onClick={() => handlePlanSelect(plan.id)}
+                  className={`block w-full rounded-xl px-6 py-3 text-center font-medium transition-colors ${
+                    plan.isPopular
+                      ? 'bg-primary text-white hover:bg-primary-dark'
+                      : 'bg-[hsl(var(--color-card-hover))] hover:bg-[hsl(var(--color-border))]'
+                  }`}
+                >
+                  {plan.buttonText}
+                </button>
+              )}
+            </motion.div>
+          ))}
+        </div>
 
         {/* Money Back Guarantee */}
         <motion.div
