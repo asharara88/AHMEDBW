@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useToggle } from '../../hooks/useToggle';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -15,7 +16,7 @@ const SignUpCard = () => {
     termsAccepted: false
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [showTerms, setShowTerms] = useState(false);
+  const { value: showTerms, toggle: toggleTerms, setOff: closeTerms } = useToggle(false);
   const [loading, setLoading] = useState(false);
   const { currentTheme } = useTheme();
 
@@ -308,7 +309,7 @@ const SignUpCard = () => {
               I agree to the{' '}
               <button
                 type="button"
-                onClick={() => setShowTerms(!showTerms)}
+                onClick={toggleTerms}
                 className="text-primary underline focus:outline-none"
               >
                 Terms & Conditions
@@ -332,7 +333,7 @@ const SignUpCard = () => {
                   <h3 className="font-medium">Terms & Conditions</h3>
                   <button 
                     type="button" 
-                    onClick={() => setShowTerms(false)}
+                    onClick={toggleTerms}
                     className="text-text-light hover:text-text"
                   >
                     {showTerms ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
