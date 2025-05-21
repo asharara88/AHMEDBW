@@ -25,7 +25,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
   global: {
     headers: {
-      'X-Client-Info': 'biowell-ai-web'
+      'X-Client-Info': 'biowell-ai-web',
+      'apikey': supabaseAnonKey,
+      'Authorization': `Bearer ${supabaseAnonKey}`
     },
     fetch: async (...args) => {
       try {
