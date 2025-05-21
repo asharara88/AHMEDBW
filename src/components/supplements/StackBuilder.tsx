@@ -360,7 +360,6 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
                           src={supplement.form_image_url || supplement.image_url}
                           alt={supplement.name}
                           className="h-full w-full object-contain"
-                          fallbackSrc="https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg"
                         />
                       </div>
                       <span className="truncate max-w-[120px]">{supplement.name}</span>
