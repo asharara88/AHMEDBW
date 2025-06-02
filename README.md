@@ -44,12 +44,13 @@ cd biowell-ai
 npm install
 ```
 
-3. Create a `.env` file based on `.env.example` and add your Supabase credentials:
+3. Copy `.env.example` to `.env` and fill in your credentials:
 
 ```
 VITE_SUPABASE_URL=your-supabase-url
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 VITE_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
+VITE_CAPTCHA_SECRET_KEY=your-captcha-secret-key
 ```
 
 4. Start the development server:
