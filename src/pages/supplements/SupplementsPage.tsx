@@ -13,7 +13,7 @@ export function useChatApi() {
       // Validate Supabase URL
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       if (!supabaseUrl) {
-        throw new Error("Supabase URL is missing in environment variables. Please check your .env file.");
+        throw new Error("Supabase URL is missing. Please check your environment variables.");
       }
 
       // Get the current session
@@ -117,3 +117,5 @@ export function useChatApi() {
 
   return { sendMessage, loading, error };
 }
+
+export default useChatApi
