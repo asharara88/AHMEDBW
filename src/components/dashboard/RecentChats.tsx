@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { MessageCircle, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface RecentChatsProps {
@@ -14,6 +15,7 @@ const RecentChats = ({ userId }: RecentChatsProps) => {
   const [showAllChats, setShowAllChats] = useState(false);
   
   const { supabase } = useSupabase();
+  const { currentTheme } = useTheme();
   const { currentTheme } = useTheme();
   const navigate = useNavigate();
   

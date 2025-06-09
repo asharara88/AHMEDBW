@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Activity, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface BWScoreCardProps {
   score: number;
@@ -16,6 +17,7 @@ const BWScoreCard = ({
   const [expanded, setExpanded] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState(0);
+  const { currentTheme } = useTheme();
 
   useEffect(() => {
     if (contentRef.current) {
