@@ -33,7 +33,7 @@ export const audioCacheApi = {
           user_id: userId,
           cache_key: cacheKey,
           audio_data: arrayBuffer,
-          content_type: audioData.type,
+          content_type: audioData.type || 'audio/mpeg',
           expires_at: expiresAt.toISOString()
         }, {
           onConflict: 'user_id,cache_key'
