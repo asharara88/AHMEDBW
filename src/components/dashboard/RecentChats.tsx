@@ -101,7 +101,7 @@ const RecentChats = ({ userId }: RecentChatsProps) => {
         style={{
           backgroundImage: `url('${currentTheme === 'dark'
             ? 'https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/biowelllogos/white%20Log%20trnspt%20bg.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW93ZWxsbG9nb3Mvd2hpdGUgTG9nIHRybnNwdCBiZy5zdmciLCJpYXQiOjE3NDk0MzUyNTksImV4cCI6MTc4MDk3MTI1OX0.lnxK8zhka2S8Dwvuxl3uyPFCpwdCU42zFTepIJ9VVpk'
-            : 'https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/biowelllogos/1.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW93ZWxsbG9nb3MvMS5qcGciLCJpYXQiOjE3NDk0MzUyMTgsImV4cCI6MTc4MDk3MTIxOH0.EiJOt14a3aRr5oGMZSDHWhFh8Ig2sHUMV69Umb1QpIw'
+            : 'https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/logos/logo-light.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJsb2dvcy9sb2dvLWxpZ2h0LnN2ZyIsImlhdCI6MTc0OTQzNjAyMSwiZXhwIjoxODQ0MDQ0MDIxfQ.mM1BHZO5v2FBntgorQlOXFGtrkyVUk-PNJUC726ePkA'
           }')`,
           opacity: 0.1
         }}
