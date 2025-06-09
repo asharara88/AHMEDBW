@@ -5,12 +5,8 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Validate environment variables
-if (!supabaseUrl) {
-  throw new Error('Missing VITE_SUPABASE_URL environment variable. Please check your .env file.');
-}
-
-if (!supabaseAnonKey) {
-  throw new Error('Missing VITE_SUPABASE_ANON_KEY environment variable. Please check your .env file.');
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables. Check your .env file.');
 }
 
 // Validate URL format
@@ -20,8 +16,7 @@ try {
   throw new Error(`Invalid VITE_SUPABASE_URL format: ${supabaseUrl}. Please check your .env file.`);
 }
 
-console.log('Supabase URL:', supabaseUrl);
-console.log('Supabase client initialized successfully');
+console.log('Initializing Supabase client with URL:', supabaseUrl);
 
 // Create a single Supabase client instance to use throughout the app
 export const supabase = createClient(
@@ -38,7 +33,7 @@ export const supabase = createClient(
       headers: {
         'Content-Type': 'application/json',
       },
-    },
+    }
   }
 );
 

@@ -47,6 +47,7 @@ const SupplementsPage = () => {
   const [userSupplements, setUserSupplements] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -79,6 +80,15 @@ const SupplementsPage = () => {
   const fetchSupplements = async () => {
     try {
       setError(null);
+      console.log('Fetching supplements from Supabase...');
+      
+      // Validate Supabase URL
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      if (!supabaseUrl) {
+        throw new Error('Supabase URL is missing. Please check your .env file.');
+      }
+      
+      setError(null);
       console.log('Fetching supplements...');
       
       const { data, error } = await supabase
@@ -91,10 +101,62 @@ const SupplementsPage = () => {
         throw error;
       }
       
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
       console.log('Supplements fetched successfully:', data?.length || 0);
       setSupplements(data || []);
     } catch (err) {
       console.error('Error fetching supplements:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch supplements');
+      
+      // Fallback data for development/demo
+      setSupplements([
+        {
+          id: '1',
+          name: 'Magnesium Glycinate',
+          description: 'Supports sleep quality, muscle recovery, and stress reduction.',
+          benefits: ['Sleep', 'Stress', 'Recovery'],
+          dosage: '300-400mg before bed',
+          price: 34.99,
+          price_aed: 34.99,
+          image_url: 'https://images.pexels.com/photos/139655/pexels-photo-139655.jpeg?auto=compress&cs=tinysrgb&w=800',
+          categories: ['Sleep', 'Recovery', 'Stress'],
+          evidence_level: 'Green',
+          use_cases: ['Sleep quality', 'Muscle recovery', 'Stress management'],
+          form_type: 'capsule_powder'
+        },
+        {
+          id: '2',
+          name: 'Vitamin D3 + K2',
+          description: 'Supports bone health, immune function, and mood regulation.',
+          benefits: ['Immunity', 'Bone Health', 'Mood'],
+          dosage: '5000 IU daily with fat-containing meal',
+          price: 29.99,
+          price_aed: 29.99,
+          image_url: 'https://images.pexels.com/photos/4004612/pexels-photo-4004612.jpeg?auto=compress&cs=tinysrgb&w=800',
+          categories: ['Immunity', 'Bone Health'],
+          evidence_level: 'Green',
+          use_cases: ['Immune support', 'Bone health', 'Mood regulation'],
+          form_type: 'softgel'
+        },
+        {
+          id: '3',
+          name: 'Omega-3 Fish Oil',
+          description: 'Supports heart health, brain function, and reduces inflammation.',
+          benefits: ['Heart', 'Brain', 'Inflammation'],
+          dosage: '1-2g daily with food',
+          price: 39.99,
+          price_aed: 39.99,
+          image_url: 'https://images.pexels.com/photos/9751994/pexels-photo-9751994.jpeg?auto=compress&cs=tinysrgb&w=800',
+          categories: ['Heart Health', 'Brain Health', 'Inflammation'],
+          evidence_level: 'Green',
+          use_cases: ['Heart health', 'Brain function', 'Joint health'],
+          form_type: 'softgel'
+        },
+      ]);
       setError(err instanceof Error ? err.message : 'Failed to fetch supplements');
     } finally {
       setLoading(false);
@@ -103,6 +165,8 @@ const SupplementsPage = () => {
 
   const fetchStacks = async () => {
     try {
+      console.log('Fetching supplement stacks...');
+      
       console.log('Fetching supplement stacks...');
       
       const { data, error } = await supabase
@@ -114,15 +178,50 @@ const SupplementsPage = () => {
         throw error;
       }
       
+      if (error) {
+        console.error('Supabase error fetching stacks:', error);
+        throw error;
+      }
+      
       console.log('Stacks fetched successfully:', data?.length || 0);
       setStacks(data || []);
     } catch (err) {
       console.error('Error fetching supplement stacks:', err);
+      
+      // Fallback data for development/demo
+      setStacks([
+        {
+          id: 'sleep-stack',
+          name: 'Sleep & Recovery Stack',
+          description: 'Comprehensive support for sleep quality and recovery',
+          category: 'Sleep',
+          supplements: ['1', '3'],
+          total_price: 74.98
+        },
+        {
+          id: 'brain-stack',
+          name: 'Brain Health Stack',
+          description: 'Optimize cognitive function and mental clarity',
+          category: 'Brain Health',
+          supplements: ['2', '3'],
+          total_price: 69.98
+        },
+        {
+          id: 'metabolic-stack',
+          name: 'Metabolic Health Stack',
+          description: 'Support healthy blood sugar and metabolism',
+          category: 'Metabolic Health',
+          supplements: ['1', '2'],
+          total_price: 64.98
+        }
+      ]);
     }
   };
 
   const fetchUserSupplements = async () => {
     try {
+      console.log('Fetching user supplements...');
+      
       console.log('Fetching user supplements...');
       
       const { data, error } = await supabase
@@ -135,10 +234,16 @@ const SupplementsPage = () => {
         throw error;
       }
       
+      if (error) {
+        console.error('Supabase error fetching user supplements:', error);
+        throw error;
+      }
+      
       console.log('User supplements fetched successfully:', data?.length || 0);
       setUserSupplements(data?.map(us => us.supplement_id) || []);
     } catch (err) {
       console.error('Error fetching user supplements:', err);
+      setUserSupplements(['2']); // Fallback for demo
     }
   };
 
@@ -258,8 +363,33 @@ const SupplementsPage = () => {
 
   if (loading) {
     return (
-      <div className="flex h-[calc(100vh-64px)] items-center justify-center">
+      <div className="container mx-auto flex h-[calc(100vh-64px)] items-center justify-center">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto max-w-full">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold md:text-3xl">Supplement Store</h1>
+          <p className="text-text-light">Evidence-based supplements tailored to your health needs</p>
+        </div>
+        
+        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
+          <h2 className="text-lg font-semibold text-red-800 mb-2">Connection Error</h2>
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => {
+              setLoading(true);
+              fetchSupplements();
+            }}
+            className="rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary-dark"
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }

@@ -16,6 +16,7 @@ async function wait(ms: number) {
 export async function callOpenAiFunction(prompt: string, context?: Record<string, any>): Promise<string> {
   let retries = 0;
   let lastError: Error | null = null;
+  console.log("Calling OpenAI function with prompt:", prompt.substring(0, 50) + "...");
 
   while (retries < MAX_RETRIES) {
     try {
@@ -25,6 +26,7 @@ export async function callOpenAiFunction(prompt: string, context?: Record<string
       // Construct headers with proper authorization
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
+        "Accept": "application/json"
       };
 
       // If we have a session, use the access token
@@ -34,6 +36,15 @@ export async function callOpenAiFunction(prompt: string, context?: Record<string
 
       // Always include the anon key as a fallback
       headers["apikey"] = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      // Validate URL format
+      try {
+        new URL(endpoint);
+      } catch (error) {
+        throw new Error(`Invalid Supabase URL format: ${supabaseUrl}`);
+      }
+      
+      console.log("Sending OpenAI request to:", endpoint);
       
       // Use the openai-proxy endpoint
       const endpoint = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openai-proxy`;
@@ -50,8 +61,9 @@ export async function callOpenAiFunction(prompt: string, context?: Record<string
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ 
-          error: `Request failed with status ${response.status}` 
+          error: `OpenAI request failed with status ${response.status}` 
         }));
+        console.error("OpenAI API error:", errorData);
         throw new Error(errorData.error || errorData.message || `Request failed with status ${response.status}`);
       }
 
