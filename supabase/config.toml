@@ -48,3 +48,5 @@ port = 54327
 
 [functions.chat-assistant]
 verify_jwt = true
+[functions.onboarding-status]
+verify_jwt = true
