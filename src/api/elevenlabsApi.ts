@@ -1,8 +1,8 @@
 import { logError } from '../utils/logger';
 import { ApiError, ErrorType } from './apiClient';
 import { prepareTextForSpeech, truncateForSpeech } from '../utils/textProcessing';
-import { supabase } from '../lib/supabaseClient';
 import { chunkTextForSpeech, concatenateAudioBlobs } from '../utils/speechUtils';
+import { audioCacheApi } from './audioCacheApi';
 
 // Default voice ID for Biowell coach (using "Rachel" voice)
 const DEFAULT_VOICE_ID = "21m00Tcm4TlvDq8ikWAM";
@@ -79,9 +79,9 @@ export const elevenlabsApi = {
         
         for (const chunk of chunks) {
           // Generate cache key for this chunk
-          const chunkCacheKey = `${voiceId}:${chunk}`;
+          const chunkCacheKey = `voice:${voiceId}:${chunk.substring(0, 50)}`;
           
-          // Check cache first
+          // Check memory cache first
           const now = Date.now();
           const cached = audioCache.get(chunkCacheKey);
           
@@ -90,16 +90,238 @@ export const elevenlabsApi = {
             continue;
           }
           
-          // Try to get from Supabase storage cache
+          // Try to get from database cache if user is authenticated
+          const userId = supabase.auth.getUser().then(({ data }) => data.user?.id).catch(() => null);
           try {
-            const { data, error } = await supabase
-              .storage
-              .from('audio-cache')
-              .download(`${chunkCacheKey}.mp3`);
-              
-            if (!error && data) {
-              audioCache.set(chunkCacheKey, { blob: data, timestamp: now });
-              audioBlobs.push(data);
+            if (userId) {
+              const cachedBlob = await audioCacheApi.getAudio(await userId, chunkCacheKey);
+              if (cachedBlob) {
+                audioCache.set(chunkCacheKey, { blob: cachedBlob, timestamp: now });
+                audioBlobs.push(cachedBlob);
+                continue;
+              }
+            }
+          } catch (err) { 
+            /* Continue if cache retrieval fails */ 
+          }
+          
+          // Generate speech for this chunk
+          const response = await fetch(
+            `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+            {
+              method: 'POST',
+              headers: {
+                'Accept': 'audio/mpeg',
+                'Content-Type': 'application/json',
+                'xi-api-key': apiKey
+              },
+              body: JSON.stringify({
+                text: chunk,
+                model_id: "eleven_monolingual_v1",
+                voice_settings: voiceSettings
+              })
+            }
+          );
+          
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || `ElevenLabs API error: ${response.status}`);
+          }
+          
+          const blob = await response.blob();
+          
+          // Cache the chunk
+          audioCache.set(chunkCacheKey, { blob, timestamp: now });
+          audioBlobs.push(blob);
+          
+          // Store in database cache if user is authenticated
+          try {
+            if (userId) {
+              await audioCacheApi.storeAudio(await userId, chunkCacheKey, blob, 60);
+            }
+          } catch (err) { 
+            /* Ignore storage errors */ 
+          }
+        }
+        
+        // Concatenate all audio blobs
+        return concatenateAudioBlobs(audioBlobs);
+      }
+      
+      // For shorter text, process normally
+      const truncatedText = truncateForSpeech(processedText);
+      const cacheKey = `voice:${voiceId}:${truncatedText.substring(0, 50)}`;
+      
+      // Check memory cache first
+      const now = Date.now();
+      const cached = audioCache.get(cacheKey);
+      
+      if (cached && now - cached.timestamp < CACHE_EXPIRY) {
+        return cached.blob;
+      }
+      
+      // Try to get from database cache if user is authenticated
+      const userId = supabase.auth.getUser().then(({ data }) => data.user?.id).catch(() => null);
+      try {
+        if (userId) {
+          const cachedBlob = await audioCacheApi.getAudio(await userId, cacheKey);
+          if (cachedBlob) {
+            audioCache.set(cacheKey, { blob: cachedBlob, timestamp: now });
+            return cachedBlob;
+          }
+        }
+      } catch (err) {
+        /* Continue if cache retrieval fails */
+      }
+      
+      // Clean up expired cache entries
+      for (const [key, entry] of audioCache.entries()) {
+        if (now - entry.timestamp > CACHE_EXPIRY) {
+          audioCache.delete(key);
+        }
+      }
+
+      const response = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Accept': 'audio/mpeg',
+            'Content-Type': 'application/json',
+            'xi-api-key': apiKey
+          },
+          body: JSON.stringify({
+            text: truncatedText,
+            model_id: "eleven_monolingual_v1",
+            voice_settings: voiceSettings
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `ElevenLabs API error: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      
+      // Cache the result in memory
+      audioCache.set(cacheKey, {
+        blob,
+        timestamp: now
+      });
+      
+      // Store in database cache if user is authenticated
+      try {
+        if (userId) {
+          await audioCacheApi.storeAudio(await userId, cacheKey, blob, 60);
+        }
+      } catch (err) {
+        /* Ignore storage errors */
+      }
+      
+      return blob;
+    } catch (error: any) {
+      logError('ElevenLabs API error', error);
+      
+      const apiError: ApiError = {
+        type: ErrorType.SERVER,
+        message: error.message || 'Failed to convert text to speech',
+        originalError: error
+      };
+      
+      throw apiError;
+    }
+  },
+
+  /**
+   * Get user information including character limits
+   */
+  async getUserInfo(): Promise<any> {
+    const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
+    
+    if (!apiKey) {
+      throw new Error('ElevenLabs API key is not configured');
+    }
+
+    const response = await fetch('https://api.elevenlabs.io/v1/user', {
+      headers: {
+        'Accept': 'application/json',
+        'xi-api-key': apiKey
+      }
+    });
+
+    if (!response.ok) throw new Error(`ElevenLabs API error: ${response.status}`);
+    return response.json();
+  },
+
+  /**
+   * Get available voices from ElevenLabs
+   */
+  async getVoices(): Promise<any[]> {
+    try {
+      const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
+      
+      if (!apiKey) {
+        return AVAILABLE_VOICES;
+      }
+
+      const response = await fetch(
+        'https://api.elevenlabs.io/v1/voices',
+        {
+          headers: {
+            'Accept': 'application/json',
+            'xi-api-key': apiKey
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`ElevenLabs API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.voices || AVAILABLE_VOICES;
+    } catch (error) {
+      logError('Error fetching ElevenLabs voices', error);
+      // Return default voices if API call fails
+      return AVAILABLE_VOICES;
+    }
+  },
+
+  /**
+   * Get voice settings for a specific voice
+   */
+  async getVoiceSettings(voiceId: string): Promise<any> {
+    try {
+      const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
+      if (!apiKey) return VOICE_SETTINGS.STANDARD;
+
+      const response = await fetch(`https://api.elevenlabs.io/v1/voices/${voiceId}/settings`, {
+        headers: { 'xi-api-key': apiKey }
+      });
+
+      if (!response.ok) return VOICE_SETTINGS.STANDARD;
+      return await response.json();
+    } catch (error) {
+      return VOICE_SETTINGS.STANDARD;
+    }
+  },
+
+  /**
+   * Check if the API key is configured
+   */
+  isConfigured(): boolean {
+    return !!import.meta.env.VITE_ELEVENLABS_API_KEY;
+  },
+  
+  /**
+   * Clear the audio cache
+   */
+  clearCache(): void {
+    audioCache.clear();
+  }
+};
               continue;
             }
           } catch (err) { /* Continue if storage cache fails */ }

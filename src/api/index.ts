@@ -8,3 +8,4 @@ export * from './userApi';
 export * from './openaiApi';
 export * from './onboardingApi';
 export * from './elevenlabsApi';
+export * from './audioCacheApi';

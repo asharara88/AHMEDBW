@@ -85,7 +85,10 @@ export default function HealthCoach() {
       audio.onplay = () => setIsPlaying(true);
       audio.onended = () => setIsPlaying(false);
       audio.onpause = () => setIsPlaying(false);
-      audio.onerror = () => setIsPlaying(false);
+      audio.onerror = (e) => {
+        logError('Audio playback error', e);
+        setIsPlaying(false);
+      };
       
       audio.play().catch(err => {
         logError('Error playing audio', err);

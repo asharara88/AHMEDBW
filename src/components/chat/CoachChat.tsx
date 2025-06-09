@@ -1,59 +1,27 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Loader, MessageCircle, Volume2, VolumeX, Settings, Headphones } from 'lucide-react';
+import { Send, Loader, MessageCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { openaiApi } from '../../api/openaiApi';
-import { elevenlabsApi } from '../../api/elevenlabsApi';
-import { useSpeechSynthesis } from '../../hooks/useSpeechSynthesis';
 import ApiErrorDisplay from '../common/ApiErrorDisplay';
 import { ApiError, ErrorType } from '../../api/apiClient';
-import VoicePreferences from './VoicePreferences';
-import AudioPlayer from './AudioPlayer';
 import ChatSettingsButton from './ChatSettingsButton';
-import AudioVisualizer from './AudioVisualizer';
+import { useChatStore } from '../../store';
 
 export default function CoachChat() {
   const [input, setInput] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
-  const [speechLoading, setSpeechLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [preferSpeech, setPreferSpeech] = useState(false);
-  const [voiceSettings, setVoiceSettings] = useState({
-    stability: 0.5,
-    similarityBoost: 0.75
-  });
-  const [selectedVoice, setSelectedVoice] = useState("21m00Tcm4TlvDq8ikWAM"); // Default voice ID (Rachel)
-  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const { user, isDemo } = useAuth();
+  const { generateSpeech, preferSpeech } = useChatStore();
 
   const handleSend = async () => {
-    const { speak, stop, isPlaying: speechIsPlaying } = useSpeechSynthesis({
-      onStart: () => setIsPlaying(true),
-      onEnd: () => setIsPlaying(false),
-      onError: (err) => console.error('Speech error:', err),
-      voiceId: selectedVoice
-    });
-    
     if (!input.trim()) return;
     
     setLoading(true);
     setError(null);
     setResponse('');
-    
-    // Clear previous audio
-    if (audioUrl) {
-      if (audioElement) {
-        audioElement.pause();
-        audioElement.onended = null;
-      }
-      URL.revokeObjectURL(audioUrl);
-      setAudioUrl(null);
-      setAudioElement(null);
-    }
 
     try {
       const userId = user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined);
@@ -63,7 +31,7 @@ export default function CoachChat() {
       
       // Generate speech if preferred
       if (preferSpeech && elevenlabsApi.isConfigured()) {
-        await generateSpeech(content, selectedVoice);
+        await generateSpeech(content);
       }
     } catch (err: any) {
       const apiError: ApiError = {
@@ -74,47 +42,6 @@ export default function CoachChat() {
       console.error("Chat error:", err);
     } finally {
       setLoading(false);
-    }
-  };
-  
-  const generateSpeech = async (text: string, voiceId: string) => {
-    setSpeechLoading(true);
-    try {
-      const audioBlob = await elevenlabsApi.textToSpeech(text, voiceId, voiceSettings);
-      const url = URL.createObjectURL(audioBlob);
-      setAudioUrl(url);
-      
-      // Play the audio
-      const audio = new Audio(url);
-      audio.onplay = () => setIsPlaying(true);
-      audio.onended = () => setIsPlaying(false);
-      audio.onpause = () => setIsPlaying(false);
-      audio.onerror = () => setIsPlaying(false);
-      
-      setAudioElement(audio);
-      audio.play();
-    } catch (err) {
-      console.error("Speech generation error:", err);
-    } finally {
-      setSpeechLoading(false);
-    }
-  };
-  
-  const toggleSpeech = () => {
-    setPreferSpeech(!preferSpeech);
-  };
-  
-  const stopAudio = () => {
-    if (audioElement) {
-      audioElement.pause();
-      audioElement.currentTime = 0;
-      setIsPlaying(false);
-    }
-  };
-  
-  const playAudio = () => {
-    if (audioElement && !isPlaying) {
-      audioElement.play();
     }
   };
 
@@ -133,22 +60,6 @@ export default function CoachChat() {
           </div>
           <ChatSettingsButton />
         </div>
-        
-        {/* Voice Settings Panel */}
-        <AnimatePresence mode="wait">
-          {showVoiceSettings && (
-            <VoicePreferences
-              preferSpeech={preferSpeech}
-              onToggleSpeech={toggleSpeech}
-              selectedVoice={selectedVoice}
-              onSelectVoice={setSelectedVoice}
-              voiceSettings={voiceSettings}
-              onUpdateVoiceSettings={setVoiceSettings}
-              className="mt-2"
-            />
-            
-          )}
-        </AnimatePresence>
       </div>
       
       <div className="p-4">
@@ -194,35 +105,6 @@ export default function CoachChat() {
             <div className="prose prose-sm max-w-none whitespace-pre-wrap text-text-light">
               {response}
             </div>
-            
-            {/* Speech loading indicator */}
-            {speechLoading && preferSpeech && (
-              <div className="mt-2 flex items-center justify-center rounded-lg bg-[hsl(var(--color-surface-2))] p-2">
-                <div className="flex items-center gap-2 text-xs text-text-light w-full">
-                  <Loader className="h-3 w-3 animate-spin" />
-                  <span>Generating voice response...</span>
-                  <div className="flex-1">
-                    <div className="h-1 w-full rounded-full bg-[hsl(var(--color-surface-1))]">
-                      <div className="h-full w-1/3 animate-pulse rounded-full bg-primary"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {/* Audio controls */}
-            {audioUrl && preferSpeech && !speechLoading && (
-              <div className="mt-2 space-y-2">
-                <AudioPlayer 
-                  src={audioUrl} 
-                  onEnded={() => setIsPlaying(false)} 
-                />
-                <AudioVisualizer 
-                  audioUrl={audioUrl} 
-                  isPlaying={isPlaying} 
-                />
-              </div>
-            )}
           </motion.div>
         )}
       </div>
