@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const FloatingChatButton = () => {
   const navigate = useNavigate();
+  const { currentTheme } = useTheme();
 
   return (
     <motion.div
