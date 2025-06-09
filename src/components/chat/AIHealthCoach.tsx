@@ -1,16 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, AlertCircle, Info, User } from 'lucide-react';
-import { useChatApi } from '../../hooks/useChatApi';
+import { Send, Loader, Info, User, Volume2, VolumeX, Settings, Headphones } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { logError } from '../../utils/logger';
+import { useAutoScroll } from '../../hooks/useAutoScroll';
 import ReactMarkdown from 'react-markdown';
-
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-}
+import { useChatStore } from '../../store';
+import ApiErrorDisplay from '../common/ApiErrorDisplay';
+import VoicePreferences from './VoicePreferences';
+import ChatSettingsButton from './ChatSettingsButton';
+import AudioVisualizer from './AudioVisualizer';
+import AudioPlayer from './AudioPlayer';
 
 const suggestedQuestions = [
   "What's my current health status?",
@@ -26,19 +27,32 @@ const suggestedQuestions = [
 ];
 
 export default function HealthCoach() {
-  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { sendMessage, loading, error: apiError } = useChatApi();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  
   const { user, isDemo } = useAuth();
   const { currentTheme } = useTheme();
-  const [error, setError] = useState<string | null>(null);
+  const { 
+    messages, 
+    loading, 
+    error, 
+    sendMessage, 
+    audioUrl,
+    speechLoading,
+    preferSpeech, 
+    setPreferSpeech,
+    selectedVoice,
+    setSelectedVoice,
+    voiceSettings,
+    updateVoiceSettings
+  } = useChatStore();
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  useAutoScroll(messagesEndRef, [messages]);
 
   useEffect(() => {
     // Select 5 random questions on component mount
@@ -46,54 +60,70 @@ export default function HealthCoach() {
     setSelectedSuggestions(shuffled.slice(0, 5));
   }, []);
 
-  useEffect(() => {
-    // Update local error state when API error changes
-    setError(apiError);
-  }, [apiError]);
-
   const handleSubmit = async (e: React.FormEvent | string) => {
     e?.preventDefault?.();
     const messageContent = typeof e === 'string' ? e : input;
     
     if (!messageContent.trim()) return;
-
-    setError(null); // Clear any previous errors
-
-    const userMessage: Message = {
-      role: 'user',
-      content: messageContent,
-      timestamp: new Date(),
-    };
     
-    setMessages(prev => [...prev, userMessage]);
     setInput('');
     setShowSuggestions(false);
 
     try {
-      if (!sendMessage) {
-        throw new Error("Chat service is not available");
-      }
-
-      const apiMessages = messages.concat(userMessage).map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
-
-      const response = await sendMessage(apiMessages, user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined));
-      
-      if (response) {
-        setMessages(prev => [
-          ...prev, 
-          {
-            role: 'assistant',
-            content: response,
-            timestamp: new Date()
-          }
-        ]);
-      }
+      await sendMessage(messageContent, user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined));
     } catch (err: any) {
-      console.error("Error in chat submission:", err);
-      setError(err.message || "Failed to get a response. Please try again.");
+      logError('Error in chat submission', err);
+    }
+  };
+
+  // Play audio when audioUrl changes
+  useEffect(() => {
+    if (audioUrl && audioRef.current && preferSpeech) {
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+      
+      audio.onplay = () => setIsPlaying(true);
+      audio.onended = () => setIsPlaying(false);
+      audio.onpause = () => setIsPlaying(false);
+      audio.onerror = (e) => {
+        logError('Audio playback error', e);
+        setIsPlaying(false);
+      };
+      
+      audio.play().catch(err => {
+        logError('Error playing audio', err);
+        setIsPlaying(false);
+      });
+      
+      return () => {
+        audio.pause();
+        audio.onplay = null;
+        audio.onended = null;
+        audio.onpause = null;
+        audio.onerror = null;
+      };
+    }
+  }, [audioUrl, preferSpeech]);
+
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  const toggleSpeech = () => {
+    setPreferSpeech(!preferSpeech);
+  };
+  
+  const stopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
     }
   };
 
@@ -117,22 +147,47 @@ export default function HealthCoach() {
           </div>
           <div className="flex items-center gap-2">
             <button 
+              className={`rounded-full p-1 ${preferSpeech ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
+              title={preferSpeech ? "Turn off voice" : "Turn on voice"}
+              onClick={toggleSpeech}
+            >
+              {preferSpeech ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            </button>
+            <button 
+              className={`rounded-full p-1 ${showVoiceSettings ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
+              title={preferSpeech ? "Turn off voice" : "Turn on voice"}
+              onClick={() => setShowVoiceSettings(!showVoiceSettings)}
+            >
+              <Settings className="h-4 w-4" />
+            </button>
+            <button 
               className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
               title="About Health Coach"
             >
               <Info className="h-4 w-4" />
             </button>
+            <ChatSettingsButton className="absolute right-2 top-2" />
           </div>
         </div>
+        
+        {/* Voice Settings Panel */}
+        <AnimatePresence mode="wait">
+          {showVoiceSettings && (
+            <VoicePreferences
+              preferSpeech={preferSpeech}
+              onToggleSpeech={toggleSpeech}
+              selectedVoice={selectedVoice}
+              onSelectVoice={setSelectedVoice}
+              voiceSettings={voiceSettings}
+              onUpdateVoiceSettings={updateVoiceSettings}
+              className="mt-2"
+            />
+          )}
+        </AnimatePresence>
       </div>
       
       <div className="flex-1 overflow-y-auto p-4 overscroll-contain">
-        {error && (
-          <div className="mb-4 flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error">
-            <AlertCircle className="h-5 w-5" />
-            <p>{error}</p>
-          </div>
-        )}
+        {error && <ApiErrorDisplay error={{ type: 'unknown', message: error }} />}
 
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
@@ -196,8 +251,14 @@ export default function HealthCoach() {
                 ) : (
                   <div>{message.content}</div>
                 )}
+                {message.role === 'assistant' && preferSpeech && (
+                  <div className="mt-2 flex items-center gap-2 text-xs text-text-light">
+                    <Headphones className="h-3 w-3" />
+                    <span>Voice response available</span>
+                  </div>
+                )}
                 <div className="mt-1 text-xs opacity-70">
-                  {message.timestamp.toLocaleTimeString()}
+                  {message.timestamp?.toLocaleTimeString()}
                 </div>
               </div>
               
@@ -228,6 +289,35 @@ export default function HealthCoach() {
 
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Speech loading indicator */}
+      {speechLoading && preferSpeech && (
+        <div className="flex items-center justify-center border-t border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] px-4 py-2">
+          <div className="flex items-center gap-2 text-xs text-text-light w-full">
+            <Loader className="h-3 w-3 animate-spin" />
+            <span>Generating voice response...</span>
+            <div className="flex-1">
+              <div className="h-1 w-full rounded-full bg-[hsl(var(--color-surface-2))]">
+                <div className="h-full w-1/3 animate-pulse rounded-full bg-primary"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Audio controls when playing */}
+      {audioUrl && preferSpeech && (
+        <div className="border-t border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] p-2 space-y-2">
+          <AudioPlayer 
+            src={audioUrl} 
+            onEnded={() => setIsPlaying(false)} 
+          />
+          <AudioVisualizer 
+            audioUrl={audioUrl} 
+            isPlaying={isPlaying} 
+          />
+        </div>
+      )}
 
       <div className="border-t border-[hsl(var(--color-border))] p-4">
         <form onSubmit={handleSubmit} className="flex gap-2">

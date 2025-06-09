@@ -1,16 +1,20 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Loader, AlertCircle, MessageCircle } from 'lucide-react';
-import { useChatApi } from '../../hooks/useChatApi';
+import { Send, Loader, MessageCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { openaiApi } from '../../api/openaiApi';
+import ApiErrorDisplay from '../common/ApiErrorDisplay';
+import { ApiError, ErrorType } from '../../api/apiClient';
+import ChatSettingsButton from './ChatSettingsButton';
+import { useChatStore } from '../../store';
 
 export default function CoachChat() {
   const [input, setInput] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
   const { user, isDemo } = useAuth();
-  const { sendMessage } = useChatApi();
+  const { generateSpeech, preferSpeech } = useChatStore();
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -20,13 +24,21 @@ export default function CoachChat() {
     setResponse('');
 
     try {
-      const messages = [{ role: 'user', content: input }];
       const userId = user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined);
       
-      const content = await sendMessage(messages, userId);
+      const content = await openaiApi.generateResponse(input, { userId });
       setResponse(content);
+      
+      // Generate speech if preferred
+      if (preferSpeech && elevenlabsApi.isConfigured()) {
+        await generateSpeech(content);
+      }
     } catch (err: any) {
-      setError(err.message || "Failed to fetch");
+      const apiError: ApiError = {
+        type: ErrorType.UNKNOWN,
+        message: err.message || "Failed to fetch"
+      };
+      setError(apiError);
       console.error("Chat error:", err);
     } finally {
       setLoading(false);
@@ -36,7 +48,8 @@ export default function CoachChat() {
   return (
     <div className="rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] shadow-sm">
       <div className="border-b border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] p-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
             <MessageCircle className="h-5 w-5" />
           </div>
@@ -44,6 +57,8 @@ export default function CoachChat() {
             <h3 className="text-sm font-medium">Quick Coach Chat</h3>
             <p className="text-xs text-text-light">Ask a health question</p>
           </div>
+          </div>
+          <ChatSettingsButton />
         </div>
       </div>
       
@@ -78,12 +93,7 @@ export default function CoachChat() {
           </button>
         </div>
 
-        {error && (
-          <div className="mt-4 flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error">
-            <AlertCircle className="h-5 w-5" />
-            <p>{error}</p>
-          </div>
-        )}
+        {error && <ApiErrorDisplay error={error} className="mt-4" />}
         
         {response && (
           <motion.div

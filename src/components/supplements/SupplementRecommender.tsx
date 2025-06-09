@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { useOpenAi } from '../../hooks/useOpenAi';
+import { Loader } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Loader, AlertCircle } from 'lucide-react';
+import { supplementApi } from '../../api/supplementApi';
+import ApiErrorDisplay from '../common/ApiErrorDisplay';
+import { useApi } from '../../hooks/useApi';
 
 interface SupplementRecommenderProps {
   onRecommendationsReceived?: (recommendations: string) => void;
@@ -10,29 +12,26 @@ interface SupplementRecommenderProps {
 const SupplementRecommender = ({ onRecommendationsReceived }: SupplementRecommenderProps) => {
   const [goal, setGoal] = useState('');
   const [recommendations, setRecommendations] = useState<string | null>(null);
-  const { generateResponse, loading, error } = useOpenAi();
   const { user } = useAuth();
+  
+  const { loading, error, execute: getRecommendations } = useApi(
+    supplementApi.getRecommendations,
+    {
+      onSuccess: (response) => {
+        setRecommendations(response);
+        if (onRecommendationsReceived) {
+          onRecommendationsReceived(response);
+        }
+      },
+      errorMessage: 'Failed to get recommendations'
+    }
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!goal.trim()) return;
-
-    try {
-      const prompt = `Based on my goal to "${goal}", what supplements would you recommend? Please provide a detailed breakdown with dosages and timing.`;
-      
-      const response = await generateResponse(prompt, {
-        userId: user?.id,
-        goal: goal,
-        userType: 'health optimizer'
-      });
-      
-      setRecommendations(response);
-      if (onRecommendationsReceived) {
-        onRecommendationsReceived(response);
-      }
-    } catch (err) {
-      console.error('Error getting recommendations:', err);
-    }
+    
+    await getRecommendations(goal, user?.id);
   };
 
   return (
@@ -71,12 +70,7 @@ const SupplementRecommender = ({ onRecommendationsReceived }: SupplementRecommen
         </button>
       </form>
       
-      {error && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error">
-          <AlertCircle className="h-5 w-5" />
-          <p>{error}</p>
-        </div>
-      )}
+      {error && <ApiErrorDisplay error={error} className="mb-4" />}
       
       {recommendations && (
         <div className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-4 overflow-x-auto">

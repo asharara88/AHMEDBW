@@ -1,59 +1,70 @@
 import { createClient } from '@supabase/supabase-js';
+import { logError, logInfo, logWarning } from '../utils/logger';
 
 // Get environment variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Log environment variables (without exposing sensitive data)
-console.log('Supabase URL configured:', !!supabaseUrl);
-console.log('Supabase Anon Key configured:', !!supabaseAnonKey);
-
+// Validate required environment variables
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables. Check your .env file.');
 }
 
-// Create a single Supabase client instance to use throughout the app
-export const supabase = createClient(
-  supabaseUrl,
-  supabaseAnonKey,
-  {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true,
-      storage: localStorage
+// Log environment setup in development only (prevents leaking info)
+if (import.meta.env.DEV) {
+  logInfo('Supabase environment variables are set.');
+}
+
+// Create Supabase client (singleton)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    storage: localStorage, // use sessionStorage if tokens must clear on tab close
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'biowell-ai-web'
     },
-    global: {
-      fetch: (...args) => {
-        return fetch(...args).catch(err => {
-          console.error('Supabase fetch error:', err);
-          throw err;
-        });
+    fetch: async (...args) => {
+      try {
+        return await fetch(...args);
+      } catch (err) {
+        logError('Global Supabase fetch failed:', err);
+        throw err;
       }
-    }
-  }
-);
+    },
+  },
+});
 
-// Add a listener for auth state changes to handle token refresh errors
+// Handle auth state changes
 supabase.auth.onAuthStateChange((event, session) => {
-  if (event === 'TOKEN_REFRESHED') {
-    console.log('Token refreshed successfully');
-  }
+  switch (event) {
+    case 'TOKEN_REFRESHED':
+      logInfo('Session token refreshed');
+      break;
 
-  if (event === 'TOKEN_REFRESH_FAILED') {
-    console.warn('Token refresh failed, signing out');
-    supabase.auth
-      .signOut()
-      .catch((err) => console.error('Error during sign out:', err));
-    localStorage.removeItem('biowell-user-data');
-  }
-  
-  if (event === 'SIGNED_OUT') {
-    console.log('User signed out');
-    localStorage.removeItem('supabase.auth.token');
-  }
-  
-  if (event === 'USER_UPDATED' || event === 'SIGNED_IN') {
-    console.log('Auth state updated:', event);
+    case 'TOKEN_REFRESH_FAILED':
+      logWarning('Session refresh failed. Signing out...');
+      supabase.auth.signOut().catch(err => logError('Sign out error:', err));
+      localStorage.removeItem('biowell-user-data');
+      break;
+
+    case 'SIGNED_OUT':
+      logInfo('User signed out');
+      localStorage.removeItem('supabase.auth.token');
+      break;
+
+    case 'SIGNED_IN':
+    case 'USER_UPDATED':
+      logInfo('Auth state changed:', event);
+      break;
+
+    default:
+      if (import.meta.env.DEV) {
+        logInfo('Unhandled auth event:', event);
+      }
+      break;
   }
 });

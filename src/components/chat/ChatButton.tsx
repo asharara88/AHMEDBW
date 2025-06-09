@@ -1,29 +1,28 @@
 import { useState } from 'react';
-import { useChatApi } from '../../hooks/useChatApi';
-import { useAuth } from '../../contexts/AuthContext';
 import { Loader, AlertCircle } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { openaiApi } from '../../api/openaiApi';
 
 export default function ChatButton() {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const { user, isDemo } = useAuth();
-  const { sendMessage, error } = useChatApi();
 
   const handleClick = async () => {
     setLoading(true);
     setResponse('');
+    setError(null);
 
     try {
-      const messages = [
-        { role: 'user', content: 'Give me a daily wellness tip.' }
-      ];
-
+      const prompt = 'Give me a daily wellness tip.';
       const userId = user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined);
-      const reply = await sendMessage(messages, userId);
+      
+      const reply = await openaiApi.generateResponse(prompt, { userId });
       setResponse(reply || 'No response received.');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error in chat:', err);
-      setResponse('Failed to fetch assistant reply.');
+      setError(err.message || 'Failed to fetch assistant reply.');
     } finally {
       setLoading(false);
     }

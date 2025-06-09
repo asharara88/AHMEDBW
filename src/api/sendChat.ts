@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
+import { logError } from '../utils/logger';
 
 export const sendChatMessage = async (messages: any[]) => {
   const { data: { session } } = await supabase.auth.getSession();
@@ -16,7 +17,8 @@ export const sendChatMessage = async (messages: any[]) => {
         'Authorization': `Bearer ${session.access_token}`,
         'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
       },
-      body: JSON.stringify({ messages })
+      body: JSON.stringify({ messages }),
+      credentials: 'include'
     }
   );
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useToggle } from '../../hooks/useToggle';
 import { Plus, X, Check, Save, Package, AlertCircle, Info } from 'lucide-react';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -15,7 +16,11 @@ interface StackBuilderProps {
 const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: StackBuilderProps) => {
   const [stacks, setStacks] = useState<any[]>([]);
   const [activeStack, setActiveStack] = useState<string | null>(null);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const {
+    value: showCreateForm,
+    toggle: toggleCreateForm,
+    setOn: openCreateForm,
+  } = useToggle(false);
   const [newStack, setNewStack] = useState<{
     name: string;
     description: string;
@@ -101,7 +106,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
         description: '',
         supplements: []
       });
-      setShowCreateForm(false);
+      toggleCreateForm();
       setSuccess('Stack created successfully');
       
       // Clear success message after 3 seconds
@@ -200,7 +205,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">My Supplement Stacks</h2>
         <button
-          onClick={() => setShowCreateForm(!showCreateForm)}
+          onClick={toggleCreateForm}
           className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark"
         >
           {showCreateForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
@@ -355,7 +360,6 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
                           src={supplement.form_image_url || supplement.image_url}
                           alt={supplement.name}
                           className="h-full w-full object-contain"
-                          fallbackSrc="https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg"
                         />
                       </div>
                       <span className="truncate max-w-[120px]">{supplement.name}</span>
@@ -411,7 +415,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
             Create custom supplement stacks to organize your supplements by health goals.
           </p>
           <button
-            onClick={() => setShowCreateForm(true)}
+            onClick={openCreateForm}
             className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark"
           >
             <Plus className="h-4 w-4" />
