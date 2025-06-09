@@ -13,6 +13,10 @@ export interface ChatState {
   error: string | null;
   audioUrl: string | null;
   preferSpeech: boolean;
+  voiceSettings: {
+    stability: number;
+    similarityBoost: number;
+  };
   selectedVoice: string;
   
   // Actions
@@ -22,6 +26,7 @@ export interface ChatState {
   fetchChatHistory: (userId: string) => Promise<void>;
   setPreferSpeech: (prefer: boolean) => void;
   setSelectedVoice: (voiceId: string) => void;
+  updateVoiceSettings: (settings: { stability: number; similarityBoost: number }) => void;
 }
 
 export const useChatStore = create<ChatState>()(
@@ -34,6 +39,10 @@ export const useChatStore = create<ChatState>()(
       error: null,
       audioUrl: null,
       preferSpeech: false,
+      voiceSettings: {
+        stability: 0.5,
+        similarityBoost: 0.75
+      },
       selectedVoice: "21m00Tcm4TlvDq8ikWAM", // Default voice ID (Rachel)
       
       sendMessage: async (message, userId) => {
@@ -71,7 +80,7 @@ export const useChatStore = create<ChatState>()(
           
           // Generate speech if preferred
           if (get().preferSpeech) {
-            get().generateSpeech(response);
+            await get().generateSpeech(response);
           }
           
           // Save to chat history if userId is provided
@@ -111,7 +120,16 @@ export const useChatStore = create<ChatState>()(
           const voiceId = get().selectedVoice;
           
           // Generate speech from text
-          const audioBlob = await elevenlabsApi.textToSpeech(text, voiceId);
+          const audioBlob = await elevenlabsApi.textToSpeech(
+            text,
+            voiceId,
+            {
+              stability: get().voiceSettings.stability,
+              similarity_boost: get().voiceSettings.similarityBoost,
+              style: 0.0,
+              use_speaker_boost: true
+            }
+          );
           
           // Create URL for the audio blob
           const url = URL.createObjectURL(audioBlob);
@@ -164,13 +182,18 @@ export const useChatStore = create<ChatState>()(
       
       setSelectedVoice: (voiceId: string) => {
         set({ selectedVoice: voiceId });
+      },
+      
+      updateVoiceSettings: (settings) => {
+        set({ voiceSettings: settings });
       }
     }),
     {
       name: 'biowell-chat-storage',
       partialize: (state) => ({
         preferSpeech: state.preferSpeech,
-        selectedVoice: state.selectedVoice
+        selectedVoice: state.selectedVoice,
+        voiceSettings: state.voiceSettings
       }),
     }
   )

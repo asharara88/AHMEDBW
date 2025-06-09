@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Volume2, VolumeX, Settings, Info, Check } from 'lucide-react';
+import { X, Info, Headphones } from 'lucide-react';
 import { AVAILABLE_VOICES, elevenlabsApi } from '../../api/elevenlabsApi';
 
 interface VoiceSettingsPanelProps {
@@ -10,6 +10,7 @@ interface VoiceSettingsPanelProps {
   onToggleSpeech: () => void;
   selectedVoice: string;
   onSelectVoice: (voiceId: string) => void;
+  className?: string;
 }
 
 const VoiceSettingsPanel = ({
@@ -18,6 +19,7 @@ const VoiceSettingsPanel = ({
   preferSpeech,
   onToggleSpeech,
   selectedVoice,
+  className = '',
   onSelectVoice
 }: VoiceSettingsPanelProps) => {
   const [voices, setVoices] = useState(AVAILABLE_VOICES);
@@ -82,7 +84,7 @@ const VoiceSettingsPanel = ({
       animate={{ height: 'auto', opacity: 1 }}
       exit={{ height: 0, opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="mt-2 overflow-hidden rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-4"
+      className={`overflow-hidden rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-4 ${className}`}
     >
       <div className="mb-4 flex items-center justify-between">
         <h4 className="text-sm font-medium">Voice Settings</h4>
@@ -93,6 +95,7 @@ const VoiceSettingsPanel = ({
           <X className="h-4 w-4" />
         </button>
       </div>
+
       
       <div className="mb-4 flex items-center gap-2">
         <input
@@ -106,6 +109,7 @@ const VoiceSettingsPanel = ({
           Enable voice responses
         </label>
       </div>
+
       
       <div className="mb-4">
         <div className="flex items-center justify-between">
@@ -115,7 +119,7 @@ const VoiceSettingsPanel = ({
           {loading && <span className="text-xs text-text-light">Loading voices...</span>}
         </div>
         
-        <div className="space-y-2 mt-2">
+        <div className="mt-2 space-y-2">
           {voices.map((voice) => (
             <div 
               key={voice.id}
@@ -135,7 +139,7 @@ const VoiceSettingsPanel = ({
                   className="h-4 w-4 text-primary focus:ring-primary"
                   disabled={!preferSpeech}
                 />
-                <label htmlFor={`voice-${voice.id}`} className="text-sm">
+                <label htmlFor={`voice-${voice.id}`} className="text-sm flex items-center gap-1">
                   {voice.name}
                 </label>
               </div>
@@ -143,13 +147,14 @@ const VoiceSettingsPanel = ({
               <button
                 onClick={() => testVoice(voice.id)}
                 disabled={!preferSpeech || playingVoiceId === voice.id}
-                className={`rounded-lg px-2 py-1 text-xs transition-colors ${
+                className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs transition-colors ${
                   playingVoiceId === voice.id
                     ? 'bg-primary/20 text-primary'
                     : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
                 } disabled:cursor-not-allowed disabled:opacity-50`}
               >
-                {playingVoiceId === voice.id ? 'Playing...' : 'Test'}
+                <Headphones className="h-3 w-3" />
+                {playingVoiceId === voice.id ? 'Playing...' : 'Preview'}
               </button>
             </div>
           ))}

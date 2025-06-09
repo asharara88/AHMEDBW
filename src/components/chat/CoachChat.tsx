@@ -4,9 +4,13 @@ import { Send, Loader, MessageCircle, Volume2, VolumeX, Settings, Headphones } f
 import { useAuth } from '../../contexts/AuthContext';
 import { openaiApi } from '../../api/openaiApi';
 import { elevenlabsApi } from '../../api/elevenlabsApi';
+import { useSpeechSynthesis } from '../../hooks/useSpeechSynthesis';
 import ApiErrorDisplay from '../common/ApiErrorDisplay';
 import { ApiError, ErrorType } from '../../api/apiClient';
-import VoiceSettingsPanel from './VoiceSettingsPanel';
+import VoicePreferences from './VoicePreferences';
+import AudioPlayer from './AudioPlayer';
+import ChatSettingsButton from './ChatSettingsButton';
+import AudioVisualizer from './AudioVisualizer';
 
 export default function CoachChat() {
   const [input, setInput] = useState('');
@@ -16,6 +20,10 @@ export default function CoachChat() {
   const [error, setError] = useState<ApiError | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [preferSpeech, setPreferSpeech] = useState(false);
+  const [voiceSettings, setVoiceSettings] = useState({
+    stability: 0.5,
+    similarityBoost: 0.75
+  });
   const [selectedVoice, setSelectedVoice] = useState("21m00Tcm4TlvDq8ikWAM"); // Default voice ID (Rachel)
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -23,6 +31,13 @@ export default function CoachChat() {
   const { user, isDemo } = useAuth();
 
   const handleSend = async () => {
+    const { speak, stop, isPlaying: speechIsPlaying } = useSpeechSynthesis({
+      onStart: () => setIsPlaying(true),
+      onEnd: () => setIsPlaying(false),
+      onError: (err) => console.error('Speech error:', err),
+      voiceId: selectedVoice
+    });
+    
     if (!input.trim()) return;
     
     setLoading(true);
@@ -48,7 +63,7 @@ export default function CoachChat() {
       
       // Generate speech if preferred
       if (preferSpeech && elevenlabsApi.isConfigured()) {
-        generateSpeech(content, selectedVoice);
+        await generateSpeech(content, selectedVoice);
       }
     } catch (err: any) {
       const apiError: ApiError = {
@@ -65,7 +80,7 @@ export default function CoachChat() {
   const generateSpeech = async (text: string, voiceId: string) => {
     setSpeechLoading(true);
     try {
-      const audioBlob = await elevenlabsApi.textToSpeech(text, voiceId);
+      const audioBlob = await elevenlabsApi.textToSpeech(text, voiceId, voiceSettings);
       const url = URL.createObjectURL(audioBlob);
       setAudioUrl(url);
       
@@ -116,35 +131,22 @@ export default function CoachChat() {
             <p className="text-xs text-text-light">Ask a health question</p>
           </div>
           </div>
-          <div className="flex items-center gap-1">
-            <button 
-              className={`rounded-full p-1 ${preferSpeech ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
-              title={preferSpeech ? "Turn off voice" : "Turn on voice"}
-              onClick={toggleSpeech}
-            >
-              {preferSpeech ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-            </button>
-            <button 
-              className={`rounded-full p-1 ${showVoiceSettings ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
-              title="Voice settings"
-              onClick={() => setShowVoiceSettings(!showVoiceSettings)}
-            >
-              <Settings className="h-4 w-4" />
-            </button>
-          </div>
+          <ChatSettingsButton />
         </div>
         
         {/* Voice Settings Panel */}
         <AnimatePresence mode="wait">
           {showVoiceSettings && (
-            <VoiceSettingsPanel
-              isOpen={showVoiceSettings}
-              onClose={() => setShowVoiceSettings(false)}
+            <VoicePreferences
               preferSpeech={preferSpeech}
               onToggleSpeech={toggleSpeech}
               selectedVoice={selectedVoice}
               onSelectVoice={setSelectedVoice}
+              voiceSettings={voiceSettings}
+              onUpdateVoiceSettings={setVoiceSettings}
+              className="mt-2"
             />
+            
           )}
         </AnimatePresence>
       </div>
@@ -196,43 +198,29 @@ export default function CoachChat() {
             {/* Speech loading indicator */}
             {speechLoading && preferSpeech && (
               <div className="mt-2 flex items-center justify-center rounded-lg bg-[hsl(var(--color-surface-2))] p-2">
-                <div className="flex items-center gap-2 text-xs text-text-light">
+                <div className="flex items-center gap-2 text-xs text-text-light w-full">
                   <Loader className="h-3 w-3 animate-spin" />
                   <span>Generating voice response...</span>
+                  <div className="flex-1">
+                    <div className="h-1 w-full rounded-full bg-[hsl(var(--color-surface-1))]">
+                      <div className="h-full w-1/3 animate-pulse rounded-full bg-primary"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
             
             {/* Audio controls */}
             {audioUrl && preferSpeech && !speechLoading && (
-              <div className="mt-2 flex items-center justify-between rounded-lg bg-[hsl(var(--color-surface-2))] p-2">
-                <div className="flex items-center gap-2">
-                  <Headphones className="h-4 w-4 text-primary" />
-                  <span className="text-xs font-medium">Voice Response</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {isPlaying ? (
-                    <button 
-                      onClick={stopAudio}
-                      className="rounded-full bg-primary/10 p-1 text-primary hover:bg-primary/20"
-                    >
-                      <span className="sr-only">Stop</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="6" y="6" width="12" height="12" rx="1" />
-                      </svg>
-                    </button>
-                  ) : (
-                    <button 
-                      onClick={playAudio}
-                      className="rounded-full bg-primary/10 p-1 text-primary hover:bg-primary/20"
-                    >
-                      <span className="sr-only">Play</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polygon points="5 3 19 12 5 21 5 3" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
+              <div className="mt-2 space-y-2">
+                <AudioPlayer 
+                  src={audioUrl} 
+                  onEnded={() => setIsPlaying(false)} 
+                />
+                <AudioVisualizer 
+                  audioUrl={audioUrl} 
+                  isPlaying={isPlaying} 
+                />
               </div>
             )}
           </motion.div>
