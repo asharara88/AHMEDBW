@@ -37,17 +37,17 @@ export async function callOpenAiFunction(prompt: string, context?: Record<string
       // Always include the anon key as a fallback
       headers["apikey"] = import.meta.env.VITE_SUPABASE_ANON_KEY;
       
+      // Use the openai-proxy endpoint
+      const endpoint = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openai-proxy`;
+      
       // Validate URL format
       try {
         new URL(endpoint);
       } catch (error) {
-        throw new Error(`Invalid Supabase URL format: ${supabaseUrl}`);
+        throw new Error(`Invalid Supabase URL format: ${endpoint}`);
       }
       
       console.log("Sending OpenAI request to:", endpoint);
-      
-      // Use the openai-proxy endpoint
-      const endpoint = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openai-proxy`;
       
       const response = await fetch(endpoint, {
         method: "POST",

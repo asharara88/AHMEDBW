@@ -93,11 +93,6 @@ export function useChatApi() {
 
         const data = await response.json();
         return data.choices?.[0]?.message?.content || "";
-      } catch (fetchError) {
-        console.error("Fetch error:", fetchError);
-        throw fetchError;
-      } finally {
-        clearTimeout(timeoutId);
       }
     } catch (err: any) {
       console.error("Chat API error:", err);
