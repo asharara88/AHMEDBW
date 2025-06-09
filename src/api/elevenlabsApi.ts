@@ -145,6 +145,7 @@ export const elevenlabsApi = {
           } catch (err) { 
             /* Ignore storage errors */ 
           }
+        }
         
         // Concatenate all audio blobs
         return concatenateAudioBlobs(audioBlobs);
