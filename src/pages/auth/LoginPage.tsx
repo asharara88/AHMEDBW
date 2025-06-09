@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
 import { AlertCircle } from 'lucide-react';
 import Logo from '../../components/common/Logo';
+import { useAuthStore } from '../../store';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -10,7 +10,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const { signIn, startDemo, user, checkOnboardingStatus } = useAuth();
+  const { signIn, startDemo, user, checkOnboardingStatus } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
   

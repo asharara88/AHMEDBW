@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Activity, Heart, Brain, Zap, ChevronRight, Bell, Settings, User, Package } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import DeviceDropdown from './DeviceDropdown';
+import SubscriptionStatus from '../common/SubscriptionStatus';
 
 interface DashboardSidebarProps {
   userId: string;
@@ -49,6 +50,9 @@ const DashboardSidebar = ({ userId }: DashboardSidebarProps) => {
           </Link>
         </div>
       </div>
+      
+      {/* Subscription Status */}
+      <SubscriptionStatus />
       
       {/* Device Connection */}
       <div className="rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4">

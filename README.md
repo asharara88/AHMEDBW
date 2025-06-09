@@ -53,7 +53,9 @@ VITE_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
 VITE_CAPTCHA_SECRET_KEY=your-captcha-secret-key
 ```
 
-4. Start the development server:
+4. For production builds, copy `.env.production.example` to `.env.production` and add your production values. This file is ignored by Git.
+
+5. Start the development server:
 
 ```bash
 npm run dev
