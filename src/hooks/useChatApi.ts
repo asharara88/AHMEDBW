@@ -77,23 +77,36 @@ export function useChatApi() {
             console.error("Error parsing error response:", parseError);
           }
 
-        console.error(`Chat API request failed with status ${response.status}`);
+          console.error(`Chat API request failed with status ${response.status}`);
           // Handle specific status codes
-          switch (response.status) {
-            case 401:
-              throw new Error("Authentication failed. Please try logging in again.");
-            case 404:
-              throw new Error("Chat service endpoint not found. Please try again later.");
-            case 429:
-              throw new Error("Too many requests. Please wait a moment and try again.");
-            default:
-              throw new Error(errorMessage);
+      if (!response.ok) {
+        // Try to get detailed error message from response
+        let errorMessage = `Request failed with status ${response.status}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error?.message) {
+            errorMessage = errorData.error.message;
           }
+        } catch (parseError) {
+          console.error("Error parsing error response:", parseError);
         }
 
-        const data = await response.json();
-        return data.choices?.[0]?.message?.content || "";
+      console.error(`Chat API request failed with status ${response.status}`);
+        // Handle specific status codes
+        switch (response.status) {
+          case 401:
+            throw new Error("Authentication failed. Please try logging in again.");
+          case 404:
+            throw new Error("Chat service endpoint not found. Please try again later.");
+          case 429:
+            throw new Error("Too many requests. Please wait a moment and try again.");
+          default:
+            throw new Error(errorMessage);
+        }
       }
+
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content || "";
     } catch (err: any) {
       console.error("Chat API error:", err);
       
@@ -101,7 +114,7 @@ export function useChatApi() {
       if (err.name === 'AbortError') {
         errorMessage = "Request timed out. The server took too long to respond.";
       } else if (err instanceof TypeError && err.message === "Failed to fetch") {
-        errorMessage = "Network error: Unable to connect to the chat service. Please check your internet connection.";
+        errorMessage = "Network error: Unable to connect to the chat service. Please check your internet connection and ensure the Supabase Edge Function is deployed.";
       } else if (err.message.includes("Supabase URL") || err.message.includes("Anon Key")) {
         errorMessage = "Configuration error: Supabase settings are missing or invalid.";
       } else {
