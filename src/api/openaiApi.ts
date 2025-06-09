@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 import { ApiError, ErrorType } from './apiClient';
 import { logError } from '../utils/logger';
 
-// Initialize OpenAI client
+// Initialize OpenAI client with API key from environment variables
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
   dangerouslyAllowBrowser: true // Only for development, in production use Edge Functions

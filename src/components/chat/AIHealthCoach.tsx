@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, Info, User } from 'lucide-react';
+import { Send, Loader, Info, User, Volume2, VolumeX, Settings } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { logError } from '../../utils/logger';
@@ -8,6 +8,7 @@ import { useAutoScroll } from '../../hooks/useAutoScroll';
 import ReactMarkdown from 'react-markdown';
 import { useChatStore } from '../../store';
 import ApiErrorDisplay from '../common/ApiErrorDisplay';
+import { AVAILABLE_VOICES } from '../../api/elevenlabsApi';
 
 const suggestedQuestions = [
   "What's my current health status?",
@@ -27,10 +28,23 @@ export default function HealthCoach() {
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
   
   const { user, isDemo } = useAuth();
   const { currentTheme } = useTheme();
-  const { messages, loading, error, sendMessage } = useChatStore();
+  const { 
+    messages, 
+    loading, 
+    error, 
+    sendMessage, 
+    audioUrl, 
+    speechLoading, 
+    preferSpeech, 
+    setPreferSpeech,
+    selectedVoice,
+    setSelectedVoice
+  } = useChatStore();
 
   useAutoScroll(messagesEndRef, [messages]);
 
@@ -56,6 +70,19 @@ export default function HealthCoach() {
     }
   };
 
+  // Play audio when audioUrl changes
+  useEffect(() => {
+    if (audioUrl && audioRef.current && preferSpeech) {
+      audioRef.current.play().catch(err => {
+        logError('Error playing audio', err);
+      });
+    }
+  }, [audioUrl, preferSpeech]);
+
+  const toggleSpeech = () => {
+    setPreferSpeech(!preferSpeech);
+  };
+
   return (
     <div className="flex h-full flex-col rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] shadow-lg">
       <div className="border-b border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] p-3">
@@ -77,12 +104,81 @@ export default function HealthCoach() {
           <div className="flex items-center gap-2">
             <button 
               className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
+              title={preferSpeech ? "Turn off voice" : "Turn on voice"}
+              onClick={toggleSpeech}
+            >
+              {preferSpeech ? <Volume2 className="h-4 w-4 text-primary" /> : <VolumeX className="h-4 w-4" />}
+            </button>
+            <button 
+              className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
+              title="Voice settings"
+              onClick={() => setShowVoiceSettings(!showVoiceSettings)}
+            >
+              <Settings className="h-4 w-4" />
+            </button>
+            <button 
+              className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
               title="About Health Coach"
             >
               <Info className="h-4 w-4" />
             </button>
           </div>
         </div>
+        
+        {/* Voice Settings Panel */}
+        <AnimatePresence>
+          {showVoiceSettings && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mt-2 overflow-hidden rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3"
+            >
+              <div className="mb-2 flex items-center justify-between">
+                <h4 className="text-xs font-medium">Voice Settings</h4>
+                <button
+                  onClick={() => setShowVoiceSettings(false)}
+                  className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
+                >
+                  <Info className="h-3 w-3" />
+                </button>
+              </div>
+              
+              <div className="mb-2 flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="enable-speech"
+                  checked={preferSpeech}
+                  onChange={toggleSpeech}
+                  className="h-4 w-4 rounded border-[hsl(var(--color-border))] text-primary focus:ring-primary"
+                />
+                <label htmlFor="enable-speech" className="text-xs">
+                  Enable voice responses
+                </label>
+              </div>
+              
+              <div>
+                <label htmlFor="voice-select" className="mb-1 block text-xs">
+                  Select voice
+                </label>
+                <select
+                  id="voice-select"
+                  value={selectedVoice}
+                  onChange={(e) => setSelectedVoice(e.target.value)}
+                  className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-2 py-1 text-xs"
+                  disabled={!preferSpeech}
+                >
+                  {AVAILABLE_VOICES.map((voice) => (
+                    <option key={voice.id} value={voice.id}>
+                      {voice.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       
       <div className="flex-1 overflow-y-auto p-4 overscroll-contain">
@@ -182,6 +278,19 @@ export default function HealthCoach() {
 
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Hidden audio element for playing speech */}
+      <audio ref={audioRef} src={audioUrl || ''} className="hidden" />
+      
+      {/* Speech loading indicator */}
+      {speechLoading && preferSpeech && (
+        <div className="flex items-center justify-center border-t border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] px-4 py-2">
+          <div className="flex items-center gap-2 text-xs text-text-light">
+            <Loader className="h-3 w-3 animate-spin" />
+            <span>Generating voice response...</span>
+          </div>
+        </div>
+      )}
 
       <div className="border-t border-[hsl(var(--color-border))] p-4">
         <form onSubmit={handleSubmit} className="flex gap-2">

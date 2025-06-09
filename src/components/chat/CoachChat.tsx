@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Loader, MessageCircle } from 'lucide-react';
+import { Send, Loader, MessageCircle, Volume2, VolumeX } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { openaiApi } from '../../api/openaiApi';
+import { elevenlabsApi } from '../../api/elevenlabsApi';
 import ApiErrorDisplay from '../common/ApiErrorDisplay';
 import { ApiError, ErrorType } from '../../api/apiClient';
 
@@ -10,7 +11,10 @@ export default function CoachChat() {
   const [input, setInput] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
+  const [speechLoading, setSpeechLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [preferSpeech, setPreferSpeech] = useState(false);
   const { user, isDemo } = useAuth();
 
   const handleSend = async () => {
@@ -19,12 +23,23 @@ export default function CoachChat() {
     setLoading(true);
     setError(null);
     setResponse('');
+    
+    // Clear previous audio
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+      setAudioUrl(null);
+    }
 
     try {
       const userId = user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined);
       
       const content = await openaiApi.generateResponse(input, { userId });
       setResponse(content);
+      
+      // Generate speech if preferred
+      if (preferSpeech && elevenlabsApi.isConfigured()) {
+        generateSpeech(content);
+      }
     } catch (err: any) {
       const apiError: ApiError = {
         type: ErrorType.UNKNOWN,
@@ -36,11 +51,33 @@ export default function CoachChat() {
       setLoading(false);
     }
   };
+  
+  const generateSpeech = async (text: string) => {
+    setSpeechLoading(true);
+    try {
+      const audioBlob = await elevenlabsApi.textToSpeech(text);
+      const url = URL.createObjectURL(audioBlob);
+      setAudioUrl(url);
+      
+      // Play the audio
+      const audio = new Audio(url);
+      audio.play();
+    } catch (err) {
+      console.error("Speech generation error:", err);
+    } finally {
+      setSpeechLoading(false);
+    }
+  };
+  
+  const toggleSpeech = () => {
+    setPreferSpeech(!preferSpeech);
+  };
 
   return (
     <div className="rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] shadow-sm">
       <div className="border-b border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] p-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
             <MessageCircle className="h-5 w-5" />
           </div>
@@ -48,6 +85,14 @@ export default function CoachChat() {
             <h3 className="text-sm font-medium">Quick Coach Chat</h3>
             <p className="text-xs text-text-light">Ask a health question</p>
           </div>
+          </div>
+          <button 
+            className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
+            title={preferSpeech ? "Turn off voice" : "Turn on voice"}
+            onClick={toggleSpeech}
+          >
+            {preferSpeech ? <Volume2 className="h-4 w-4 text-primary" /> : <VolumeX className="h-4 w-4" />}
+          </button>
         </div>
       </div>
       
@@ -82,6 +127,15 @@ export default function CoachChat() {
           </button>
         </div>
 
+        {speechLoading && preferSpeech && (
+          <div className="mt-2 flex items-center justify-center rounded-lg bg-[hsl(var(--color-surface-1))] p-2">
+            <div className="flex items-center gap-2 text-xs text-text-light">
+              <Loader className="h-3 w-3 animate-spin" />
+              <span>Generating voice response...</span>
+            </div>
+          </div>
+        )}
+
         {error && <ApiErrorDisplay error={error} className="mt-4" />}
         
         {response && (
@@ -94,6 +148,11 @@ export default function CoachChat() {
             <div className="prose prose-sm max-w-none whitespace-pre-wrap text-text-light">
               {response}
             </div>
+            {audioUrl && preferSpeech && (
+              <div className="mt-2">
+                <audio controls src={audioUrl} className="w-full h-8" />
+              </div>
+            )}
           </motion.div>
         )}
       </div>

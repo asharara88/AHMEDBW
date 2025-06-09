@@ -1,25 +1,37 @@
 import { create } from 'zustand';
 import { chatApi, ChatMessage } from '../api/chatApi';
 import { logError } from '../utils/logger';
-import { openaiApi } from '../api/openaiApi';
+import { openaiApi } from '../api/openaiApi'; 
+import { elevenlabsApi } from '../api/elevenlabsApi';
 
 interface ChatState {
   messages: ChatMessage[];
   chatHistory: any[];
   loading: boolean;
+  speechLoading: boolean;
   error: string | null;
+  audioUrl: string | null;
+  preferSpeech: boolean;
+  selectedVoice: string;
   
   // Actions
   sendMessage: (message: string, userId?: string) => Promise<string | null>;
+  generateSpeech: (text: string) => Promise<string | null>;
   clearMessages: () => void;
   fetchChatHistory: (userId: string) => Promise<void>;
+  setPreferSpeech: (prefer: boolean) => void;
+  setSelectedVoice: (voiceId: string) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   chatHistory: [],
   loading: false,
+  speechLoading: false,
   error: null,
+  audioUrl: null,
+  preferSpeech: false,
+  selectedVoice: "21m00Tcm4TlvDq8ikWAM", // Default voice ID (Rachel)
   
   sendMessage: async (message, userId) => {
     set({ loading: true, error: null });
@@ -49,6 +61,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
         loading: false 
       });
       
+      // Generate speech if preferred
+      if (get().preferSpeech) {
+        get().generateSpeech(response);
+      }
+      
       // Save to chat history if userId is provided
       if (userId) {
         try {
@@ -68,8 +85,44 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
   
+  generateSpeech: async (text: string) => {
+    // Clear previous audio URL
+    set({ speechLoading: true, audioUrl: null });
+    
+    try {
+      // Check if ElevenLabs is configured
+      if (!elevenlabsApi.isConfigured()) {
+        throw new Error('Text-to-speech is not configured');
+      }
+      
+      // Get selected voice ID
+      const voiceId = get().selectedVoice;
+      
+      // Generate speech from text
+      const audioBlob = await elevenlabsApi.textToSpeech(text, voiceId);
+      
+      // Create URL for the audio blob
+      const url = URL.createObjectURL(audioBlob);
+      set({ audioUrl: url, speechLoading: false });
+      
+      return url;
+    } catch (err: any) {
+      logError('Error generating speech', err);
+      set({ speechLoading: false });
+      return null;
+    }
+  },
+  
   clearMessages: () => {
-    set({ messages: [] });
+    set({ 
+      messages: [],
+      audioUrl: null
+    });
+    
+    // Revoke any existing audio URL to free memory
+    if (get().audioUrl) {
+      URL.revokeObjectURL(get().audioUrl);
+    }
   },
   
   fetchChatHistory: async (userId) => {
@@ -85,5 +138,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
       logError('Error fetching chat history', err);
       set({ error: errorMessage, loading: false });
     }
+  },
+  
+  setPreferSpeech: (prefer: boolean) => {
+    set({ preferSpeech: prefer });
+    
+    // If turning off speech, revoke any existing audio URL
+    if (!prefer && get().audioUrl) {
+      URL.revokeObjectURL(get().audioUrl);
+      set({ audioUrl: null });
+    }
+  },
+  
+  setSelectedVoice: (voiceId: string) => {
+    set({ selectedVoice: voiceId });
   }
 }));

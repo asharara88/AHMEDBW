@@ -7,3 +7,4 @@ export * from './supplementApi';
 export * from './userApi';
 export * from './openaiApi';
 export * from './onboardingApi';
+export * from './elevenlabsApi';
