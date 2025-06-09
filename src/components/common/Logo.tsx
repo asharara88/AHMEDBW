@@ -10,15 +10,15 @@ interface LogoProps {
 const Logo = ({ className = '', variant = 'default' }: LogoProps) => {
   const { currentTheme } = useTheme();
 
-  // Dark theme logo URL - high resolution SVG
-  const darkThemeLogoUrl = 'https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/logos/white%20Log%20trnspt%20bg.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2UyYTcyNGEyLTZkNTctNDk4YS04ZGU1LWY2Y2Q4MjAyNjA3YiJ9.eyJ1cmwiOiJsb2dvcy93aGl0ZSBMb2cgdHJuc3B0IGJnLnN2ZyIsImlhdCI6MTc0NzI3MzEwNywiZXhwIjoxNzc4ODA5MTA3fQ.GI2ed8ie67PgVxVEoJsSWQXsv_Zki1V5ub7jfQCW-hg';
+  // Dark theme logo URL - high resolution JPG
+  const darkThemeLogoUrl = 'https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/biowelllogos/1.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW93ZWxsbG9nb3MvMS5qcGciLCJpYXQiOjE3NDk0MzUyMTgsImV4cCI6MTc4MDk3MTIxOH0.EiJOt14a3aRr5oGMZSDHWhFh8Ig2sHUMV69Umb1QpIw';
   
   // Light theme logo URL - high resolution SVG
-  const lightThemeLogoUrl = 'https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/logos/logo-light.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2UyYTcyNGEyLTZkNTctNDk4YS04ZGU1LWY2Y2Q4MjAyNjA3YiJ9.eyJ1cmwiOiJsb2dvcy9sb2dvLWxpZ2h0LnN2ZyIsImlhdCI6MTc0NzI3MzIwMSwiZXhwIjoxNzc4ODA5MjAxfQ.i8q67OTuH9eIiXxe8EaePs3JRxRuPhexJfsSzT4Q0iQ';
+  const lightThemeLogoUrl = 'https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/biowelllogos/white%20Log%20trnspt%20bg.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW93ZWxsbG9nb3Mvd2hpdGUgTG9nIHRybnNwdCBiZy5zdmciLCJpYXQiOjE3NDk0MzUyNTksImV4cCI6MTc4MDk3MTI1OX0.lnxK8zhka2S8Dwvuxl3uyPFCpwdCU42zFTepIJ9VVpk';
 
   // Determine which logo to use based on variant and theme
-  const logoUrl = variant === 'light' ? darkThemeLogoUrl : 
-                 variant === 'dark' ? lightThemeLogoUrl : 
+  const logoUrl = variant === 'light' ? lightThemeLogoUrl : 
+                 variant === 'dark' ? darkThemeLogoUrl : 
                  currentTheme === 'dark' ? darkThemeLogoUrl : lightThemeLogoUrl;
 
   // Determine the color class based on variant and theme
@@ -41,9 +41,9 @@ const Logo = ({ className = '', variant = 'default' }: LogoProps) => {
             e.currentTarget.style.display = 'none';
             const parent = e.currentTarget.parentElement;
             if (parent) {
-              const fallback = document.createElement('div'); 
-              fallback.className = "flex items-center gap-2 text-primary font-bold text-xl"; 
-              fallback.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Biowell</span>`; 
+              const fallback = document.createElement('div');
+              fallback.className = "flex items-center gap-2 text-primary font-bold text-xl";
+              fallback.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Biowell</span>`;
               parent.appendChild(fallback);
             }
           }}
