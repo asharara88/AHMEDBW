@@ -97,7 +97,7 @@ const RecentChats = ({ userId }: RecentChatsProps) => {
       <div 
         className="absolute inset-0 bg-cover bg-center z-0"
         style={{
-          backgroundImage: `url('https://jvqweleqjkrgldeflnfr.supabase.co/storage/v1/object/sign/heroes/COACH2.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzFhYTRlZDEyLWU0N2QtNDcyNi05ZmI0LWQ3MWM5MGFlOTYyZSJ9.eyJ1cmwiOiJoZXJvZXMvQ09BQ0gyLnN2ZyIsImlhdCI6MTc0NTkzMDM0MiwiZXhwIjoxNzc3NDY2MzQyfQ.wc6BUKNjTPqdV4RaDNj8T45TrIhwetUhsy1JOU4v6SQ')`,
+          backgroundImage: `url('https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/logos/logo-light.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2UyYTcyNGEyLTZkNTctNDk4YS04ZGU1LWY2Y2Q4MjAyNjA3YiJ9.eyJ1cmwiOiJsb2dvcy9sb2dvLWxpZ2h0LnN2ZyIsImlhdCI6MTc0NzI3MzIwMSwiZXhwIjoxNzc4ODA5MjAxfQ.i8q67OTuH9eIiXxe8EaePs3JRxRuPhexJfsSzT4Q0iQ')`,
           opacity: 0.1
         }}
       />
