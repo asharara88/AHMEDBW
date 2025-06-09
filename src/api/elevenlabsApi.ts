@@ -1,8 +1,6 @@
 import { logError } from '../utils/logger';
 import { ApiError, ErrorType } from './apiClient';
-
-// Initialize with API key from environment variables
-const ELEVENLABS_API_KEY = import.meta.env.VITE_ELEVENLABS_API_KEY;
+import { prepareTextForSpeech, truncateForSpeech } from '../utils/textProcessing';
 
 // Default voice ID for Biowell coach (using "Rachel" voice)
 const DEFAULT_VOICE_ID = "21m00Tcm4TlvDq8ikWAM";
@@ -15,14 +13,65 @@ export const AVAILABLE_VOICES = [
   { id: "ErXwobaYiN019PkySvjV", name: "Antoni (Male)" },
 ];
 
+// Voice quality settings
+export const VOICE_SETTINGS = {
+  STANDARD: {
+    stability: 0.5,
+    similarity_boost: 0.75
+  },
+  CLEAR: {
+    stability: 0.75,
+    similarity_boost: 0.5
+  },
+  EXPRESSIVE: {
+    stability: 0.3,
+    similarity_boost: 0.85
+  }
+};
+
+// Cache for audio responses to reduce API calls
+interface CacheEntry {
+  blob: Blob;
+  timestamp: number;
+}
+
+const audioCache = new Map<string, CacheEntry>();
+const CACHE_EXPIRY = 1000 * 60 * 60; // 1 hour
+
 export const elevenlabsApi = {
   /**
    * Convert text to speech using ElevenLabs API
    */
   async textToSpeech(text: string, voiceId: string = DEFAULT_VOICE_ID): Promise<Blob> {
     try {
-      if (!ELEVENLABS_API_KEY) {
+      // Process text for better speech synthesis
+      const processedText = prepareTextForSpeech(text);
+      
+      // Truncate text if it's too long (ElevenLabs has a character limit)
+      const truncatedText = truncateForSpeech(processedText);
+      
+      const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
+      
+      if (!apiKey) {
         throw new Error('ElevenLabs API key is not configured');
+      }
+      
+      // Generate cache key
+      const cacheKey = `${voiceId}:${truncatedText}`;
+      
+      // Check cache first
+      const now = Date.now();
+      const cached = audioCache.get(cacheKey);
+      
+      if (cached && now - cached.timestamp < CACHE_EXPIRY) {
+        return cached.blob;
+      }
+      
+      // Clean up expired cache entries
+      for (const [key, entry] of audioCache.entries()) {
+        if (now - entry.timestamp > CACHE_EXPIRY) {
+          audioCache.delete(key);
+        }
       }
 
       const response = await fetch(
@@ -32,15 +81,12 @@ export const elevenlabsApi = {
           headers: {
             'Accept': 'audio/mpeg',
             'Content-Type': 'application/json',
-            'xi-api-key': ELEVENLABS_API_KEY
+            'xi-api-key': apiKey
           },
           body: JSON.stringify({
-            text,
+            text: truncatedText,
             model_id: "eleven_monolingual_v1",
-            voice_settings: {
-              stability: 0.5,
-              similarity_boost: 0.75
-            }
+            voice_settings: VOICE_SETTINGS.STANDARD
           })
         }
       );
@@ -50,7 +96,15 @@ export const elevenlabsApi = {
         throw new Error(errorData.detail || `ElevenLabs API error: ${response.status}`);
       }
 
-      return await response.blob();
+      const blob = await response.blob();
+      
+      // Cache the result
+      audioCache.set(cacheKey, {
+        blob,
+        timestamp: now
+      });
+      
+      return blob;
     } catch (error: any) {
       logError('ElevenLabs API error', error);
       
@@ -69,7 +123,9 @@ export const elevenlabsApi = {
    */
   async getVoices(): Promise<any[]> {
     try {
-      if (!ELEVENLABS_API_KEY) {
+      const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
+      
+      if (!apiKey) {
         return AVAILABLE_VOICES;
       }
 
@@ -78,7 +134,7 @@ export const elevenlabsApi = {
         {
           headers: {
             'Accept': 'application/json',
-            'xi-api-key': ELEVENLABS_API_KEY
+            'xi-api-key': apiKey
           }
         }
       );
@@ -100,6 +156,13 @@ export const elevenlabsApi = {
    * Check if the API key is configured
    */
   isConfigured(): boolean {
-    return !!ELEVENLABS_API_KEY;
+    return !!import.meta.env.VITE_ELEVENLABS_API_KEY;
+  },
+  
+  /**
+   * Clear the audio cache
+   */
+  clearCache(): void {
+    audioCache.clear();
   }
 };

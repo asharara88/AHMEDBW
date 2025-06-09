@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, Info, User, Volume2, VolumeX, Settings } from 'lucide-react';
+import { Send, Loader, Info, User, Volume2, VolumeX, Settings, Headphones } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { logError } from '../../utils/logger';
@@ -8,7 +8,7 @@ import { useAutoScroll } from '../../hooks/useAutoScroll';
 import ReactMarkdown from 'react-markdown';
 import { useChatStore } from '../../store';
 import ApiErrorDisplay from '../common/ApiErrorDisplay';
-import { AVAILABLE_VOICES } from '../../api/elevenlabsApi';
+import VoiceSettingsPanel from './VoiceSettingsPanel';
 
 const suggestedQuestions = [
   "What's my current health status?",
@@ -28,8 +28,9 @@ export default function HealthCoach() {
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   
   const { user, isDemo } = useAuth();
   const { currentTheme } = useTheme();
@@ -73,14 +74,49 @@ export default function HealthCoach() {
   // Play audio when audioUrl changes
   useEffect(() => {
     if (audioUrl && audioRef.current && preferSpeech) {
-      audioRef.current.play().catch(err => {
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+      
+      audio.onplay = () => setIsPlaying(true);
+      audio.onended = () => setIsPlaying(false);
+      audio.onpause = () => setIsPlaying(false);
+      audio.onerror = () => setIsPlaying(false);
+      
+      audio.play().catch(err => {
         logError('Error playing audio', err);
+        setIsPlaying(false);
       });
+      
+      return () => {
+        audio.pause();
+        audio.onplay = null;
+        audio.onended = null;
+        audio.onpause = null;
+        audio.onerror = null;
+      };
     }
   }, [audioUrl, preferSpeech]);
 
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
   const toggleSpeech = () => {
     setPreferSpeech(!preferSpeech);
+  };
+  
+  const stopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+    }
   };
 
   return (
@@ -103,14 +139,14 @@ export default function HealthCoach() {
           </div>
           <div className="flex items-center gap-2">
             <button 
-              className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
+              className={`rounded-full p-1 ${preferSpeech ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
               title={preferSpeech ? "Turn off voice" : "Turn on voice"}
               onClick={toggleSpeech}
             >
-              {preferSpeech ? <Volume2 className="h-4 w-4 text-primary" /> : <VolumeX className="h-4 w-4" />}
+              {preferSpeech ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
             </button>
             <button 
-              className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
+              className={`rounded-full p-1 ${showVoiceSettings ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
               title="Voice settings"
               onClick={() => setShowVoiceSettings(!showVoiceSettings)}
             >
@@ -126,57 +162,16 @@ export default function HealthCoach() {
         </div>
         
         {/* Voice Settings Panel */}
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {showVoiceSettings && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="mt-2 overflow-hidden rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3"
-            >
-              <div className="mb-2 flex items-center justify-between">
-                <h4 className="text-xs font-medium">Voice Settings</h4>
-                <button
-                  onClick={() => setShowVoiceSettings(false)}
-                  className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
-                >
-                  <Info className="h-3 w-3" />
-                </button>
-              </div>
-              
-              <div className="mb-2 flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="enable-speech"
-                  checked={preferSpeech}
-                  onChange={toggleSpeech}
-                  className="h-4 w-4 rounded border-[hsl(var(--color-border))] text-primary focus:ring-primary"
-                />
-                <label htmlFor="enable-speech" className="text-xs">
-                  Enable voice responses
-                </label>
-              </div>
-              
-              <div>
-                <label htmlFor="voice-select" className="mb-1 block text-xs">
-                  Select voice
-                </label>
-                <select
-                  id="voice-select"
-                  value={selectedVoice}
-                  onChange={(e) => setSelectedVoice(e.target.value)}
-                  className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-2 py-1 text-xs"
-                  disabled={!preferSpeech}
-                >
-                  {AVAILABLE_VOICES.map((voice) => (
-                    <option key={voice.id} value={voice.id}>
-                      {voice.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </motion.div>
+            <VoiceSettingsPanel
+              isOpen={showVoiceSettings}
+              onClose={() => setShowVoiceSettings(false)}
+              preferSpeech={preferSpeech}
+              onToggleSpeech={toggleSpeech}
+              selectedVoice={selectedVoice}
+              onSelectVoice={setSelectedVoice}
+            />
           )}
         </AnimatePresence>
       </div>
@@ -246,6 +241,12 @@ export default function HealthCoach() {
                 ) : (
                   <div>{message.content}</div>
                 )}
+                {message.role === 'assistant' && preferSpeech && (
+                  <div className="mt-2 flex items-center gap-2 text-xs text-text-light">
+                    <Headphones className="h-3 w-3" />
+                    <span>Voice response available</span>
+                  </div>
+                )}
                 <div className="mt-1 text-xs opacity-70">
                   {message.timestamp?.toLocaleTimeString()}
                 </div>
@@ -279,15 +280,51 @@ export default function HealthCoach() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Hidden audio element for playing speech */}
-      <audio ref={audioRef} src={audioUrl || ''} className="hidden" />
-      
       {/* Speech loading indicator */}
       {speechLoading && preferSpeech && (
         <div className="flex items-center justify-center border-t border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] px-4 py-2">
           <div className="flex items-center gap-2 text-xs text-text-light">
             <Loader className="h-3 w-3 animate-spin" />
             <span>Generating voice response...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Audio controls when playing */}
+      {audioUrl && preferSpeech && (
+        <div className="border-t border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] p-2">
+          <div className="flex items-center justify-between rounded-lg bg-[hsl(var(--color-surface-1))] p-2">
+            <div className="flex items-center gap-2">
+              <Headphones className="h-4 w-4 text-primary" />
+              <span className="text-xs font-medium">Voice Response</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {isPlaying ? (
+                <button 
+                  onClick={stopAudio}
+                  className="rounded-full bg-primary/10 p-1 text-primary hover:bg-primary/20"
+                >
+                  <span className="sr-only">Stop</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="6" y="6" width="12" height="12" rx="1" />
+                  </svg>
+                </button>
+              ) : (
+                <button 
+                  onClick={() => {
+                    if (audioRef.current) {
+                      audioRef.current.play();
+                    }
+                  }}
+                  className="rounded-full bg-primary/10 p-1 text-primary hover:bg-primary/20"
+                >
+                  <span className="sr-only">Play</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

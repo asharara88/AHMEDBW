@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Loader, MessageCircle, Volume2, VolumeX } from 'lucide-react';
+import { Send, Loader, MessageCircle, Volume2, VolumeX, Settings, Headphones } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { openaiApi } from '../../api/openaiApi';
 import { elevenlabsApi } from '../../api/elevenlabsApi';
 import ApiErrorDisplay from '../common/ApiErrorDisplay';
 import { ApiError, ErrorType } from '../../api/apiClient';
+import VoiceSettingsPanel from './VoiceSettingsPanel';
 
 export default function CoachChat() {
   const [input, setInput] = useState('');
@@ -15,6 +16,10 @@ export default function CoachChat() {
   const [error, setError] = useState<ApiError | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [preferSpeech, setPreferSpeech] = useState(false);
+  const [selectedVoice, setSelectedVoice] = useState("21m00Tcm4TlvDq8ikWAM"); // Default voice ID (Rachel)
+  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const { user, isDemo } = useAuth();
 
   const handleSend = async () => {
@@ -26,8 +31,13 @@ export default function CoachChat() {
     
     // Clear previous audio
     if (audioUrl) {
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.onended = null;
+      }
       URL.revokeObjectURL(audioUrl);
       setAudioUrl(null);
+      setAudioElement(null);
     }
 
     try {
@@ -38,7 +48,7 @@ export default function CoachChat() {
       
       // Generate speech if preferred
       if (preferSpeech && elevenlabsApi.isConfigured()) {
-        generateSpeech(content);
+        generateSpeech(content, selectedVoice);
       }
     } catch (err: any) {
       const apiError: ApiError = {
@@ -52,15 +62,21 @@ export default function CoachChat() {
     }
   };
   
-  const generateSpeech = async (text: string) => {
+  const generateSpeech = async (text: string, voiceId: string) => {
     setSpeechLoading(true);
     try {
-      const audioBlob = await elevenlabsApi.textToSpeech(text);
+      const audioBlob = await elevenlabsApi.textToSpeech(text, voiceId);
       const url = URL.createObjectURL(audioBlob);
       setAudioUrl(url);
       
       // Play the audio
       const audio = new Audio(url);
+      audio.onplay = () => setIsPlaying(true);
+      audio.onended = () => setIsPlaying(false);
+      audio.onpause = () => setIsPlaying(false);
+      audio.onerror = () => setIsPlaying(false);
+      
+      setAudioElement(audio);
       audio.play();
     } catch (err) {
       console.error("Speech generation error:", err);
@@ -71,6 +87,20 @@ export default function CoachChat() {
   
   const toggleSpeech = () => {
     setPreferSpeech(!preferSpeech);
+  };
+  
+  const stopAudio = () => {
+    if (audioElement) {
+      audioElement.pause();
+      audioElement.currentTime = 0;
+      setIsPlaying(false);
+    }
+  };
+  
+  const playAudio = () => {
+    if (audioElement && !isPlaying) {
+      audioElement.play();
+    }
   };
 
   return (
@@ -86,14 +116,37 @@ export default function CoachChat() {
             <p className="text-xs text-text-light">Ask a health question</p>
           </div>
           </div>
-          <button 
-            className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
-            title={preferSpeech ? "Turn off voice" : "Turn on voice"}
-            onClick={toggleSpeech}
-          >
-            {preferSpeech ? <Volume2 className="h-4 w-4 text-primary" /> : <VolumeX className="h-4 w-4" />}
-          </button>
+          <div className="flex items-center gap-1">
+            <button 
+              className={`rounded-full p-1 ${preferSpeech ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
+              title={preferSpeech ? "Turn off voice" : "Turn on voice"}
+              onClick={toggleSpeech}
+            >
+              {preferSpeech ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            </button>
+            <button 
+              className={`rounded-full p-1 ${showVoiceSettings ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
+              title="Voice settings"
+              onClick={() => setShowVoiceSettings(!showVoiceSettings)}
+            >
+              <Settings className="h-4 w-4" />
+            </button>
+          </div>
         </div>
+        
+        {/* Voice Settings Panel */}
+        <AnimatePresence mode="wait">
+          {showVoiceSettings && (
+            <VoiceSettingsPanel
+              isOpen={showVoiceSettings}
+              onClose={() => setShowVoiceSettings(false)}
+              preferSpeech={preferSpeech}
+              onToggleSpeech={toggleSpeech}
+              selectedVoice={selectedVoice}
+              onSelectVoice={setSelectedVoice}
+            />
+          )}
+        </AnimatePresence>
       </div>
       
       <div className="p-4">
@@ -127,15 +180,6 @@ export default function CoachChat() {
           </button>
         </div>
 
-        {speechLoading && preferSpeech && (
-          <div className="mt-2 flex items-center justify-center rounded-lg bg-[hsl(var(--color-surface-1))] p-2">
-            <div className="flex items-center gap-2 text-xs text-text-light">
-              <Loader className="h-3 w-3 animate-spin" />
-              <span>Generating voice response...</span>
-            </div>
-          </div>
-        )}
-
         {error && <ApiErrorDisplay error={error} className="mt-4" />}
         
         {response && (
@@ -148,9 +192,47 @@ export default function CoachChat() {
             <div className="prose prose-sm max-w-none whitespace-pre-wrap text-text-light">
               {response}
             </div>
-            {audioUrl && preferSpeech && (
-              <div className="mt-2">
-                <audio controls src={audioUrl} className="w-full h-8" />
+            
+            {/* Speech loading indicator */}
+            {speechLoading && preferSpeech && (
+              <div className="mt-2 flex items-center justify-center rounded-lg bg-[hsl(var(--color-surface-2))] p-2">
+                <div className="flex items-center gap-2 text-xs text-text-light">
+                  <Loader className="h-3 w-3 animate-spin" />
+                  <span>Generating voice response...</span>
+                </div>
+              </div>
+            )}
+            
+            {/* Audio controls */}
+            {audioUrl && preferSpeech && !speechLoading && (
+              <div className="mt-2 flex items-center justify-between rounded-lg bg-[hsl(var(--color-surface-2))] p-2">
+                <div className="flex items-center gap-2">
+                  <Headphones className="h-4 w-4 text-primary" />
+                  <span className="text-xs font-medium">Voice Response</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {isPlaying ? (
+                    <button 
+                      onClick={stopAudio}
+                      className="rounded-full bg-primary/10 p-1 text-primary hover:bg-primary/20"
+                    >
+                      <span className="sr-only">Stop</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="6" y="6" width="12" height="12" rx="1" />
+                      </svg>
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={playAudio}
+                      className="rounded-full bg-primary/10 p-1 text-primary hover:bg-primary/20"
+                    >
+                      <span className="sr-only">Play</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
               </div>
             )}
           </motion.div>
