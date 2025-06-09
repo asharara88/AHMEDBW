@@ -12,9 +12,6 @@ import VoicePreferences from './VoicePreferences';
 import ChatSettingsButton from './ChatSettingsButton';
 import AudioVisualizer from './AudioVisualizer';
 import AudioPlayer from './AudioPlayer';
-import ChatSettingsButton from './ChatSettingsButton';
-import AudioVisualizer from './AudioVisualizer';
-import AudioPlayer from './AudioPlayer';
 
 const suggestedQuestions = [
   "What's my current health status?",
@@ -169,9 +166,8 @@ export default function HealthCoach() {
             >
               <Info className="h-4 w-4" />
             </button>
+            <ChatSettingsButton className="absolute right-2 top-2" />
           </div>
-          <ChatSettingsButton className="absolute right-2 top-2" />
-          <ChatSettingsButton className="absolute right-2 top-2" />
         </div>
         
         {/* Voice Settings Panel */}
@@ -293,35 +289,6 @@ export default function HealthCoach() {
 
         <div ref={messagesEndRef} />
       </div>
-
-      {/* Speech loading indicator */}
-      {speechLoading && preferSpeech && (
-        <div className="flex items-center justify-center border-t border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] px-4 py-2">
-          <div className="flex items-center gap-2 text-xs text-text-light w-full">
-            <Loader className="h-3 w-3 animate-spin" />
-            <span>Generating voice response...</span>
-            <div className="flex-1">
-              <div className="h-1 w-full rounded-full bg-[hsl(var(--color-surface-2))]">
-                <div className="h-full w-1/3 animate-pulse rounded-full bg-primary"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Audio controls when playing */}
-      {audioUrl && preferSpeech && (
-        <div className="border-t border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] p-2 space-y-2">
-          <AudioPlayer 
-            src={audioUrl} 
-            onEnded={() => setIsPlaying(false)} 
-          />
-          <AudioVisualizer 
-            audioUrl={audioUrl} 
-            isPlaying={isPlaying} 
-          />
-        </div>
-      )}
 
       {/* Speech loading indicator */}
       {speechLoading && preferSpeech && (

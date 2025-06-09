@@ -4,8 +4,6 @@ import { prepareTextForSpeech, truncateForSpeech } from '../utils/textProcessing
 import { chunkTextForSpeech, concatenateAudioBlobs } from '../utils/speechUtils';
 import { audioCacheApi } from './audioCacheApi';
 import { supabase } from '../lib/supabaseClient';
-import { chunkTextForSpeech, concatenateAudioBlobs } from '../utils/speechUtils';
-import { audioCacheApi } from './audioCacheApi';
 
 // Default voice ID for Biowell coach (using "Rachel" voice)
 const DEFAULT_VOICE_ID = "21m00Tcm4TlvDq8ikWAM";
@@ -74,89 +72,8 @@ export const elevenlabsApi = {
         throw new Error('Character limit exceeded. Please try again later.');
       }
       
-      // Check if text is too long and needs chunking
-      if (processedText.length > 5000) {
-        // Split into chunks and process each separately
-        const chunks = chunkTextForSpeech(processedText);
-        const audioBlobs: Blob[] = [];
-        
-        for (const chunk of chunks) {
-          // Generate cache key for this chunk
-          const chunkCacheKey = `voice:${voiceId}:${chunk.substring(0, 50)}`;
-          
-          // Check memory cache first
-          const now = Date.now();
-          const cached = audioCache.get(chunkCacheKey);
-          
-          if (cached && now - cached.timestamp < CACHE_EXPIRY) {
-            audioBlobs.push(cached.blob);
-            continue;
-          }
-          
-          // Try to get from database cache if user is authenticated
-          const userId = supabase.auth.getUser().then(({ data }) => data.user?.id).catch(() => null);
-          try {
-            if (userId) {
-              const cachedBlob = await audioCacheApi.getAudio(await userId, chunkCacheKey);
-              if (cachedBlob) {
-                audioCache.set(chunkCacheKey, { blob: cachedBlob, timestamp: now });
-                audioBlobs.push(cachedBlob);
-                continue;
-              }
-            }
-          } catch (err) { 
-            /* Continue if cache retrieval fails */ 
-          }
-          
-          // Generate speech for this chunk
-          const response = await fetch(
-            `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-            {
-              method: 'POST',
-              headers: {
-                'Accept': 'audio/mpeg',
-                'Content-Type': 'application/json',
-                'xi-api-key': apiKey
-              },
-              body: JSON.stringify({
-                text: chunk,
-                model_id: "eleven_monolingual_v1",
-                voice_settings: voiceSettings
-              })
-            }
-          );
-          
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.detail || `ElevenLabs API error: ${response.status}`);
-          }
-          
-          const blob = await response.blob();
-          
-          // Cache the chunk
-          audioCache.set(chunkCacheKey, { blob, timestamp: now });
-          audioBlobs.push(blob);
-          
-          // Store in database cache if user is authenticated
-          try {
-            if (userId) {
-              await audioCacheApi.storeAudio(await userId, chunkCacheKey, blob, 60);
-            }
-          } catch (err) { 
-            /* Ignore storage errors */ 
-          }
-        }
-        
-        // Concatenate all audio blobs
-        return concatenateAudioBlobs(audioBlobs);
-      }
-      
-      // For shorter text, process normally
-      // Check if user has remaining character quota
-      const userInfo = await this.getUserInfo().catch(() => null);
-      if (userInfo && userInfo.character_limit && userInfo.character_count >= userInfo.character_limit) {
-        throw new Error('Character limit exceeded. Please try again later.');
-      }
+      // Get user ID for caching
+      const userId = supabase.auth.getUser().then(({ data }) => data.user?.id).catch(() => null);
       
       // Check if text is too long and needs chunking
       if (processedText.length > 5000) {
@@ -178,7 +95,6 @@ export const elevenlabsApi = {
           }
           
           // Try to get from database cache if user is authenticated
-          const userId = supabase.auth.getUser().then(({ data }) => data.user?.id).catch(() => null);
           try {
             if (userId) {
               const cachedBlob = await audioCacheApi.getAudio(await userId, chunkCacheKey);
@@ -248,20 +164,6 @@ export const elevenlabsApi = {
       }
       
       // Try to get from database cache if user is authenticated
-      const userId = supabase.auth.getUser().then(({ data }) => data.user?.id).catch(() => null);
-      try {
-        if (userId) {
-          const cachedBlob = await audioCacheApi.getAudio(await userId, cacheKey);
-          if (cachedBlob) {
-            audioCache.set(cacheKey, { blob: cachedBlob, timestamp: now });
-          }
-        }
-      } catch (err) {
-        /* Continue if cache retrieval fails */
-      }
-      
-      // Try to get from database cache if user is authenticated
-      const userId = supabase.auth.getUser().then(({ data }) => data.user?.id).catch(() => null);
       try {
         if (userId) {
           const cachedBlob = await audioCacheApi.getAudio(await userId, cacheKey);
@@ -310,16 +212,6 @@ export const elevenlabsApi = {
         blob,
         timestamp: now
       });
-      
-      // Store in database cache if user is authenticated
-      try {
-        if (userId) {
-          await audioCacheApi.storeAudio(await userId, cacheKey, blob, 60);
-        }
-      } catch (err) {
-        /* Ignore storage errors */
-      }
-      
       
       // Store in database cache if user is authenticated
       try {
