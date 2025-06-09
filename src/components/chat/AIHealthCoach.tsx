@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, AlertCircle, Info, User } from 'lucide-react';
+import { Send, Loader, AlertCircle, Info, User, Package, Brain, Moon, Heart, Zap } from 'lucide-react';
 import { useChatApi } from '../../hooks/useChatApi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -23,6 +23,42 @@ const suggestedQuestions = [
   "How can I improve my energy levels?",
   "What's my heart rate variability?",
   "How can I optimize my recovery?"
+];
+
+// Predefined supplement stacks
+const supplementStacks = [
+  {
+    id: 'sleep-stack',
+    name: 'Sleep & Recovery',
+    icon: <Moon className="h-4 w-4" />,
+    description: 'Improve sleep quality and recovery',
+    supplements: ['Magnesium Glycinate', 'L-Theanine', 'Ashwagandha'],
+    prompt: "What supplements should I take for better sleep and recovery?"
+  },
+  {
+    id: 'focus-stack',
+    name: 'Cognitive Performance',
+    icon: <Brain className="h-4 w-4" />,
+    description: 'Enhance mental clarity and focus',
+    supplements: ["Lion's Mane", 'Alpha-GPC', 'Bacopa Monnieri'],
+    prompt: "What supplements should I take to improve focus and cognitive performance?"
+  },
+  {
+    id: 'metabolic-stack',
+    name: 'Metabolic Health',
+    icon: <Zap className="h-4 w-4" />,
+    description: 'Support blood sugar and metabolism',
+    supplements: ['Berberine', 'Alpha Lipoic Acid', 'Chromium Picolinate'],
+    prompt: "What supplements should I take to improve metabolic health and blood sugar control?"
+  },
+  {
+    id: 'immunity-stack',
+    name: 'Immune Support',
+    icon: <Heart className="h-4 w-4" />,
+    description: 'Strengthen immune function',
+    supplements: ['Vitamin D3+K2', 'Zinc', 'Vitamin C'],
+    prompt: "What supplements should I take to support my immune system?"
+  }
 ];
 
 export default function HealthCoach() {
@@ -148,6 +184,28 @@ export default function HealthCoach() {
             <p className="mb-6 text-text-light">
               Ask me anything about your health and wellness goals.
             </p>
+            
+            {/* Supplement Stack Shortcuts */}
+            <div className="mb-6">
+              <h4 className="mb-3 text-sm font-medium">Supplement Stacks</h4>
+              <div className="grid grid-cols-2 gap-3">
+                {supplementStacks.map((stack) => (
+                  <button
+                    key={stack.id}
+                    onClick={() => handleSubmit(stack.prompt)}
+                    className="flex flex-col items-start rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3 text-left transition-colors hover:border-primary/50 hover:bg-[hsl(var(--color-card-hover))]"
+                  >
+                    <div className="mb-2 flex items-center gap-2">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        {stack.icon}
+                      </div>
+                      <span className="font-medium">{stack.name}</span>
+                    </div>
+                    <p className="text-xs text-text-light">{stack.description}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
             
             {showSuggestions && (
               <div className="flex flex-wrap justify-center gap-3">
