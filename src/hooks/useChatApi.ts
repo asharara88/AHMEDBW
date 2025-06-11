@@ -46,39 +46,24 @@ export function useChatApi() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
-      try {
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers,
-          body: JSON.stringify({ 
-            messages, 
-            userId: userId || session?.user?.id,
-            context: {
-              steps: 8432,
-              sleep_score: 82,
-              goal: "improve deep sleep",
-              device: "Apple Watch"
-            }
-          }),
-          signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          // Try to get detailed error message from response
-          let errorMessage = `Request failed with status ${response.status}`;
-          try {
-            const errorData = await response.json();
-            if (errorData.error?.message) {
-              errorMessage = errorData.error.message;
-            }
-          } catch (parseError) {
-            console.error("Error parsing error response:", parseError);
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ 
+          messages, 
+          userId: userId || session?.user?.id,
+          context: {
+            steps: 8432,
+            sleep_score: 82,
+            goal: "improve deep sleep",
+            device: "Apple Watch"
           }
+        }),
+        signal: controller.signal
+      });
 
-          console.error(`Chat API request failed with status ${response.status}`);
-          // Handle specific status codes
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
         // Try to get detailed error message from response
         let errorMessage = `Request failed with status ${response.status}`;
@@ -91,7 +76,7 @@ export function useChatApi() {
           console.error("Error parsing error response:", parseError);
         }
 
-      console.error(`Chat API request failed with status ${response.status}`);
+        console.error(`Chat API request failed with status ${response.status}`);
         // Handle specific status codes
         switch (response.status) {
           case 401:
