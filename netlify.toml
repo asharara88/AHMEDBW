@@ -9,16 +9,3 @@
 
 [build.environment]
   NODE_VERSION = "18"
-
-# Remove or disable the problematic plugin
-# If you need RSS feeds in the future, configure the plugin with:
-# [[plugins]]
-#   package = "netlify-plugin-fetch-feeds"
-#   [plugins.inputs]
-#     dataDir = "src/data/feeds"
-#     feeds = [
-#       {
-#         url = "https://example.com/feed.xml",
-#         name = "example-feed"
-#       }
-#     ]
