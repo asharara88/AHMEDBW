@@ -9,3 +9,8 @@
 
 [build.environment]
   NODE_VERSION = "18"
+
+[[plugins]]
+  package = "netlify-plugin-fetch-feeds"
+  [plugins.inputs]
+    enabled = false
