@@ -99,6 +99,12 @@ entries.
 /utils          // Utility functions
 ```
 
+## Deployment
+
+The `netlify.toml` file specifies a Node.js 18 environment and uses the
+`netlify-plugin-fetch-feeds` plugin to download the latest Hacker News front
+page into `public/feeds/hn.xml` during each build.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
