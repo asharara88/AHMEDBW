@@ -11,3 +11,12 @@
   NODE_VERSION = "18"
   # Skip submodule processing since this repo does not use submodules
   GIT_SUBMODULE_STRATEGY = "none"
+
+[[plugins]]
+  package = "netlify-plugin-fetch-feeds"
+  [plugins.inputs]
+    dataDir = "public/feeds"
+    feeds = [
+      { url = "https://hnrss.org/frontpage", file = "hn.xml" }
+    ]
+
