@@ -78,6 +78,14 @@ supabase functions deploy openai-proxy
 supabase secrets set OPENAI_API_KEY=your-openai-api-key
 ```
 
+### Audio Cache Table
+
+The migrations include an `audio_cache` table used to store generated audio for
+text-to-speech responses. It features indexes on `(user_id, cache_key)` and
+`expires_at` for quick lookups, row level security policies that restrict access
+to authenticated users, and a trigger that automatically removes expired
+entries.
+
 ## Project Structure
 
 ```
