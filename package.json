@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "replace-console-error": "ts-node scripts/replaceConsoleErrorAndImport.ts",
+    "fetch:feeds": "ts-node scripts/fetchFeeds.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",

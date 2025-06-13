@@ -2,6 +2,14 @@
   command = "npm run build"
   publish = "dist"
 
+[[plugins]]
+  package = "netlify-plugin-fetch-feeds"
+
+  [plugins.inputs]
+  feeds = [
+    { name = "hn", url = "https://hnrss.org/frontpage" }
+  ]
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
