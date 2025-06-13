@@ -2,7 +2,7 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/5239b3f1-f78c-4857-ad9d-ad1bb351d322/deploy-status)](https://app.netlify.com/projects/biowellai/deploys)
 
-Biowell AI is a comprehensive digital health platform that connects your wearable devices, provides personalized health insights, and offers evidence-based supplement recommendations through an AI coach.
+Biowell AI is a digital health platform that connects your wearable devices, delivers personalized insights, and offers evidence‑based supplement recommendations through an AI coach.
 
 ## Features
 
@@ -12,6 +12,8 @@ Biowell AI is a comprehensive digital health platform that connects your wearabl
 - **Onboarding Quiz**: Detailed health assessment to personalize your experience
 - **Wearable Integration**: Connect with Apple Health, Oura Ring, Garmin, and more
 - **Subscription Management**: Subscribe to recommended supplements for monthly delivery
+
+> **Disclaimer**: Biowell AI does not provide medical diagnosis or treatment. The AI coach offers general wellness guidance based on the information you share. Always consult a qualified healthcare professional for medical concerns.
 
 ## Tech Stack
 
@@ -44,16 +46,16 @@ cd biowell-ai
 npm install
 ```
 
-3. Copy `.env.example` to `.env` and fill in your credentials:
+3. Copy `.env.example` to `.env` and add your credentials:
 
 ```
 VITE_SUPABASE_URL=your-supabase-url
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 VITE_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
-VITE_CAPTCHA_SECRET_KEY=your-captcha-secret-key
+VITE_CAPTCHA_SECRET_KEY=your-captcha-secret-key # optional
 ```
 
-4. For production builds, copy `.env.production.example` to `.env.production` and add your production values. This file is ignored by Git.
+4. For production builds, copy `.env.production.example` to `.env.production` and supply your production values (this file is ignored by Git).
 
 5. Start the development server:
 
@@ -111,4 +113,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
