@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShoppingCart, Minus, Plus, Trash2, ChevronRight, CreditCard, Shield } from 'lucide-react';
+import { X, ShoppingCart as ShoppingCartIcon, Minus, Plus, Trash2, ChevronRight, CreditCard, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ImageWithFallback from '../common/ImageWithFallback';
 import { Supplement } from '../../types/supplements';
@@ -67,7 +67,7 @@ const ShoppingCart = ({
     <div className="flex-1 overflow-y-auto">
       {cartItems.length === 0 ? (
         <div className="flex h-full flex-col items-center justify-center p-6 text-center">
-          <ShoppingCart className="mb-4 h-12 w-12 text-text-light" />
+          <ShoppingCartIcon className="mb-4 h-12 w-12 text-text-light" />
           <h3 className="mb-2 text-lg font-medium">Your cart is empty</h3>
           <p className="text-sm text-text-light">
             Add supplements to your cart to see them here.
@@ -536,7 +536,7 @@ const ShoppingCart = ({
       {!isOpen && (
         <div className="rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 sm:p-6">
           <div className="mb-4">
-            <ShoppingCart className="mx-auto h-12 w-12 text-primary/50 mb-4" />
+            <ShoppingCartIcon className="mx-auto h-12 w-12 text-primary/50 mb-4" />
           </div>
           <h3 className="mb-2 text-lg font-semibold">Your Cart</h3>
           <p className="mb-4 text-text-light">

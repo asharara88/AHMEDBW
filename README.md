@@ -2,7 +2,7 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/5239b3f1-f78c-4857-ad9d-ad1bb351d322/deploy-status)](https://app.netlify.com/projects/biowellai/deploys)
 
-Biowell AI is a comprehensive digital health platform that connects your wearable devices, provides personalized health insights, and offers evidence-based supplement recommendations through an AI coach.
+Biowell AI is a digital health platform that connects your wearable devices, delivers personalized insights, and offers evidence‑based supplement recommendations through an AI coach.
 
 ## Features
 
@@ -12,6 +12,8 @@ Biowell AI is a comprehensive digital health platform that connects your wearabl
 - **Onboarding Quiz**: Detailed health assessment to personalize your experience
 - **Wearable Integration**: Connect with Apple Health, Oura Ring, Garmin, and more
 - **Subscription Management**: Subscribe to recommended supplements for monthly delivery
+
+> **Disclaimer**: Biowell AI does not provide medical diagnosis or treatment. The AI coach offers general wellness guidance based on the information you share. Always consult a qualified healthcare professional for medical concerns.
 
 ## Tech Stack
 
@@ -44,15 +46,18 @@ cd biowell-ai
 npm install
 ```
 
-3. Create a `.env` file based on `.env.example` and add your Supabase credentials:
+3. Copy `.env.example` to `.env` and add your credentials:
 
 ```
 VITE_SUPABASE_URL=your-supabase-url
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 VITE_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
+VITE_CAPTCHA_SECRET_KEY=your-captcha-secret-key # optional
 ```
 
-4. Start the development server:
+4. For production builds, copy `.env.production.example` to `.env.production` and supply your production values (this file is ignored by Git).
+
+5. Start the development server:
 
 ```bash
 npm run dev
@@ -75,6 +80,14 @@ supabase functions deploy openai-proxy
 supabase secrets set OPENAI_API_KEY=your-openai-api-key
 ```
 
+### Audio Cache Table
+
+The migrations include an `audio_cache` table used to store generated audio for
+text-to-speech responses. It features indexes on `(user_id, cache_key)` and
+`expires_at` for quick lookups, row level security policies that restrict access
+to authenticated users, and a trigger that automatically removes expired
+entries.
+
 ## Project Structure
 
 ```
@@ -88,10 +101,16 @@ supabase secrets set OPENAI_API_KEY=your-openai-api-key
 /utils          // Utility functions
 ```
 
+## Deployment
+
+The `netlify.toml` file specifies a Node.js 18 environment and uses the
+`netlify-plugin-fetch-feeds` plugin to download the latest Hacker News front
+page into `public/feeds/hn.xml` during each build.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

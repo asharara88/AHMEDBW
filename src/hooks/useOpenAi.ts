@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { callOpenAiFunction } from '../utils/openai';
+import { openaiApi } from '../api/openaiApi';
 
 export function useOpenAi() {
   const [loading, setLoading] = useState(false);
@@ -10,7 +10,7 @@ export function useOpenAi() {
     setError(null);
 
     try {
-      const response = await callOpenAiFunction(prompt, context);
+      const response = await openaiApi.generateResponse(prompt, context);
       return response;
     } catch (err) {
       console.error("OpenAI API error:", err);

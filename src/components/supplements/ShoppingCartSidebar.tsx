@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingCart, Minus, Plus, Trash2, ChevronRight, CreditCard, Shield } from 'lucide-react';
+import CartSummary from './CartSummary';
 import { Link } from 'react-router-dom';
 import ImageWithFallback from '../common/ImageWithFallback';
 import { Supplement } from '../../types/supplements';
@@ -534,21 +535,7 @@ const ShoppingCartSidebar = ({
       </AnimatePresence>
 
       {!isOpen && (
-        <div className="rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 sm:p-6">
-          <div className="mb-4">
-            <ShoppingCart className="mx-auto h-12 w-12 text-primary/50 mb-4" />
-          </div>
-          <h3 className="mb-2 text-lg font-semibold">Your Cart</h3>
-          <p className="mb-4 text-text-light">
-            {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in your cart
-          </p>
-          <button 
-            onClick={() => onClose()}
-            className="w-full rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary-dark"
-          >
-            View Cart
-          </button>
-        </div>
+        <CartSummary itemCount={cartItems.length} onViewCart={onClose} />
       )}
     </div>
   );

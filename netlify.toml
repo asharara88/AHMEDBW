@@ -9,4 +9,24 @@
 
 [build.environment]
   NODE_VERSION = "18"
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[[plugins]]
+  package = "netlify-plugin-fetch-feeds"
+
+  [plugins.inputs]
+  feeds = [
+    { name = "hn", url = "https://hnrss.org/frontpage" }
+  ]
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[build.environment]
+  NODE_VERSION = "18"
+  # Skip submodule processing since this repo does not use submodules
   GIT_SUBMODULE_STRATEGY = "none"

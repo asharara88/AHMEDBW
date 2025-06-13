@@ -1,64 +1,41 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, ReactNode } from 'react';
+import { useThemeStore } from '../store';
 
-type Theme = 'light' | 'dark' | 'time-based' | 'system';
+// Create context with the same shape as the theme store
+const ThemeContext = createContext<ReturnType<typeof useThemeStore.getState> | undefined>(undefined);
 
-interface ThemeContextType {
-  theme: Theme;
-  currentTheme: 'light' | 'dark';
-  setTheme: (theme: Theme) => void;
-}
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    const savedTheme = localStorage.getItem('theme');
-    return (savedTheme as Theme) || 'time-based';
-  });
-
-  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>('dark');
-
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const themeStore = useThemeStore();
+  
   useEffect(() => {
-    localStorage.setItem('theme', theme);
-
-    const updateTheme = () => {
-      if (theme === 'system') {
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        setCurrentTheme(isDark ? 'dark' : 'light');
-        document.documentElement.classList.toggle('dark', isDark);
-      } else if (theme === 'time-based') {
-        const currentHour = new Date().getHours();
-        const isDayTime = currentHour >= 6 && currentHour < 18; // 6 AM to 6 PM
-        setCurrentTheme(isDayTime ? 'light' : 'dark');
-        document.documentElement.classList.toggle('dark', !isDayTime);
-      } else {
-        setCurrentTheme(theme);
-        document.documentElement.classList.toggle('dark', theme === 'dark');
-      }
-    };
-
-    // Initial setup
-    updateTheme();
-
+    // Initial theme setup
+    themeStore.updateCurrentTheme();
+    
     // Set up interval for time-based theme
     const intervalId = setInterval(() => {
-      if (theme === 'time-based') {
-        updateTheme();
+      if (themeStore.theme === 'time-based') {
+        themeStore.updateCurrentTheme();
       }
     }, 60000); // Check every minute
-
+    
     // Listen for system theme changes
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    mediaQuery.addEventListener('change', updateTheme);
+    const handleChange = () => {
+      if (themeStore.theme === 'system') {
+        themeStore.updateCurrentTheme();
+      }
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
     
     return () => {
       clearInterval(intervalId);
-      mediaQuery.removeEventListener('change', updateTheme);
+      mediaQuery.removeEventListener('change', handleChange);
     };
-  }, [theme]);
+  }, [themeStore.theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, currentTheme, setTheme }}>
+    <ThemeContext.Provider value={themeStore}>
       {children}
     </ThemeContext.Provider>
   );
