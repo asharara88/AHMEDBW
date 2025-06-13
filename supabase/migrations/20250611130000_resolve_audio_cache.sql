@@ -33,31 +33,66 @@ CREATE INDEX IF NOT EXISTS audio_cache_expires_at_idx
 -- Enable row level security
 ALTER TABLE audio_cache ENABLE ROW LEVEL SECURITY;
 
--- Policies for authenticated users
-CREATE POLICY IF NOT EXISTS "Users can read their own audio cache"
-  ON audio_cache
-  FOR SELECT
-  TO authenticated
-  USING (auth.uid() = user_id);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE policyname = 'Users can read their own audio cache'
+          AND tablename = 'audio_cache'
+    ) THEN
+        CREATE POLICY "Users can read their own audio cache"
+            ON audio_cache
+            FOR SELECT
+            TO authenticated
+            USING (auth.uid() = user_id);
+    END IF;
+END$$;
 
-CREATE POLICY IF NOT EXISTS "Users can insert their own audio cache"
-  ON audio_cache
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE policyname = 'Users can insert their own audio cache'
+          AND tablename = 'audio_cache'
+    ) THEN
+        CREATE POLICY "Users can insert their own audio cache"
+            ON audio_cache
+            FOR INSERT
+            TO authenticated
+            WITH CHECK (auth.uid() = user_id);
+    END IF;
+END$$;
 
-CREATE POLICY IF NOT EXISTS "Users can update their own audio cache"
-  ON audio_cache
-  FOR UPDATE
-  TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE policyname = 'Users can update their own audio cache'
+          AND tablename = 'audio_cache'
+    ) THEN
+        CREATE POLICY "Users can update their own audio cache"
+            ON audio_cache
+            FOR UPDATE
+            TO authenticated
+            USING (auth.uid() = user_id)
+            WITH CHECK (auth.uid() = user_id);
+    END IF;
+END$$;
 
-CREATE POLICY IF NOT EXISTS "Users can delete their own audio cache"
-  ON audio_cache
-  FOR DELETE
-  TO authenticated
-  USING (auth.uid() = user_id);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE policyname = 'Users can delete their own audio cache'
+          AND tablename = 'audio_cache'
+    ) THEN
+        CREATE POLICY "Users can delete their own audio cache"
+            ON audio_cache
+            FOR DELETE
+            TO authenticated
+            USING (auth.uid() = user_id);
+    END IF;
+END$$;
 
 -- Function to remove expired entries
 CREATE OR REPLACE FUNCTION cleanup_expired_audio_cache()
