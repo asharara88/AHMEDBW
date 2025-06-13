@@ -116,60 +116,141 @@ ALTER TABLE conversion_analytics ENABLE ROW LEVEL SECURITY;
 -- ===================================
 -- Policies for authenticated users
 -- ===================================
-CREATE POLICY IF NOT EXISTS "Users can manage their analytics events"
-  ON analytics_events FOR ALL
-  TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE policyname = 'Users can manage their analytics events'
+          AND tablename = 'analytics_events'
+    ) THEN
+        CREATE POLICY "Users can manage their analytics events"
+            ON analytics_events FOR ALL
+            TO authenticated
+            USING (auth.uid() = user_id)
+            WITH CHECK (auth.uid() = user_id);
+    END IF;
+END$$;
 
-CREATE POLICY IF NOT EXISTS "Users can manage their performance metrics"
-  ON performance_metrics FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE policyname = 'Users can manage their performance metrics'
+          AND tablename = 'performance_metrics'
+    ) THEN
+        CREATE POLICY "Users can manage their performance metrics"
+            ON performance_metrics FOR ALL
+            TO service_role
+            USING (true)
+            WITH CHECK (true);
+    END IF;
+END$$;
 
-CREATE POLICY IF NOT EXISTS "Users can manage their error logs"
-  ON error_logs FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE policyname = 'Users can manage their error logs'
+          AND tablename = 'error_logs'
+    ) THEN
+        CREATE POLICY "Users can manage their error logs"
+            ON error_logs FOR ALL
+            TO service_role
+            USING (true)
+            WITH CHECK (true);
+    END IF;
+END$$;
 
-CREATE POLICY IF NOT EXISTS "Users can manage their health analytics"
-  ON health_analytics FOR ALL
-  TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE policyname = 'Users can manage their health analytics'
+          AND tablename = 'health_analytics'
+    ) THEN
+        CREATE POLICY "Users can manage their health analytics"
+            ON health_analytics FOR ALL
+            TO authenticated
+            USING (auth.uid() = user_id)
+            WITH CHECK (auth.uid() = user_id);
+    END IF;
+END$$;
 
-CREATE POLICY IF NOT EXISTS "Users can manage their supplement analytics"
-  ON supplement_analytics FOR ALL
-  TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE policyname = 'Users can manage their supplement analytics'
+          AND tablename = 'supplement_analytics'
+    ) THEN
+        CREATE POLICY "Users can manage their supplement analytics"
+            ON supplement_analytics FOR ALL
+            TO authenticated
+            USING (auth.uid() = user_id)
+            WITH CHECK (auth.uid() = user_id);
+    END IF;
+END$$;
 
-CREATE POLICY IF NOT EXISTS "Users can manage their chat analytics"
-  ON chat_analytics FOR ALL
-  TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE policyname = 'Users can manage their chat analytics'
+          AND tablename = 'chat_analytics'
+    ) THEN
+        CREATE POLICY "Users can manage their chat analytics"
+            ON chat_analytics FOR ALL
+            TO authenticated
+            USING (auth.uid() = user_id)
+            WITH CHECK (auth.uid() = user_id);
+    END IF;
+END$$;
 
-CREATE POLICY IF NOT EXISTS "Users can manage their goal analytics"
-  ON goal_analytics FOR ALL
-  TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE policyname = 'Users can manage their goal analytics'
+          AND tablename = 'goal_analytics'
+    ) THEN
+        CREATE POLICY "Users can manage their goal analytics"
+            ON goal_analytics FOR ALL
+            TO authenticated
+            USING (auth.uid() = user_id)
+            WITH CHECK (auth.uid() = user_id);
+    END IF;
+END$$;
 
-CREATE POLICY IF NOT EXISTS "Users can manage their conversion analytics"
-  ON conversion_analytics FOR ALL
-  TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE policyname = 'Users can manage their conversion analytics'
+          AND tablename = 'conversion_analytics'
+    ) THEN
+        CREATE POLICY "Users can manage their conversion analytics"
+            ON conversion_analytics FOR ALL
+            TO authenticated
+            USING (auth.uid() = user_id)
+            WITH CHECK (auth.uid() = user_id);
+    END IF;
+END$$;
 
 -- Service role full access
-CREATE POLICY IF NOT EXISTS "service_role_access_events"
-  ON analytics_events FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE policyname = 'service_role_access_events'
+          AND tablename = 'analytics_events'
+    ) THEN
+        CREATE POLICY "service_role_access_events"
+            ON analytics_events FOR ALL
+            TO service_role
+            USING (true)
+            WITH CHECK (true);
+    END IF;
+END$$;
 
 -- ===================================
 -- Materialized views
