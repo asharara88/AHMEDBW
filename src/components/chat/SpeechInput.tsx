@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Mic, Stop } from 'lucide-react';
+import { Mic, Store as Stop } from 'lucide-react';
 
 interface SpeechInputProps {
   isCompact?: boolean;
