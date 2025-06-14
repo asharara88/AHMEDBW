@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
-import { useSupabase } from '../../contexts/SupabaseContext';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { Search } from 'lucide-react';
-import SupplementCard from './SupplementCard';
+import { Search, Filter } from 'lucide-react';
 import type { Supplement } from '../../types/supplements';
 import { useError } from '../../contexts/ErrorContext';
 import { ErrorCode, createErrorObject } from '../../utils/errorHandling';
 import ErrorDisplay from '../common/ErrorDisplay';
 import ErrorBoundary from '../common/ErrorBoundary';
+import LoadingSpinner from '../common/LoadingSpinner';
+
+// Lazy load SupplementCard component
+const SupplementCard = lazy(() => import('./SupplementCard'));
 
 interface SupplementListProps {
   supplements: Supplement[];
@@ -63,7 +65,7 @@ const SupplementList = ({
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <LoadingSpinner size="large" />
       </div>
     );
   }
@@ -80,6 +82,7 @@ const SupplementList = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] pl-10 pr-4 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              aria-label="Search supplements"
             />
           </div>
 
@@ -91,6 +94,7 @@ const SupplementList = ({
                   ? 'bg-primary text-white'
                   : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
               }`}
+              aria-pressed={!selectedCategory}
             >
               All Categories
             </button>
@@ -103,6 +107,7 @@ const SupplementList = ({
                     ? 'bg-primary text-white'
                     : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
                 }`}
+                aria-pressed={selectedCategory === category}
               >
                 {category}
               </button>
@@ -116,12 +121,18 @@ const SupplementList = ({
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredSupplements.map((supplement) => (
             <ErrorBoundary key={supplement.id}>
-              <SupplementCard
-                supplement={supplement}
-                isInStack={userSupplements.includes(supplement.id)}
-                onAddToStack={() => onToggleSubscription(supplement.id)}
-                onRemoveFromStack={() => onToggleSubscription(supplement.id)}
-              />
+              <Suspense fallback={
+                <div className="h-64 flex items-center justify-center rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))]">
+                  <LoadingSpinner size="small" />
+                </div>
+              }>
+                <SupplementCard
+                  supplement={supplement}
+                  isInStack={userSupplements.includes(supplement.id)}
+                  onAddToStack={() => onToggleSubscription(supplement.id)}
+                  onRemoveFromStack={() => onToggleSubscription(supplement.id)}
+                />
+              </Suspense>
             </ErrorBoundary>
           ))}
         </div>

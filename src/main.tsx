@@ -11,6 +11,20 @@ import { ErrorProvider } from './contexts/ErrorContext';
 import GlobalErrorHandler from './components/common/GlobalErrorHandler';
 import '@fontsource-variable/inter';
 
+// Initialize performance monitoring
+if (process.env.NODE_ENV !== 'production') {
+  // Only log performance metrics in development
+  const reportWebVitals = async () => {
+    const { onCLS, onFID, onLCP, onTTFB } = await import('web-vitals');
+    onCLS(console.log);
+    onFID(console.log);
+    onLCP(console.log);
+    onTTFB(console.log);
+  };
+  
+  reportWebVitals();
+}
+
 // Initialize variables for accessibility monitoring
 if (typeof window !== 'undefined') {
   window.addEventListener('DOMContentLoaded', () => {

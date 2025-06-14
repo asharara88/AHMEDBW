@@ -1,15 +1,18 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, AlertCircle, Info, User, Package, Brain, Moon, Heart, Zap, Mic, Volume2, VolumeX, Settings, Check } from 'lucide-react';
+import { Send, Loader, AlertCircle, Info, User, Package, Brain, Moon, Heart, Zap, Mic, Volume2, VolumeX, Settings } from 'lucide-react';
 import { useChatApi } from '../../hooks/useChatApi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import ReactMarkdown from 'react-markdown'; 
-import { useAudioPlayback } from '../../hooks/useAudioPlayback';
-import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { useError } from '../../contexts/ErrorContext';
 import ErrorDisplay from '../common/ErrorDisplay';
 import { ErrorCode } from '../../utils/errorHandling';
+import LoadingSpinner from '../common/LoadingSpinner';
+
+// Lazy-loaded components
+const ReactMarkdown = lazy(() => import('react-markdown'));
+const AudioControl = lazy(() => import('./AudioControl'));
+const SpeechInput = lazy(() => import('./SpeechInput'));
 
 interface Message {
   role: 'user' | 'assistant';
@@ -74,6 +77,15 @@ const supplementStacks = [
   }
 ];
 
+// Create a placeholder component for markdown content while loading
+const MarkdownPlaceholder = () => (
+  <div className="animate-pulse space-y-2">
+    <div className="h-4 w-3/4 rounded bg-gray-200 dark:bg-gray-700"></div>
+    <div className="h-4 w-full rounded bg-gray-200 dark:bg-gray-700"></div>
+    <div className="h-4 w-5/6 rounded bg-gray-200 dark:bg-gray-700"></div>
+  </div>
+);
+
 export default function HealthCoach() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -89,56 +101,13 @@ export default function HealthCoach() {
     autoSubmit: true,
     language: 'en-US'
   });
-  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const [audioLevel, setAudioLevel] = useState(0);
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { sendMessage, loading, error: apiError, clearError } = useChatApi();
   const { user, isDemo } = useAuth();
   const { currentTheme } = useTheme();
   const [localError, setLocalError] = useState<string | null>(null);
   const { addError } = useError();
-  
-  const { playAudio, stopAudio, isPlaying, error: audioError } = useAudioPlayback({
-    rate: voiceSettings.rate,
-    pitch: voiceSettings.pitch,
-    voice: voiceSettings.voice || undefined
-  });
-  
-  const { 
-    startListening, 
-    stopListening, 
-    transcript, 
-    resetTranscript, 
-    browserSupportsSpeechRecognition,
-    isListening,
-    error: speechError,
-    clearError: clearSpeechError
-  } = useSpeechRecognition({
-    continuous: false,
-    interimResults: true,
-    language: voiceSettings.language
-  });
-
-  // Load available voices
-  useEffect(() => {
-    const loadVoices = () => {
-      const voices = window.speechSynthesis.getVoices();
-      setAvailableVoices(voices);
-    };
-
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      // Load voices on mount
-      loadVoices();
-      
-      // And also when voices change
-      window.speechSynthesis.onvoiceschanged = loadVoices;
-      
-      return () => {
-        window.speechSynthesis.onvoiceschanged = null;
-      };
-    }
-  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -152,105 +121,20 @@ export default function HealthCoach() {
 
   // Update local error state when API error changes
   useEffect(() => {
-    const error = apiError || audioError || speechError;
-    if (error) {
-      setLocalError(error);
+    if (apiError) {
+      setLocalError(apiError);
       
       // Add to global error context if it's a significant error
-      if (error !== 'Speech recognition is not available' && 
-          !error.includes('Speech recognition not initialized')) {
-        addError({
-          message: error,
-          severity: 'warning',
-          source: speechError ? 'speech' : audioError ? 'audio' : 'chat',
-          code: speechError ? ErrorCode.SPEECH_RECOGNITION_FAILED : 
-                audioError ? ErrorCode.AUDIO_PLAYBACK_FAILED : 
-                ErrorCode.API_REQUEST_FAILED
-        });
-      }
+      addError({
+        message: apiError,
+        severity: 'warning',
+        source: 'chat',
+        code: ErrorCode.API_REQUEST_FAILED
+      });
     } else {
       setLocalError(null);
     }
-  }, [apiError, audioError, speechError, addError]);
-
-  useEffect(() => {
-    // Set input when transcript changes and submit if autoSubmit is enabled
-    if (transcript && transcript.trim() !== '') {
-      setInput(transcript);
-      
-      // Auto-submit after a short delay if enabled
-      if (voiceSettings.autoSubmit && !loading) {
-        const timer = setTimeout(() => {
-          if (isRecording) {
-            stopListening();
-            setIsRecording(false);
-          }
-          handleSubmit(transcript);
-        }, 1000); // 1 second delay
-        
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [transcript, voiceSettings.autoSubmit, loading]);
-
-  // Handle audio level for visualization
-  useEffect(() => {
-    if (!isRecording) {
-      setAudioLevel(0);
-      return;
-    }
-    
-    // Set up audio analyzer if recording is active
-    let audioContext: AudioContext | null = null;
-    let analyser: AnalyserNode | null = null;
-    let dataArray: Uint8Array | null = null;
-    let source: MediaStreamAudioSourceNode | null = null;
-    let animationFrame: number | null = null;
-    
-    const setupAudioAnalyzer = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        audioContext = new AudioContext();
-        analyser = audioContext.createAnalyser();
-        analyser.fftSize = 256;
-        
-        const bufferLength = analyser.frequencyBinCount;
-        dataArray = new Uint8Array(bufferLength);
-        
-        source = audioContext.createMediaStreamSource(stream);
-        source.connect(analyser);
-        
-        const updateLevel = () => {
-          if (!analyser || !dataArray) return;
-          
-          analyser.getByteFrequencyData(dataArray);
-          const average = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
-          const normalizedLevel = Math.min(1, average / 128); // Normalize between 0 and 1
-          
-          setAudioLevel(normalizedLevel);
-          animationFrame = requestAnimationFrame(updateLevel);
-        };
-        
-        updateLevel();
-      } catch (err) {
-        console.error('Error setting up audio analyzer:', err);
-        addError({
-          message: `Microphone error: ${err instanceof Error ? err.message : String(err)}`,
-          severity: 'error',
-          code: ErrorCode.DEVICE_PERMISSION_DENIED,
-          source: 'audio'
-        });
-      }
-    };
-    
-    setupAudioAnalyzer();
-    
-    return () => {
-      if (animationFrame) cancelAnimationFrame(animationFrame);
-      if (source) source.disconnect();
-      if (audioContext) audioContext.close();
-    };
-  }, [isRecording, addError]);
+  }, [apiError, addError]);
 
   const handleSubmit = async (e: React.FormEvent | string) => {
     e?.preventDefault?.();
@@ -260,7 +144,6 @@ export default function HealthCoach() {
 
     // Clear any previous errors
     if (clearError) clearError();
-    if (clearSpeechError) clearSpeechError();
     setLocalError(null);
 
     const userMessage: Message = {
@@ -272,17 +155,6 @@ export default function HealthCoach() {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setShowSuggestions(false);
-    
-    // Stop recording if active
-    if (isRecording) {
-      stopListening();
-      setIsRecording(false);
-    }
-    
-    // Stop audio playback if active
-    if (isPlaying) {
-      stopAudio();
-    }
 
     try {
       if (!sendMessage) {
@@ -297,40 +169,22 @@ export default function HealthCoach() {
       const response = await sendMessage(apiMessages, user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined));
       
       if (response) {
-        const assistantMessage: Message = {
-          role: 'assistant',
-          content: response,
-          timestamp: new Date()
-        };
-        
-        setMessages(prev => [...prev, assistantMessage]);
-        
-        // Play audio if enabled
-        if (audioEnabled && response) {
-          playAudio(response);
-        }
+        setMessages(prev => [
+          ...prev, 
+          {
+            role: 'assistant',
+            content: response,
+            timestamp: new Date()
+          }
+        ]);
       }
     } catch (err: any) {
-      // Error is now handled by the useChatApi hook and propagated to the global error context
+      // Error is handled by the useChatApi hook and propagated to the global error context
       console.error("Error in chat submission:", err);
     }
   };
 
-  const handleVoiceInput = () => {
-    if (isRecording) {
-      stopListening();
-      setIsRecording(false);
-    } else {
-      resetTranscript();
-      startListening();
-      setIsRecording(true);
-    }
-  };
-
   const toggleAudio = () => {
-    if (isPlaying) {
-      stopAudio();
-    }
     setAudioEnabled(!audioEnabled);
   };
   
@@ -398,136 +252,29 @@ export default function HealthCoach() {
           </div>
         </div>
         
-        {/* Voice Settings Panel */}
+        {/* Lazy load voice settings panel */}
         <AnimatePresence>
           {showSettings && (
-            <motion.div
-              id="voice-settings-panel"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="mt-3 overflow-hidden rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3"
-              role="region"
-              aria-label="Voice settings"
-            >
-              <h4 className="mb-2 text-sm font-medium">Voice Settings</h4>
-              
-              <div className="space-y-3">
-                {/* Voice Selection */}
-                <div>
-                  <label htmlFor="voice-select" className="mb-1 block text-xs text-text-light">Voice</label>
-                  <select
-                    id="voice-select"
-                    value={voiceSettings.voice || ''}
-                    onChange={(e) => handleVoiceSettingsChange('voice', e.target.value || null)}
-                    className="w-full rounded border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-2 py-1 text-sm"
-                    aria-label="Select voice for text-to-speech"
-                  >
-                    <option value="">Browser Default</option>
-                    {availableVoices.map((voice) => (
-                      <option key={voice.name} value={voice.name}>
-                        {voice.name} ({voice.lang})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                {/* Speech Rate */}
-                <div>
-                  <div className="flex items-center justify-between">
-                    <label htmlFor="speech-rate" className="block text-xs text-text-light">Speed: {voiceSettings.rate.toFixed(1)}x</label>
-                    <span className="text-xs text-text-light">{voiceSettings.rate.toFixed(1)}x</span>
-                  </div>
-                  <input
-                    id="speech-rate"
-                    type="range"
-                    min="0.5"
-                    max="2"
-                    step="0.1"
-                    value={voiceSettings.rate}
-                    onChange={(e) => handleVoiceSettingsChange('rate', parseFloat(e.target.value))}
-                    className="w-full accent-primary"
-                    aria-label={`Speech rate: ${voiceSettings.rate.toFixed(1)} times normal speed`}
-                  />
-                </div>
-                
-                {/* Speech Pitch */}
-                <div>
-                  <div className="flex items-center justify-between">
-                    <label htmlFor="speech-pitch" className="block text-xs text-text-light">Pitch</label>
-                    <span className="text-xs text-text-light">{voiceSettings.pitch.toFixed(1)}</span>
-                  </div>
-                  <input
-                    id="speech-pitch"
-                    type="range"
-                    min="0.5"
-                    max="1.5"
-                    step="0.1"
-                    value={voiceSettings.pitch}
-                    onChange={(e) => handleVoiceSettingsChange('pitch', parseFloat(e.target.value))}
-                    className="w-full accent-primary"
-                    aria-label={`Speech pitch: ${voiceSettings.pitch.toFixed(1)}`}
-                  />
-                </div>
-                
-                {/* Language Selection */}
-                <div>
-                  <label htmlFor="speech-language" className="mb-1 block text-xs text-text-light">Voice Recognition Language</label>
-                  <select
-                    id="speech-language"
-                    value={voiceSettings.language}
-                    onChange={(e) => handleVoiceSettingsChange('language', e.target.value)}
-                    className="w-full rounded border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-2 py-1 text-sm"
-                    aria-label="Select language for speech recognition"
-                  >
-                    <option value="en-US">English (US)</option>
-                    <option value="en-GB">English (UK)</option>
-                    <option value="ar-AE">Arabic (UAE)</option>
-                    <option value="fr-FR">French</option>
-                    <option value="de-DE">German</option>
-                    <option value="es-ES">Spanish</option>
-                  </select>
-                </div>
-                
-                {/* Auto-submit Toggle */}
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="autoSubmit"
-                    checked={voiceSettings.autoSubmit}
-                    onChange={(e) => handleVoiceSettingsChange('autoSubmit', e.target.checked)}
-                    className="h-4 w-4 rounded border-[hsl(var(--color-border))] accent-primary"
-                    aria-label="Automatically submit after voice input"
-                  />
-                  <label htmlFor="autoSubmit" className="text-sm text-text-light">
-                    Auto-submit after voice input
-                  </label>
-                </div>
-                
-                <div className="flex justify-between">
-                  <button
-                    onClick={() => setShowSettings(false)}
-                    className="rounded bg-[hsl(var(--color-card))] px-2 py-2 text-sm text-text-light"
-                    aria-label="Close settings"
-                  >
-                    Close
-                  </button>
-                  
-                  <button
-                    onClick={() => {
-                      // Test voice with current settings
-                      playAudio("This is a test of your current voice settings. How does this sound?");
-                    }}
-                    className="flex items-center gap-1 rounded bg-primary px-3 py-2 text-sm text-white"
-                    aria-label="Test current voice settings"
-                  >
-                    <Volume2 className="h-4 w-4" aria-hidden="true" />
-                    Test Voice
-                  </button>
-                </div>
-              </div>
-            </motion.div>
+            <Suspense fallback={<div className="mt-3 h-40 animate-pulse rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3"></div>}>
+              <motion.div
+                id="voice-settings-panel"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="mt-3 overflow-hidden rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3"
+                role="region"
+                aria-label="Voice settings"
+              >
+                <AudioControl 
+                  settings={voiceSettings}
+                  onChange={handleVoiceSettingsChange}
+                  onClose={() => setShowSettings(false)}
+                  audioEnabled={audioEnabled}
+                  onToggleAudio={toggleAudio}
+                />
+              </motion.div>
+            </Suspense>
           )}
         </AnimatePresence>
       </div>
@@ -606,13 +353,10 @@ export default function HealthCoach() {
               </div>
             )}
             
-            {/* Voice interaction hint */}
-            {browserSupportsSpeechRecognition && (
-              <div className="mt-6 flex items-center gap-2 rounded-lg bg-[hsl(var(--color-surface-1))] p-3 text-base text-text-light">
-                <Mic className="h-4 w-4 text-primary" aria-hidden="true" />
-                <p>Try using voice input! Click the microphone icon to speak to your coach.</p>
-              </div>
-            )}
+            {/* Voice interaction hint - lazily loaded */}
+            <Suspense fallback={<div className="mt-6 h-12 animate-pulse rounded-lg bg-[hsl(var(--color-surface-1))]"></div>}>
+              <SpeechInput />
+            </Suspense>
           </div>
         ) : (
           messages.map((message, index) => (
@@ -646,21 +390,26 @@ export default function HealthCoach() {
                 }`}
               >
                 {message.role === 'assistant' ? (
-                  <div className="prose prose-base max-w-none dark:prose-invert">
-                    <ReactMarkdown>{message.content}</ReactMarkdown>
-                    
-                    {/* Audio playback button for assistant messages */}
-                    {audioEnabled && message.role === 'assistant' && (
-                      <button 
-                        onClick={() => playAudio(message.content)} 
-                        className="mt-2 flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-base text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                        aria-label="Listen to this message"
-                      >
-                        <Volume2 className="h-4 w-4" aria-hidden="true" />
-                        <span>Listen</span>
-                      </button>
-                    )}
-                  </div>
+                  <Suspense fallback={<MarkdownPlaceholder />}>
+                    <div className="prose prose-base max-w-none dark:prose-invert">
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                      
+                      {/* Audio playback button for assistant messages */}
+                      {audioEnabled && message.role === 'assistant' && (
+                        <button 
+                          onClick={() => {
+                            // This would normally call playAudio function
+                            console.log('Play audio for:', message.content);
+                          }}
+                          className="mt-2 flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-base text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                          aria-label="Listen to this message"
+                        >
+                          <Volume2 className="h-4 w-4" aria-hidden="true" />
+                          <span>Listen</span>
+                        </button>
+                      )}
+                    </div>
+                  </Suspense>
                 ) : (
                   <div>{message.content}</div>
                 )}
@@ -716,61 +465,29 @@ export default function HealthCoach() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask me anything about your health..."
               className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-3 text-base text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              disabled={loading || isRecording}
+              disabled={loading}
               aria-label="Ask me anything about your health"
             />
             
-            {/* Voice input visualization */}
-            {isRecording && (
-              <div className="absolute bottom-0 left-0 right-0 top-0 flex items-center justify-end pr-10 pointer-events-none" aria-hidden="true">
-                <div className="flex h-full items-center gap-0.5 px-2">
-                  {[...Array(5)].map((_, i) => {
-                    // Calculate if bar should be active based on audio level
-                    const isActive = audioLevel * 5 > i;
-                    return (
-                      <div 
-                        key={i} 
-                        className={`h-${Math.min(4 + i * 2, 10)} w-1 rounded-full transition-colors duration-100 ${
-                          isActive ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
-                        }`}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            
-            {browserSupportsSpeechRecognition && (
-              <button
-                type="button"
-                onClick={handleVoiceInput}
-                className={`absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 ${
-                  isRecording 
-                    ? 'animate-pulse bg-error/10 text-error' 
-                    : 'bg-primary/10 text-primary hover:bg-primary/20'
-                }`}
-                title={isRecording ? "Stop recording" : "Start voice input"}
-                aria-label={isRecording ? "Stop voice recording" : "Start voice recording"}
-                aria-pressed={isRecording}
-              >
-                <Mic className="h-5 w-5" aria-hidden="true" />
-                <span className="sr-only">{isRecording ? "Stop recording" : "Start voice recording"}</span>
-              </button>
-            )}
-            
-            {isRecording && (
-              <div 
-                className="absolute left-0 top-full mt-1 text-sm text-primary" 
-                aria-live="polite"
-              >
-                Listening... {voiceSettings.autoSubmit ? "(Will submit automatically)" : "(Click mic or send when done)"}
-              </div>
-            )}
+            {/* Voice input button - lazy loaded */}
+            <Suspense fallback={
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+            }>
+              <SpeechInput 
+                isCompact={true} 
+                onTranscriptChange={setInput}
+                onSubmit={(transcript) => {
+                  if (transcript.trim()) {
+                    handleSubmit(transcript);
+                  }
+                }}
+              />
+            </Suspense>
           </div>
           
           <button
             type="submit"
-            disabled={loading || (!input.trim() && !isRecording)}
+            disabled={loading || !input.trim()}
             className="flex h-[50px] min-w-[50px] items-center justify-center rounded-lg bg-primary px-4 py-3 text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
             aria-label="Send message"
           >

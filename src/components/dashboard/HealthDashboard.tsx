@@ -1,15 +1,25 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import BWScoreCard from './BWScoreCard';
 import MetricsOverview from './MetricsOverview';
-import HealthTrends from './HealthTrends';
-import SleepDashboard from './SleepDashboard';
-import ActivityDashboard from './ActivityDashboard';
-import NutritionDashboard from './NutritionDashboard';
-import SupplementDashboard from './SupplementDashboard';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/Tabs';
 import { Calendar, Clock, Activity } from 'lucide-react';
+import LoadingSpinner from '../common/LoadingSpinner';
+import ErrorBoundary from '../common/ErrorBoundary';
+
+// Lazy load components that aren't needed immediately
+const HealthTrends = lazy(() => import('./HealthTrends'));
+const SleepDashboard = lazy(() => import('./SleepDashboard'));
+const ActivityDashboard = lazy(() => import('./ActivityDashboard'));
+const NutritionDashboard = lazy(() => import('./NutritionDashboard'));
+const SupplementDashboard = lazy(() => import('./SupplementDashboard'));
+
+const TabContentFallback = () => (
+  <div className="flex h-64 items-center justify-center">
+    <LoadingSpinner size="medium" />
+  </div>
+);
 
 const HealthDashboard = () => {
   const { user } = useAuth();
@@ -42,6 +52,7 @@ const HealthDashboard = () => {
                   ? 'bg-primary text-white'
                   : 'text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
               }`}
+              aria-pressed={timeRange === 'day'}
             >
               <Clock className="h-3.5 w-3.5" />
               Day
@@ -53,6 +64,7 @@ const HealthDashboard = () => {
                   ? 'bg-primary text-white'
                   : 'text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
               }`}
+              aria-pressed={timeRange === 'week'}
             >
               <Activity className="h-3.5 w-3.5" />
               Week
@@ -64,6 +76,7 @@ const HealthDashboard = () => {
                   ? 'bg-primary text-white'
                   : 'text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
               }`}
+              aria-pressed={timeRange === 'month'}
             >
               <Calendar className="h-3.5 w-3.5" />
               Month
@@ -95,25 +108,37 @@ const HealthDashboard = () => {
             <TabsTrigger value="supplements">Supplements</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="overview">
-            <HealthTrends userId={user?.id || ''} />
-          </TabsContent>
-          
-          <TabsContent value="sleep">
-            <SleepDashboard userId={user?.id || ''} />
-          </TabsContent>
-          
-          <TabsContent value="activity">
-            <ActivityDashboard userId={user?.id || ''} />
-          </TabsContent>
-          
-          <TabsContent value="nutrition">
-            <NutritionDashboard userId={user?.id || ''} />
-          </TabsContent>
-          
-          <TabsContent value="supplements">
-            <SupplementDashboard userId={user?.id || ''} />
-          </TabsContent>
+          <ErrorBoundary>
+            <TabsContent value="overview">
+              <Suspense fallback={<TabContentFallback />}>
+                <HealthTrends userId={user?.id || ''} />
+              </Suspense>
+            </TabsContent>
+            
+            <TabsContent value="sleep">
+              <Suspense fallback={<TabContentFallback />}>
+                <SleepDashboard userId={user?.id || ''} />
+              </Suspense>
+            </TabsContent>
+            
+            <TabsContent value="activity">
+              <Suspense fallback={<TabContentFallback />}>
+                <ActivityDashboard userId={user?.id || ''} />
+              </Suspense>
+            </TabsContent>
+            
+            <TabsContent value="nutrition">
+              <Suspense fallback={<TabContentFallback />}>
+                <NutritionDashboard userId={user?.id || ''} />
+              </Suspense>
+            </TabsContent>
+            
+            <TabsContent value="supplements">
+              <Suspense fallback={<TabContentFallback />}>
+                <SupplementDashboard userId={user?.id || ''} />
+              </Suspense>
+            </TabsContent>
+          </ErrorBoundary>
         </Tabs>
       </div>
     </div>
