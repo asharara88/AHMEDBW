@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import ShoppingCartButton from '../../components/supplements/ShoppingCartButton';
-import { ShoppingCartSidebar } from '../../components/supplements/ShoppingCartSidebar';
+import ShoppingCartSidebar from '../../components/supplements/ShoppingCartSidebar';
 import { useCartContext } from '../../providers/CartProvider';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 
