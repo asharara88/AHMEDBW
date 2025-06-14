@@ -45,24 +45,35 @@ const SupplementCard = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="flex h-full flex-col rounded-xl shadow-sm transition-shadow hover:shadow-md overflow-hidden max-w-full"
+      aria-labelledby={`supplement-${supplement.id}`}
     >
       {/* Card Content */}
       <div className="flex flex-1 flex-col border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 rounded-xl">
         <div className="mb-2">
           <div className="flex justify-between items-center">
-            <h3 className="text-base font-semibold cursor-pointer hover:text-primary truncate" onClick={onViewDetails}>
+            <h3 
+              id={`supplement-${supplement.id}`} 
+              className="text-base font-semibold cursor-pointer hover:text-primary truncate"
+              onClick={onViewDetails}
+            >
               {supplement?.name || 'Unnamed Supplement'}
             </h3>
-            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-              evidenceLevel === 'Green' ? 'bg-success/20 text-success' :
-              evidenceLevel === 'Yellow' ? 'bg-warning/20 text-warning' :
-              'bg-error/20 text-error'
-            }`}>
+            <span 
+              className={`rounded-full px-2 py-0.5 text-sm font-medium ${
+                evidenceLevel === 'Green' ? 'bg-success/20 text-success' :
+                evidenceLevel === 'Yellow' ? 'bg-warning/20 text-warning' :
+                'bg-error/20 text-error'
+              }`}
+              title={evidenceLevel === 'Green' ? 'Strong evidence' : 
+                    evidenceLevel === 'Yellow' ? 'Moderate evidence' : 
+                    'Limited evidence'}
+              aria-label={`Evidence level: ${evidenceLevel}`}
+            >
               {evidenceLevel}
             </span>
           </div>
-          <div className="flex items-center mt-1">
-            <div className="flex">
+          <div className="flex items-center mt-1" aria-label={`Rated ${rating.toFixed(1)} out of 5 stars`}>
+            <div className="flex" aria-hidden="true">
               {[1, 2, 3, 4, 5].map((star) => {
                 // Full star
                 if (star <= Math.floor(rating)) {
@@ -87,32 +98,35 @@ const SupplementCard = ({
                 }
               })}
             </div>
-            <span className="ml-1 text-xs text-text-light">{rating.toFixed(1)}</span>
+            <span className="ml-1 text-sm text-text-light">{rating.toFixed(1)}</span>
           </div>
         </div>
 
-        <p className="text-xs text-text-light mb-3 line-clamp-2">{supplement?.description || 'No description available'}</p>
+        <p className="text-sm text-text-light mb-3 line-clamp-2">{supplement?.description || 'No description available'}</p>
 
         {/* Categories */}
         <div className="mb-3">
-          <div className="mb-1 text-xs font-medium">Categories</div>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="mb-1 text-sm font-medium">Categories</div>
+          <div className="flex flex-wrap gap-1.5" aria-label="Categories">
             {categories && categories.length > 0 ? (
               categories.slice(0, 2).map((category, index) => (
                 <span
                   key={index}
-                  className="rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary truncate max-w-[120px]"
+                  className="rounded-full bg-primary/20 px-2 py-0.5 text-sm font-medium text-primary truncate max-w-[120px]"
                 >
                   {category}
                 </span>
               ))
             ) : (
-              <span className="rounded-full bg-[hsl(var(--color-surface-2))] px-2 py-0.5 text-xs text-text-light">
+              <span className="rounded-full bg-[hsl(var(--color-surface-2))] px-2 py-0.5 text-sm text-text-light">
                 General
               </span>
             )}
             {categories && categories.length > 2 && (
-              <span className="rounded-full bg-[hsl(var(--color-surface-2))] px-2 py-0.5 text-xs text-text-light">
+              <span 
+                className="rounded-full bg-[hsl(var(--color-surface-2))] px-2 py-0.5 text-sm text-text-light"
+                aria-label={`${categories.length - 2} more categories`}
+              >
                 +{categories.length - 2}
               </span>
             )}
@@ -130,18 +144,18 @@ const SupplementCard = ({
                   ? 'bg-error/20 text-error hover:bg-error/30'
                   : 'bg-[hsl(var(--color-surface-1))] text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
               }`}
-              title={isInStack ? "Remove from Stack" : "Add to Stack"}
               aria-label={isInStack ? "Remove from Stack" : "Add to Stack"}
             >
-              <Heart className={`h-5 w-5 ${isInStack ? 'fill-error' : ''}`} />
+              <Heart className={`h-5 w-5 ${isInStack ? 'fill-error' : ''}`} aria-hidden="true" />
+              <span className="sr-only">{isInStack ? "Remove from Stack" : "Add to Stack"}</span>
             </button>
             
             <button
               onClick={handleAddToCart}
-              className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-dark"
-              aria-label="Add to cart"
+              className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary-dark"
+              aria-label={`Add ${supplement.name} to cart`}
             >
-              <ShoppingCart className="h-3.5 w-3.5" />
+              <ShoppingCart className="h-4 w-4" aria-hidden="true" />
               <span className="hidden sm:inline">Add</span>
             </button>
           </div>
@@ -150,17 +164,17 @@ const SupplementCard = ({
         {/* Expand/Collapse Toggle */}
         <button
           onClick={() => setShowDetails(!showDetails)}
-          className="mt-3 flex w-full items-center justify-center gap-1 rounded-lg border border-[hsl(var(--color-border))] px-3 py-2 text-xs text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
+          className="mt-3 flex w-full items-center justify-center gap-1 rounded-lg border border-[hsl(var(--color-border))] px-3 py-2 text-base text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
           aria-expanded={showDetails}
           aria-controls={`details-${supplement.id}`}
         >
           {showDetails ? (
             <>
-              Show Less <ChevronUp className="h-3.5 w-3.5" />
+              <span>Show Less</span> <ChevronUp className="h-4 w-4" aria-hidden="true" />
             </>
           ) : (
             <>
-              View Details <ChevronDown className="h-3.5 w-3.5" />
+              <span>View Details</span> <ChevronDown className="h-4 w-4" aria-hidden="true" />
             </>
           )}
         </button>
@@ -175,38 +189,39 @@ const SupplementCard = ({
           exit={{ height: 0, opacity: 0 }}
           transition={{ duration: 0.3 }}
           className="border-t border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-4 rounded-b-xl mt-[-1rem] overflow-hidden max-w-full"
+          aria-labelledby={`details-heading-${supplement.id}`}
         >
           {/* Use Cases */}
           <div className="mb-3">
-            <div className="mb-1.5 text-xs font-medium">Use Cases</div>
-            <div className="flex flex-wrap gap-1.5">
+            <div id={`details-heading-${supplement.id}`} className="mb-1.5 text-base font-medium">Use Cases</div>
+            <div className="flex flex-wrap gap-1.5" aria-label="Use cases">
               {useCases && useCases.length > 0 ? (
                 useCases.map((useCase, index) => (
                   <span
                     key={index}
-                    className="rounded-full bg-[hsl(var(--color-surface-2))] px-2 py-0.5 text-xs text-text"
+                    className="rounded-full bg-[hsl(var(--color-surface-2))] px-2 py-0.5 text-sm text-text"
                   >
                     {useCase}
                   </span>
                 ))
               ) : (
-                <span className="text-xs text-text-light">No specific use cases listed</span>
+                <span className="text-sm text-text-light">No specific use cases listed</span>
               )}
             </div>
           </div>
 
           {/* Dosage */}
-          <div className="mb-3 text-xs">
+          <div className="mb-3 text-base">
             <span className="font-medium">Dosage:</span> {supplement?.dosage || 'As directed'}
           </div>
 
           {/* Evidence Level Info */}
           <div className="rounded-lg bg-[hsl(var(--color-surface-2))] p-3">
             <div className="mb-1 flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-primary" />
-              <span className="text-xs font-medium">Evidence Level: {evidenceLevel}</span>
+              <AlertCircle className="h-4 w-4 text-primary" aria-hidden="true" />
+              <span className="text-sm font-medium">Evidence Level: {evidenceLevel}</span>
             </div>
-            <p className="text-xs text-text-light">
+            <p className="text-sm text-text-light">
               {evidenceLevel === 'Green' 
                 ? 'Strong scientific evidence supports the use of this supplement.'
                 : evidenceLevel === 'Yellow'

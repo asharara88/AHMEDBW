@@ -7,6 +7,7 @@ interface ImageWithFallbackProps extends React.ImgHTMLAttributes<HTMLImageElemen
   onLoad?: () => void;
   onError?: () => void;
   objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
+  alt: string; // Make alt required
 }
 
 const ImageWithFallback = ({
@@ -45,13 +46,13 @@ const ImageWithFallback = ({
   };
 
   if (hasError && fallbackComponent) {
-    return <div className={className}>{fallbackComponent}</div>;
+    return <div className={className} aria-label={alt}>{fallbackComponent}</div>;
   }
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative ${className}`} aria-live="polite">
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
           <Loader className="h-5 w-5 animate-spin text-primary" />
         </div>
       )}
@@ -69,6 +70,7 @@ const ImageWithFallback = ({
           {...props}
         />
       )}
+      {isLoading && <span className="sr-only">Loading image: {alt}</span>}
     </div>
   );
 };

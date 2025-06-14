@@ -18,6 +18,7 @@ import PricingPage from './pages/PricingPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import ErrorPage from './pages/ErrorPage';
+import AccessibilityMenu from './components/common/AccessibilityMenu';
 
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -31,7 +32,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }, [user, loading, isDemo, location]);
   
   if (loading) {
-    return <div className="flex h-screen items-center justify-center">Loading...</div>;
+    return (
+      <div className="flex h-screen items-center justify-center" role="status" aria-live="polite">
+        <span className="sr-only">Loading your account information</span>
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
   }
   
   if (!user && !isDemo) {
@@ -44,6 +50,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 function App() {
   return (
     <ErrorBoundary fallback={<ErrorPage />}>
+      <AccessibilityMenu />
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />

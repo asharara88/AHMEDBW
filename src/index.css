@@ -46,6 +46,10 @@
     --shadow-md: 0 4px 8px rgba(0, 28, 73, 0.08);
     --shadow-lg: 0 8px 16px rgba(0, 28, 73, 0.12);
     --shadow-xl: 0 12px 24px rgba(0, 28, 73, 0.16);
+    
+    /* Accessibility - Focus ring */
+    --focus-ring-color: rgba(59, 130, 246, 0.5);
+    --focus-ring-width: 3px;
   }
 
   .dark {
@@ -75,6 +79,9 @@
     --color-success-light: 142 60% 60%;
     --color-warning-light: 45 80% 60%;
     --color-error-light: 0 80% 70%;
+    
+    /* Accessibility - Focus ring for dark mode */
+    --focus-ring-color: rgba(96, 165, 250, 0.7);
   }
 
   * {
@@ -91,15 +98,61 @@
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
     -webkit-overflow-scrolling: touch;
+    
+    /* Improved readability - base font size increased */
+    font-size: 16px;
+    line-height: 1.5;
   }
 
   html, body, #root {
     @apply min-h-screen w-full;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  /* Improve heading hierarchies and sizes */
+  h1 {
+    @apply text-2xl font-bold tracking-tight md:text-3xl lg:text-4xl;
+    line-height: 1.2;
+  }
+  
+  h2 {
+    @apply text-xl font-semibold tracking-tight md:text-2xl lg:text-3xl;
+    line-height: 1.25;
+  }
+  
+  h3 {
+    @apply text-lg font-semibold tracking-tight md:text-xl;
+    line-height: 1.3;
+  }
+  
+  h4, h5, h6 {
     @apply font-semibold tracking-tight text-text;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    line-height: 1.4;
+  }
+  
+  /* Paragraph text with better readability */
+  p {
+    @apply my-2;
+    line-height: 1.6;
+  }
+  
+  /* Improved focus styles for all interactive elements */
+  a:focus,
+  button:focus,
+  input:focus,
+  select:focus,
+  textarea:focus,
+  [tabindex]:focus {
+    @apply outline-none;
+    box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+  }
+  
+  /* Skip to content link for keyboard navigation */
+  .skip-to-content {
+    @apply sr-only;
+  }
+  
+  .skip-to-content:focus {
+    @apply not-sr-only absolute left-4 top-4 z-50 rounded-lg bg-background px-4 py-2 shadow-lg;
   }
   
   img {
@@ -118,19 +171,65 @@
 
   /* Prevent iOS zoom on input focus */
   @media screen and (max-width: 768px) {
-    input, select, textarea {
-      font-size: 16px !important;
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="search"],
+    input[type="tel"],
+    input[type="url"],
+    textarea {
+      font-size: 16px;
     }
+  }
+  
+  /* Visually hidden content that remains accessible to screen readers */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  
+  /* High contrast focus styles for keyboard users */
+  .focus-visible:focus {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
   }
 }
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-medium transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40;
+    
+    /* Accessibility improvements */
+    min-height: 44px;
+    min-width: 44px;
+    font-size: 1rem;
+    
+    &:focus {
+      @apply outline-none ring-2 ring-primary/50 ring-offset-2 ring-offset-background;
+    }
+    
+    &:focus-visible {
+      @apply outline-2 outline-offset-2 outline-primary;
+    }
   }
   
   .btn-primary {
     @apply btn bg-primary text-white shadow-lg shadow-primary/25 hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98];
+    
+    /* Ensure contrast ratio */
+    color: white;
+    
+    &:focus-visible {
+      @apply outline-white ring-primary;
+    }
   }
   
   .btn-outline {
@@ -139,22 +238,43 @@
 
   .btn-sm {
     @apply px-4 py-2 text-sm;
+    min-height: 36px;
   }
 
   .btn-xs {
     @apply px-3 py-1.5 text-xs;
+    min-height: 32px;
   }
 
   .input {
     @apply w-full rounded-xl border-2 border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-3 text-text shadow-sm placeholder:text-text-disabled/75 transition-all duration-300 hover:border-primary/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20;
+    
+    /* Accessibility improvements */
+    min-height: 44px;
+    font-size: 1rem;
+    
+    /* High contrast focus state */
+    &:focus-visible {
+      @apply outline-2 outline-offset-2 outline-primary;
+    }
   }
   
   .label {
     @apply mb-2 block text-sm font-medium text-text-light;
+    
+    /* Increased size for better readability */
+    font-size: 0.9375rem;
   }
 
   .nav-link {
     @apply relative px-4 py-2 text-text-light transition-all duration-300 before:absolute before:bottom-0 before:left-0 before:h-0.5 before:w-full before:origin-left before:scale-x-0 before:bg-primary before:transition-transform before:duration-300 hover:text-text before:hover:scale-x-100;
+    
+    /* Accessibility improvements */
+    font-size: 1rem;
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
   }
 
   .nav-link-active {
@@ -163,6 +283,9 @@
 
   .badge {
     @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium shadow-sm transition-all duration-300;
+    
+    /* Ensure good contrast */
+    font-size: 0.8125rem;
   }
 
   .badge-primary {
@@ -183,10 +306,16 @@
 
   .dropdown-menu {
     @apply absolute right-0 mt-2 min-w-[200px] origin-top-right rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-2))] p-2 shadow-xl transition-all duration-300;
+    
+    /* Accessibility - ensure proper contrast and sizing */
+    font-size: 0.9375rem;
   }
 
   .dropdown-item {
     @apply flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-sm text-text-light transition-all duration-300 hover:bg-[hsl(var(--color-card-hover))] hover:text-text;
+    
+    /* Accessibility - proper sizing for touch targets */
+    min-height: 40px;
   }
 
   .card {
@@ -201,10 +330,12 @@
   @media (max-width: 640px) {
     .btn {
       @apply px-4 py-2 text-sm;
+      min-height: 44px;
     }
     
     .input {
       @apply px-3 py-2 text-sm;
+      min-height: 44px;
     }
     
     .dropdown-menu {
@@ -213,6 +344,7 @@
     
     .nav-link {
       @apply px-3 py-1.5;
+      min-height: 44px;
     }
 
     /* Improve tap targets on mobile */
@@ -299,4 +431,13 @@
   textarea {
     font-size: 16px;
   }
+}
+
+/* Accessibility classes */
+.a11y-focus {
+  @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+}
+
+.a11y-contrast-text {
+  @apply text-black dark:text-white;
 }

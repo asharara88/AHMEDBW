@@ -6,11 +6,43 @@
      href="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/logos/favicon.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2UyYTcyNGEyLTZkNTctNDk4YS04ZGU1LWY2Y2Q4MjAyNjA3YiJ9.eyJ1cmwiOiJsb2dvcy9mYXZpY29uLnN2ZyIsImlhdCI6MTc0NzI5OTE1NywiZXhwIjoxNzc4ODM1MTU3fQ.rOddcgsmXrPC8bqm0vvWl_3VWveHtI2ybGSLS1tpxJg" />
     <link rel="alternate icon"
      href="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/logos/favicon.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2UyYTcyNGEyLTZkNTctNDk4YS04ZGU1LWY2Y2Q4MjAyNjA3YiJ9.eyJ1cmwiOiJsb2dvcy9mYXZpY29uLnN2ZyIsImlhdCI6MTc0NzI5OTE1NywiZXhwIjoxNzc4ODM1MTU3fQ.rOddcgsmXrPC8bqm0vvWl_3VWveHtI2ybGSLS1tpxJg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, minimum-scale=1, user-scalable=yes, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#3b82f6" />
+    <link rel="manifest" href="/manifest.json" />
     <title>Biowell AI - Personal Digital Health Coach</title>
+    
+    <!-- Accessibility meta tags -->
+    <meta name="description" content="Biowell AI is your personal digital health coach, providing personalized recommendations for health optimization based on your data." />
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-touch-fullscreen" content="yes">
+    
+    <!-- ARIA landmarks for SPA -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Biowell AI",
+        "applicationCategory": "HealthApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "operatingSystem": "Web"
+      }
+    </script>
   </head>
   <body class="overflow-x-hidden max-w-full box-border">
     <div id="root" class="overflow-x-hidden max-w-full box-border"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <!-- No JavaScript fallback message -->
+    <noscript>
+      <div style="padding: 2rem; text-align: center; max-width: 40rem; margin: 0 auto;">
+        <h1>JavaScript Required</h1>
+        <p>Biowell AI requires JavaScript to be enabled in your browser. Please enable JavaScript and reload the page.</p>
+      </div>
+    </noscript>
   </body>
 </html>

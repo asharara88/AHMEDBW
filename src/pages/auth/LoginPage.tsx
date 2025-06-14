@@ -120,58 +120,68 @@ const LoginPage = () => {
               <Logo className="h-8" />
             </div>
             <h1 className="text-2xl font-bold text-text">Welcome back</h1>
-            <p className="mt-2 text-text-light">
+            <p className="mt-2 text-base text-text-light">
               Sign in to your account to continue
             </p>
           </div>
           
           <ErrorDisplay />
           
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="email" className="label">
+          <form onSubmit={handleSubmit} aria-label="Sign in form" className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-base font-medium text-text-light mb-1">
                 Email address
               </label>
               <input
                 id="email"
                 type="email"
-                className="input w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-3 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-3 py-3 text-base text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
+                aria-required="true"
+                autoComplete="email"
               />
             </div>
             
-            <div className="mb-6">
+            <div>
               <div className="mb-1 flex items-center justify-between">
-                <label htmlFor="password" className="label">
+                <label htmlFor="password" className="block text-base font-medium text-text-light">
                   Password
                 </label>
-                <Link to="/forgot-password" className="text-xs text-primary hover:text-primary-dark">
+                <Link 
+                  to="/forgot-password" 
+                  className="text-sm text-primary hover:text-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 rounded"
+                  aria-label="Forgot your password? Reset it here"
+                >
                   Forgot password?
                 </Link>
               </div>
               <input
                 id="password"
                 type="password"
-                className="input w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-3 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-3 py-3 text-base text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
+                aria-required="true"
+                autoComplete="current-password"
               />
             </div>
             
             <button
               type="submit"
-              className="btn-primary w-full rounded-lg bg-primary px-4 py-2 font-medium text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-lg bg-primary px-4 py-3 text-base font-medium text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
               disabled={loading}
+              aria-busy={loading}
+              aria-disabled={loading}
             >
               {loading ? (
                 <span className="flex items-center justify-center">
-                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                  Signing in...
+                  <span className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" aria-hidden="true"></span>
+                  <span>Signing in...</span>
                 </span>
               ) : (
                 'Sign in'
@@ -182,15 +192,20 @@ const LoginPage = () => {
           <div className="mt-6 text-center">
             <button
               onClick={handleDemoClick}
-              className="text-sm text-primary hover:text-primary-dark"
+              className="text-base text-primary hover:text-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 rounded px-2 py-1"
+              aria-label="Skip sign in and try demo version"
             >
               Skip sign in and try demo
             </button>
           </div>
           
-          <div className="mt-6 text-center text-sm text-text-light">
+          <div className="mt-6 text-center text-base text-text-light">
             Don't have an account?{' '}
-            <Link to="/signup" className="font-medium text-primary hover:text-primary-dark">
+            <Link 
+              to="/signup" 
+              className="font-medium text-primary hover:text-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 rounded"
+              aria-label="Sign up for a new account"
+            >
               Sign up
             </Link>
           </div>

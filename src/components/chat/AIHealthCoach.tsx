@@ -43,7 +43,7 @@ const supplementStacks = [
   {
     id: 'sleep-stack',
     name: 'Sleep & Recovery',
-    icon: <Moon className="h-4 w-4" />,
+    icon: <Moon className="h-4 w-4" aria-hidden="true" />,
     description: 'Improve sleep quality and recovery',
     supplements: ['Magnesium Glycinate', 'L-Theanine', 'Ashwagandha'],
     prompt: "What supplements should I take for better sleep and recovery?"
@@ -51,7 +51,7 @@ const supplementStacks = [
   {
     id: 'focus-stack',
     name: 'Cognitive Performance',
-    icon: <Brain className="h-4 w-4" />,
+    icon: <Brain className="h-4 w-4" aria-hidden="true" />,
     description: 'Enhance mental clarity and focus',
     supplements: ["Lion's Mane", 'Alpha-GPC', 'Bacopa Monnieri'],
     prompt: "What supplements should I take to improve focus and cognitive performance?"
@@ -59,7 +59,7 @@ const supplementStacks = [
   {
     id: 'metabolic-stack',
     name: 'Metabolic Health',
-    icon: <Zap className="h-4 w-4" />,
+    icon: <Zap className="h-4 w-4" aria-hidden="true" />,
     description: 'Support blood sugar and metabolism',
     supplements: ['Berberine', 'Alpha Lipoic Acid', 'Chromium Picolinate'],
     prompt: "What supplements should I take to improve metabolic health and blood sugar control?"
@@ -67,7 +67,7 @@ const supplementStacks = [
   {
     id: 'immunity-stack',
     name: 'Immune Support',
-    icon: <Heart className="h-4 w-4" />,
+    icon: <Heart className="h-4 w-4" aria-hidden="true" />,
     description: 'Strengthen immune function',
     supplements: ['Vitamin D3+K2', 'Zinc', 'Vitamin C'],
     prompt: "What supplements should I take to support my immune system?"
@@ -342,21 +342,26 @@ export default function HealthCoach() {
   };
 
   return (
-    <div className="flex h-full flex-col rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] shadow-lg">
+    <div 
+      className="flex h-full flex-col rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] shadow-lg"
+      role="region"
+      aria-label="Health Coach Chat"
+    >
       <div className="border-b border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] p-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
               <img
                 src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/biowelllogos/white%20Log%20trnspt%20bg.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW93ZWxsbG9nb3Mvd2hpdGUgTG9nIHRybnNwdCBiZy5zdmciLCJpYXQiOjE3NDk0MzUyNTksImV4cCI6MTc4MDk3MTI1OX0.lnxK8zhka2S8Dwvuxl3uyPFCpwdCU42zFTepIJ9VVpk"
-                alt="Biowell Logo" 
+                alt="" 
                 className="h-5 w-5"
                 loading="eager"
+                aria-hidden="true"
               />
             </div>
             <div>
-              <h3 className="text-sm font-medium">Health Coach</h3>
-              <p className="text-xs text-text-light">Personalized health guidance</p>
+              <h3 className="text-base font-medium">Health Coach</h3>
+              <p className="text-sm text-text-light">Personalized health guidance</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -364,25 +369,31 @@ export default function HealthCoach() {
               className={`rounded-full p-1 ${audioEnabled ? 'bg-primary/10 text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
               title={audioEnabled ? "Turn voice off" : "Turn voice on"}
               onClick={toggleAudio}
+              aria-label={audioEnabled ? "Disable text-to-speech" : "Enable text-to-speech"}
+              aria-pressed={audioEnabled}
             >
               {audioEnabled ? (
-                <Volume2 className="h-4 w-4" />
+                <Volume2 className="h-4 w-4" aria-hidden="true" />
               ) : (
-                <VolumeX className="h-4 w-4" />
+                <VolumeX className="h-4 w-4" aria-hidden="true" />
               )}
             </button>
             <button 
               className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
               title="Voice Settings"
               onClick={() => setShowSettings(!showSettings)}
+              aria-label="Voice settings"
+              aria-expanded={showSettings}
+              aria-controls="voice-settings-panel"
             >
-              <Settings className="h-4 w-4" />
+              <Settings className="h-4 w-4" aria-hidden="true" />
             </button>
             <button 
               className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
               title="About Health Coach"
+              aria-label="About Health Coach"
             >
-              <Info className="h-4 w-4" />
+              <Info className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -391,22 +402,27 @@ export default function HealthCoach() {
         <AnimatePresence>
           {showSettings && (
             <motion.div
+              id="voice-settings-panel"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
               className="mt-3 overflow-hidden rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3"
+              role="region"
+              aria-label="Voice settings"
             >
               <h4 className="mb-2 text-sm font-medium">Voice Settings</h4>
               
               <div className="space-y-3">
                 {/* Voice Selection */}
                 <div>
-                  <label className="mb-1 block text-xs text-text-light">Voice</label>
+                  <label htmlFor="voice-select" className="mb-1 block text-xs text-text-light">Voice</label>
                   <select
+                    id="voice-select"
                     value={voiceSettings.voice || ''}
                     onChange={(e) => handleVoiceSettingsChange('voice', e.target.value || null)}
-                    className="w-full rounded border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-2 py-1 text-xs"
+                    className="w-full rounded border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-2 py-1 text-sm"
+                    aria-label="Select voice for text-to-speech"
                   >
                     <option value="">Browser Default</option>
                     {availableVoices.map((voice) => (
@@ -420,10 +436,11 @@ export default function HealthCoach() {
                 {/* Speech Rate */}
                 <div>
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs text-text-light">Speed: {voiceSettings.rate.toFixed(1)}x</label>
+                    <label htmlFor="speech-rate" className="block text-xs text-text-light">Speed: {voiceSettings.rate.toFixed(1)}x</label>
                     <span className="text-xs text-text-light">{voiceSettings.rate.toFixed(1)}x</span>
                   </div>
                   <input
+                    id="speech-rate"
                     type="range"
                     min="0.5"
                     max="2"
@@ -431,16 +448,18 @@ export default function HealthCoach() {
                     value={voiceSettings.rate}
                     onChange={(e) => handleVoiceSettingsChange('rate', parseFloat(e.target.value))}
                     className="w-full accent-primary"
+                    aria-label={`Speech rate: ${voiceSettings.rate.toFixed(1)} times normal speed`}
                   />
                 </div>
                 
                 {/* Speech Pitch */}
                 <div>
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs text-text-light">Pitch</label>
+                    <label htmlFor="speech-pitch" className="block text-xs text-text-light">Pitch</label>
                     <span className="text-xs text-text-light">{voiceSettings.pitch.toFixed(1)}</span>
                   </div>
                   <input
+                    id="speech-pitch"
                     type="range"
                     min="0.5"
                     max="1.5"
@@ -448,16 +467,19 @@ export default function HealthCoach() {
                     value={voiceSettings.pitch}
                     onChange={(e) => handleVoiceSettingsChange('pitch', parseFloat(e.target.value))}
                     className="w-full accent-primary"
+                    aria-label={`Speech pitch: ${voiceSettings.pitch.toFixed(1)}`}
                   />
                 </div>
                 
                 {/* Language Selection */}
                 <div>
-                  <label className="mb-1 block text-xs text-text-light">Voice Recognition Language</label>
+                  <label htmlFor="speech-language" className="mb-1 block text-xs text-text-light">Voice Recognition Language</label>
                   <select
+                    id="speech-language"
                     value={voiceSettings.language}
                     onChange={(e) => handleVoiceSettingsChange('language', e.target.value)}
-                    className="w-full rounded border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-2 py-1 text-xs"
+                    className="w-full rounded border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-2 py-1 text-sm"
+                    aria-label="Select language for speech recognition"
                   >
                     <option value="en-US">English (US)</option>
                     <option value="en-GB">English (UK)</option>
@@ -475,9 +497,10 @@ export default function HealthCoach() {
                     id="autoSubmit"
                     checked={voiceSettings.autoSubmit}
                     onChange={(e) => handleVoiceSettingsChange('autoSubmit', e.target.checked)}
-                    className="h-3.5 w-3.5 rounded border-[hsl(var(--color-border))] accent-primary"
+                    className="h-4 w-4 rounded border-[hsl(var(--color-border))] accent-primary"
+                    aria-label="Automatically submit after voice input"
                   />
-                  <label htmlFor="autoSubmit" className="text-xs text-text-light">
+                  <label htmlFor="autoSubmit" className="text-sm text-text-light">
                     Auto-submit after voice input
                   </label>
                 </div>
@@ -485,7 +508,8 @@ export default function HealthCoach() {
                 <div className="flex justify-between">
                   <button
                     onClick={() => setShowSettings(false)}
-                    className="rounded bg-[hsl(var(--color-card))] px-2 py-1 text-xs text-text-light"
+                    className="rounded bg-[hsl(var(--color-card))] px-2 py-2 text-sm text-text-light"
+                    aria-label="Close settings"
                   >
                     Close
                   </button>
@@ -495,9 +519,10 @@ export default function HealthCoach() {
                       // Test voice with current settings
                       playAudio("This is a test of your current voice settings. How does this sound?");
                     }}
-                    className="flex items-center gap-1 rounded bg-primary px-2 py-1 text-xs text-white"
+                    className="flex items-center gap-1 rounded bg-primary px-3 py-2 text-sm text-white"
+                    aria-label="Test current voice settings"
                   >
-                    <Volume2 className="h-3 w-3" />
+                    <Volume2 className="h-4 w-4" aria-hidden="true" />
                     Test Voice
                   </button>
                 </div>
@@ -507,7 +532,13 @@ export default function HealthCoach() {
         </AnimatePresence>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-4 overscroll-contain">
+      <div 
+        className="flex-1 overflow-y-auto p-4 overscroll-contain"
+        role="log"
+        aria-live="polite"
+        aria-atomic="false"
+        aria-relevant="additions"
+      >
         {localError && (
           <ErrorDisplay 
             error={{
@@ -523,48 +554,51 @@ export default function HealthCoach() {
 
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
-            <div className="mb-4 rounded-full bg-primary/10 p-4">
+            <div className="mb-4 rounded-full bg-primary/10 p-4" aria-hidden="true">
               <img 
                 src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/biowelllogos/white%20Log%20trnspt%20bg.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW93ZWxsbG9nb3Mvd2hpdGUgTG9nIHRybnNwdCBiZy5zdmciLCJpYXQiOjE3NDk0MzUyNTksImV4cCI6MTc4MDk3MTI1OX0.lnxK8zhka2S8Dwvuxl3uyPFCpwdCU42zFTepIJ9VVpk"
-                alt="Biowell Logo" 
+                alt="" 
                 className="h-8 w-8 text-primary"
                 loading="lazy"
+                aria-hidden="true"
               />
             </div>
-            <h3 className="mb-2 text-lg font-medium">Welcome to your Health Coach</h3>
-            <p className="mb-6 text-text-light">
+            <h3 className="mb-2 text-xl font-medium">Welcome to your Health Coach</h3>
+            <p className="mb-6 text-text-light text-base">
               Ask me anything about your health and wellness goals.
             </p>
             
             {/* Supplement Stack Shortcuts */}
             <div className="mb-6">
-              <h4 className="mb-3 text-sm font-medium">Supplement Stacks</h4>
+              <h4 className="mb-3 text-base font-medium">Supplement Stacks</h4>
               <div className="grid grid-cols-2 gap-3">
                 {supplementStacks.map((stack) => (
                   <button
                     key={stack.id}
                     onClick={() => handleSubmit(stack.prompt)}
                     className="flex flex-col items-start rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3 text-left transition-colors hover:border-primary/50 hover:bg-[hsl(var(--color-card-hover))]"
+                    aria-label={`Ask about ${stack.name} supplements`}
                   >
                     <div className="mb-2 flex items-center gap-2">
-                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary" aria-hidden="true">
                         {stack.icon}
                       </div>
                       <span className="font-medium">{stack.name}</span>
                     </div>
-                    <p className="text-xs text-text-light">{stack.description}</p>
+                    <p className="text-sm text-text-light">{stack.description}</p>
                   </button>
                 ))}
               </div>
             </div>
             
             {showSuggestions && (
-              <div className="flex flex-wrap justify-center gap-3">
+              <div className="flex flex-wrap justify-center gap-3" role="group" aria-label="Suggested questions">
                 {selectedSuggestions.map((question) => (
                   <button
                     key={question}
                     onClick={() => handleSubmit(question)}
-                    className="rounded-full bg-primary/10 px-3 py-2 text-sm text-primary transition-colors hover:bg-primary/20"
+                    className="rounded-full bg-primary/10 px-3 py-2 text-base text-primary transition-colors hover:bg-primary/20"
+                    aria-label={`Ask: ${question}`}
                   >
                     {question}
                   </button>
@@ -574,8 +608,8 @@ export default function HealthCoach() {
             
             {/* Voice interaction hint */}
             {browserSupportsSpeechRecognition && (
-              <div className="mt-6 flex items-center gap-2 rounded-lg bg-[hsl(var(--color-surface-1))] p-3 text-sm text-text-light">
-                <Mic className="h-4 w-4 text-primary" />
+              <div className="mt-6 flex items-center gap-2 rounded-lg bg-[hsl(var(--color-surface-1))] p-3 text-base text-text-light">
+                <Mic className="h-4 w-4 text-primary" aria-hidden="true" />
                 <p>Try using voice input! Click the microphone icon to speak to your coach.</p>
               </div>
             )}
@@ -585,12 +619,17 @@ export default function HealthCoach() {
             <div
               key={index}
               className={`mb-4 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              role={message.role === 'user' ? 'complementary' : 'region'}
+              aria-label={message.role === 'user' ? 'Your message' : 'Assistant response'}
             >
               {message.role === 'assistant' && (
-                <div className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <div 
+                  className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary"
+                  aria-hidden="true"
+                >
                   <img 
                     src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/biowelllogos/white%20Log%20trnspt%20bg.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW93ZWxsbG9nb3Mvd2hpdGUgTG9nIHRybnNwdCBiZy5zdmciLCJpYXQiOjE3NDk0MzUyNTksImV4cCI6MTc4MDk3MTI1OX0.lnxK8zhka2S8Dwvuxl3uyPFCpwdCU42zFTepIJ9VVpk"
-                    alt="Biowell Logo" 
+                    alt="" 
                     className="h-4 w-4"
                     loading="lazy"
                   />
@@ -607,17 +646,17 @@ export default function HealthCoach() {
                 }`}
               >
                 {message.role === 'assistant' ? (
-                  <div className="prose prose-sm max-w-none dark:prose-invert">
+                  <div className="prose prose-base max-w-none dark:prose-invert">
                     <ReactMarkdown>{message.content}</ReactMarkdown>
                     
                     {/* Audio playback button for assistant messages */}
                     {audioEnabled && message.role === 'assistant' && (
                       <button 
                         onClick={() => playAudio(message.content)} 
-                        className="mt-2 flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-xs text-primary"
-                        title="Play message audio"
+                        className="mt-2 flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-base text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                        aria-label="Listen to this message"
                       >
-                        <Volume2 className="h-3 w-3" />
+                        <Volume2 className="h-4 w-4" aria-hidden="true" />
                         <span>Listen</span>
                       </button>
                     )}
@@ -625,13 +664,16 @@ export default function HealthCoach() {
                 ) : (
                   <div>{message.content}</div>
                 )}
-                <div className="mt-1 text-xs opacity-70">
-                  {message.timestamp.toLocaleTimeString()}
+                <div className="mt-1 text-sm opacity-70">
+                  {message.timestamp.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                 </div>
               </div>
               
               {message.role === 'user' && (
-                <div className="ml-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[hsl(var(--color-card-hover))] text-text-light">
+                <div 
+                  className="ml-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[hsl(var(--color-card-hover))] text-text-light"
+                  aria-hidden="true"
+                >
                   <User className="h-4 w-4" />
                 </div>
               )}
@@ -640,39 +682,47 @@ export default function HealthCoach() {
         )}
 
         {loading && (
-          <div className="flex justify-start">
-            <div className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <div className="flex justify-start" aria-live="polite">
+            <div className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary" aria-hidden="true">
               <img
                 src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/biowelllogos/white%20Log%20trnspt%20bg.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW93ZWxsbG9nb3Mvd2hpdGUgTG9nIHRybnNwdCBiZy5zdmciLCJpYXQiOjE3NDk0MzUyNTksImV4cCI6MTc4MDk3MTI1OX0.lnxK8zhka2S8Dwvuxl3uyPFCpwdCU42zFTepIJ9VVpk"
-                alt="Biowell Logo" 
+                alt="" 
                 className="h-4 w-4"
                 loading="lazy"
               />
             </div>
             <div className="max-w-[75%] rounded-lg bg-[hsl(var(--color-card-hover))] p-4">
               <Loader className="h-5 w-5 animate-spin text-primary" role="status" />
+              <span className="sr-only">Health coach is thinking...</span>
             </div>
           </div>
         )}
 
-        <div ref={messagesEndRef} />
+        <div ref={messagesEndRef} aria-hidden="true" />
       </div>
 
       <div className="border-t border-[hsl(var(--color-border))] p-4">
-        <form onSubmit={handleSubmit} className="flex gap-2">
+        <form 
+          onSubmit={handleSubmit} 
+          className="flex gap-2"
+          aria-label="Chat message form"
+        >
           <div className="relative flex-1">
+            <label htmlFor="chat-input" className="sr-only">Type your message</label>
             <input
+              id="chat-input"
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask me anything about your health..."
-              className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-3 text-base text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               disabled={loading || isRecording}
+              aria-label="Ask me anything about your health"
             />
             
             {/* Voice input visualization */}
             {isRecording && (
-              <div className="absolute bottom-0 left-0 right-0 top-0 flex items-center justify-end pr-10 pointer-events-none">
+              <div className="absolute bottom-0 left-0 right-0 top-0 flex items-center justify-end pr-10 pointer-events-none" aria-hidden="true">
                 <div className="flex h-full items-center gap-0.5 px-2">
                   {[...Array(5)].map((_, i) => {
                     // Calculate if bar should be active based on audio level
@@ -694,19 +744,25 @@ export default function HealthCoach() {
               <button
                 type="button"
                 onClick={handleVoiceInput}
-                className={`absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 ${
+                className={`absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 ${
                   isRecording 
                     ? 'animate-pulse bg-error/10 text-error' 
                     : 'bg-primary/10 text-primary hover:bg-primary/20'
                 }`}
                 title={isRecording ? "Stop recording" : "Start voice input"}
+                aria-label={isRecording ? "Stop voice recording" : "Start voice recording"}
+                aria-pressed={isRecording}
               >
-                <Mic className="h-4 w-4" />
+                <Mic className="h-5 w-5" aria-hidden="true" />
+                <span className="sr-only">{isRecording ? "Stop recording" : "Start voice recording"}</span>
               </button>
             )}
             
             {isRecording && (
-              <div className="absolute left-0 top-full mt-1 text-xs text-primary">
+              <div 
+                className="absolute left-0 top-full mt-1 text-sm text-primary" 
+                aria-live="polite"
+              >
                 Listening... {voiceSettings.autoSubmit ? "(Will submit automatically)" : "(Click mic or send when done)"}
               </div>
             )}
@@ -715,9 +771,11 @@ export default function HealthCoach() {
           <button
             type="submit"
             disabled={loading || (!input.trim() && !isRecording)}
-            className="flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-[50px] min-w-[50px] items-center justify-center rounded-lg bg-primary px-4 py-3 text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label="Send message"
           >
-            <Send className="h-5 w-5" />
+            <Send className="h-5 w-5" aria-hidden="true" />
+            <span className="sr-only">Send</span>
           </button>
         </form>
       </div>
