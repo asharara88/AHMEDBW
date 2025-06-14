@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Volume2 } from 'lucide-react';
 import HealthCoach from '../../components/chat/AIHealthCoach';
+import ErrorBoundary from '../../components/common/ErrorBoundary';
 
 const ChatPage = () => {
   return (
@@ -18,18 +19,21 @@ const ChatPage = () => {
           </p>
           <p className="text-sm mt-2 text-primary">
             <span className="inline-flex items-center gap-1 bg-primary/10 px-2 py-0.5 rounded-full">
-              <span>🎙️</span> New! Voice interaction now available
+              <Volume2 className="h-4 w-4" aria-hidden="true" />
+              <span>New! Voice interaction now available</span>
             </span>
           </p>
         </div>
 
         <div className="h-[calc(100vh-16rem)]">
-          <HealthCoach />
+          <ErrorBoundary>
+            <HealthCoach />
+          </ErrorBoundary>
         </div>
 
         <div className="mt-4 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 text-sm text-text-light">
           <p className="flex items-center gap-2">
-            <MessageCircle className="h-4 w-4 text-primary" />
+            <MessageCircle className="h-4 w-4 text-primary" aria-hidden="true" />
             <span>
               Always consult with healthcare professionals before making significant changes to your health regimen.
             </span>

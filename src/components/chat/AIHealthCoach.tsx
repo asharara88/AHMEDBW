@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, lazy, Suspense } from 'react';
+import { useState, useRef, useEffect, lazy, Suspense, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Loader, AlertCircle, Info, User, Package, Brain, Moon, Heart, Zap, Mic, Volume2, VolumeX, Settings } from 'lucide-react';
 import { useChatApi } from '../../hooks/useChatApi';
@@ -6,8 +6,9 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useError } from '../../contexts/ErrorContext';
 import ErrorDisplay from '../common/ErrorDisplay';
-import { ErrorCode } from '../../utils/errorHandling';
+import { ErrorCode, createErrorObject } from '../../utils/errorHandling';
 import LoadingSpinner from '../common/LoadingSpinner';
+import TextToSpeechService from '../../services/TextToSpeechService';
 
 // Lazy-loaded components
 const ReactMarkdown = lazy(() => import('react-markdown'));
@@ -15,6 +16,7 @@ const AudioControl = lazy(() => import('./AudioControl'));
 const SpeechInput = lazy(() => import('./SpeechInput'));
 
 interface Message {
+  id?: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
@@ -101,6 +103,8 @@ export default function HealthCoach() {
     autoSubmit: true,
     language: 'en-US'
   });
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [currentlySpeakingMessageId, setCurrentlySpeakingMessageId] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { sendMessage, loading, error: apiError, clearError } = useChatApi();
@@ -109,12 +113,17 @@ export default function HealthCoach() {
   const [localError, setLocalError] = useState<string | null>(null);
   const { addError } = useError();
 
+  // Initialize TTS service
+  const ttsService = TextToSpeechService.getInstance();
+  const ttsSupported = TextToSpeechService.isSupported();
+
+  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Select random suggested questions on component mount
   useEffect(() => {
-    // Select 5 random questions on component mount
     const shuffled = [...suggestedQuestions].sort(() => 0.5 - Math.random());
     setSelectedSuggestions(shuffled.slice(0, 5));
   }, []);
@@ -136,6 +145,64 @@ export default function HealthCoach() {
     }
   }, [apiError, addError]);
 
+  // Handle speech for assistant responses
+  const handleMessageSpeech = useCallback((messageContent: string, messageId: string) => {
+    if (!audioEnabled || !ttsSupported) return;
+    
+    if (isSpeaking && currentlySpeakingMessageId === messageId) {
+      // Stop current speech
+      ttsService.stop();
+      setIsSpeaking(false);
+      setCurrentlySpeakingMessageId(null);
+      return;
+    }
+    
+    // Stop any current speech
+    ttsService.stop();
+    
+    // Start speaking new content
+    setIsSpeaking(true);
+    setCurrentlySpeakingMessageId(messageId);
+    
+    ttsService.speak(messageContent, {
+      rate: voiceSettings.rate,
+      pitch: voiceSettings.pitch,
+      voice: voiceSettings.voice || undefined,
+      language: voiceSettings.language
+    }).catch(error => {
+      console.error('TTS error:', error);
+      addError(createErrorObject(
+        `Error playing audio: ${error.message}`,
+        'warning',
+        ErrorCode.AUDIO_PLAYBACK_FAILED,
+        'tts'
+      ));
+    }).finally(() => {
+      setIsSpeaking(false);
+      setCurrentlySpeakingMessageId(null);
+    });
+  }, [audioEnabled, isSpeaking, currentlySpeakingMessageId, ttsSupported, voiceSettings, addError]);
+  
+  // Auto-play latest assistant message when audioEnabled is on
+  useEffect(() => {
+    if (audioEnabled && messages.length > 0 && !isSpeaking) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant') {
+        const messageId = lastMessage.id || String(messages.length - 1);
+        handleMessageSpeech(lastMessage.content, messageId);
+      }
+    }
+  }, [messages, audioEnabled, isSpeaking, handleMessageSpeech]);
+  
+  // Stop speech when audioEnabled is turned off
+  useEffect(() => {
+    if (!audioEnabled && isSpeaking) {
+      ttsService.stop();
+      setIsSpeaking(false);
+      setCurrentlySpeakingMessageId(null);
+    }
+  }, [audioEnabled, isSpeaking]);
+
   const handleSubmit = async (e: React.FormEvent | string) => {
     e?.preventDefault?.();
     const messageContent = typeof e === 'string' ? e : input;
@@ -145,8 +212,12 @@ export default function HealthCoach() {
     // Clear any previous errors
     if (clearError) clearError();
     setLocalError(null);
+    
+    // Generate a unique ID for this message
+    const messageId = `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
     const userMessage: Message = {
+      id: messageId,
       role: 'user',
       content: messageContent,
       timestamp: new Date(),
@@ -169,9 +240,11 @@ export default function HealthCoach() {
       const response = await sendMessage(apiMessages, user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined));
       
       if (response) {
+        const responseId = `resp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
         setMessages(prev => [
           ...prev, 
           {
+            id: responseId,
             role: 'assistant',
             content: response,
             timestamp: new Date()
@@ -185,6 +258,13 @@ export default function HealthCoach() {
   };
 
   const toggleAudio = () => {
+    // If turning off audio while speaking, stop the current speech
+    if (audioEnabled && isSpeaking) {
+      ttsService.stop();
+      setIsSpeaking(false);
+      setCurrentlySpeakingMessageId(null);
+    }
+    
     setAudioEnabled(!audioEnabled);
   };
   
@@ -193,6 +273,16 @@ export default function HealthCoach() {
       ...prev,
       [setting]: value
     }));
+  };
+  
+  // Handle voice input from SpeechInput component
+  const handleVoiceInput = (transcript: string) => {
+    setInput(transcript);
+    
+    // If auto-submit is enabled and transcript is valid, submit it
+    if (voiceSettings.autoSubmit && transcript.trim()) {
+      handleSubmit(transcript);
+    }
   };
 
   return (
@@ -215,7 +305,7 @@ export default function HealthCoach() {
             </div>
             <div>
               <h3 className="text-base font-medium">Health Coach</h3>
-              <p className="text-sm text-text-light">Personalized health guidance</p>
+              <p className="text-xs text-text-light">Personalized health guidance</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -233,7 +323,7 @@ export default function HealthCoach() {
               )}
             </button>
             <button 
-              className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
+              className={`rounded-full p-1 ${showSettings ? 'bg-primary/10 text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
               title="Voice Settings"
               onClick={() => setShowSettings(!showSettings)}
               aria-label="Voice settings"
@@ -311,7 +401,7 @@ export default function HealthCoach() {
               />
             </div>
             <h3 className="mb-2 text-xl font-medium">Welcome to your Health Coach</h3>
-            <p className="mb-6 text-text-light text-base">
+            <p className="mb-6 text-text-light">
               Ask me anything about your health and wellness goals.
             </p>
             
@@ -355,13 +445,17 @@ export default function HealthCoach() {
             
             {/* Voice interaction hint - lazily loaded */}
             <Suspense fallback={<div className="mt-6 h-12 animate-pulse rounded-lg bg-[hsl(var(--color-surface-1))]"></div>}>
-              <SpeechInput />
+              <SpeechInput 
+                onSubmit={handleSubmit}
+                language={voiceSettings.language}
+                autoSubmit={voiceSettings.autoSubmit}
+              />
             </Suspense>
           </div>
         ) : (
           messages.map((message, index) => (
             <div
-              key={index}
+              key={message.id || index}
               className={`mb-4 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               role={message.role === 'user' ? 'complementary' : 'region'}
               aria-label={message.role === 'user' ? 'Your message' : 'Assistant response'}
@@ -395,17 +489,34 @@ export default function HealthCoach() {
                       <ReactMarkdown>{message.content}</ReactMarkdown>
                       
                       {/* Audio playback button for assistant messages */}
-                      {audioEnabled && message.role === 'assistant' && (
+                      {ttsSupported && (
                         <button 
-                          onClick={() => {
-                            // This would normally call playAudio function
-                            console.log('Play audio for:', message.content);
-                          }}
-                          className="mt-2 flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-base text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                          aria-label="Listen to this message"
+                          onClick={() => handleMessageSpeech(
+                            message.content, 
+                            message.id || String(index)
+                          )}
+                          className={`mt-2 flex items-center gap-1 rounded-full ${
+                            isSpeaking && currentlySpeakingMessageId === (message.id || String(index))
+                              ? 'bg-error/10 text-error'
+                              : 'bg-primary/10 text-primary'
+                          } px-2 py-1 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2`}
+                          aria-label={
+                            isSpeaking && currentlySpeakingMessageId === (message.id || String(index))
+                              ? "Stop speaking this message"
+                              : "Listen to this message"
+                          }
                         >
-                          <Volume2 className="h-4 w-4" aria-hidden="true" />
-                          <span>Listen</span>
+                          {isSpeaking && currentlySpeakingMessageId === (message.id || String(index)) ? (
+                            <>
+                              <VolumeX className="h-4 w-4" aria-hidden="true" />
+                              <span>Stop</span>
+                            </>
+                          ) : (
+                            <>
+                              <Volume2 className="h-4 w-4" aria-hidden="true" />
+                              <span>Listen</span>
+                            </>
+                          )}
                         </button>
                       )}
                     </div>
@@ -481,6 +592,8 @@ export default function HealthCoach() {
                     handleSubmit(transcript);
                   }
                 }}
+                language={voiceSettings.language}
+                autoSubmit={voiceSettings.autoSubmit}
               />
             </Suspense>
           </div>
