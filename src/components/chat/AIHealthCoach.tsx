@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, AlertCircle, Info, User, Package, Brain, Moon, Heart, Zap } from 'lucide-react';
+import { Send, Loader, AlertCircle, Info, User, Package, Brain, Moon, Heart, Zap, Mic, Volume2, VolumeX } from 'lucide-react';
 import { useChatApi } from '../../hooks/useChatApi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import ReactMarkdown from 'react-markdown'; 
+import { useAudioPlayback } from '../../hooks/useAudioPlayback';
+import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -66,11 +68,16 @@ export default function HealthCoach() {
   const [input, setInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
+  const [audioEnabled, setAudioEnabled] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { sendMessage, loading, error: apiError } = useChatApi();
   const { user, isDemo } = useAuth();
   const { currentTheme } = useTheme();
   const [error, setError] = useState<string | null>(null);
+  
+  const { playAudio, stopAudio, isPlaying, error: audioError } = useAudioPlayback();
+  const { startListening, stopListening, transcript, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -84,8 +91,15 @@ export default function HealthCoach() {
 
   useEffect(() => {
     // Update local error state when API error changes
-    setError(apiError);
-  }, [apiError]);
+    setError(apiError || audioError);
+  }, [apiError, audioError]);
+
+  useEffect(() => {
+    // Set input when transcript changes
+    if (transcript) {
+      setInput(transcript);
+    }
+  }, [transcript]);
 
   const handleSubmit = async (e: React.FormEvent | string) => {
     e?.preventDefault?.();
@@ -118,19 +132,41 @@ export default function HealthCoach() {
       const response = await sendMessage(apiMessages, user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined));
       
       if (response) {
-        setMessages(prev => [
-          ...prev, 
-          {
-            role: 'assistant',
-            content: response,
-            timestamp: new Date()
-          }
-        ]);
+        const assistantMessage: Message = {
+          role: 'assistant',
+          content: response,
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, assistantMessage]);
+        
+        // Play audio if enabled
+        if (audioEnabled && response) {
+          playAudio(response);
+        }
       }
     } catch (err: any) {
       console.error("Error in chat submission:", err);
       setError(err.message || "Failed to get a response. Please try again.");
     }
+  };
+
+  const handleVoiceInput = () => {
+    if (isRecording) {
+      stopListening();
+      setIsRecording(false);
+    } else {
+      resetTranscript();
+      startListening();
+      setIsRecording(true);
+    }
+  };
+
+  const toggleAudio = () => {
+    if (isPlaying) {
+      stopAudio();
+    }
+    setAudioEnabled(!audioEnabled);
   };
 
   return (
@@ -152,6 +188,17 @@ export default function HealthCoach() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button 
+              className={`rounded-full p-1 ${audioEnabled ? 'bg-primary/10 text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
+              title={audioEnabled ? "Turn voice off" : "Turn voice on"}
+              onClick={toggleAudio}
+            >
+              {audioEnabled ? (
+                <Volume2 className="h-4 w-4" />
+              ) : (
+                <VolumeX className="h-4 w-4" />
+              )}
+            </button>
             <button 
               className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
               title="About Health Coach"
@@ -250,6 +297,18 @@ export default function HealthCoach() {
                 {message.role === 'assistant' ? (
                   <div className="prose prose-sm max-w-none dark:prose-invert">
                     <ReactMarkdown>{message.content}</ReactMarkdown>
+                    
+                    {/* Audio playback button for assistant messages */}
+                    {audioEnabled && message.role === 'assistant' && (
+                      <button 
+                        onClick={() => playAudio(message.content)} 
+                        className="mt-2 flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-xs text-primary"
+                        title="Play message audio"
+                      >
+                        <Volume2 className="h-3 w-3" />
+                        <span>Listen</span>
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <div>{message.content}</div>
@@ -289,17 +348,35 @@ export default function HealthCoach() {
 
       <div className="border-t border-[hsl(var(--color-border))] p-4">
         <form onSubmit={handleSubmit} className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask me anything about your health..."
-            className="flex-1 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            disabled={loading}
-          />
+          <div className="relative flex-1">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask me anything about your health..."
+              className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              disabled={loading || isRecording}
+            />
+            {browserSupportsSpeechRecognition && (
+              <button
+                type="button"
+                onClick={handleVoiceInput}
+                className={`absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 ${
+                  isRecording ? 'bg-error/10 text-error' : 'bg-primary/10 text-primary hover:bg-primary/20'
+                }`}
+              >
+                <Mic className="h-4 w-4" />
+              </button>
+            )}
+            {isRecording && (
+              <div className="absolute left-0 top-full mt-1 text-xs text-primary">
+                Listening... Say your message and click again to stop.
+              </div>
+            )}
+          </div>
           <button
             type="submit"
-            disabled={loading || !input.trim()}
+            disabled={loading || (!input.trim() && !isRecording)}
             className="flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Send className="h-5 w-5" />
