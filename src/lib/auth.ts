@@ -1,9 +1,19 @@
 import { supabase } from './supabaseClient';
 import type { User, Session } from '@supabase/supabase-js';
+import { ErrorCode, handleAuthError } from '../utils/errorHandling';
+import { AppError } from '../contexts/ErrorContext';
 
 export interface AuthResponse {
   user: User | null;
   session: Session | null;
+}
+
+export interface AuthResult {
+  success: boolean;
+  data?: any;
+  user?: User | null;
+  session?: Session | null;
+  error?: Omit<AppError, 'id' | 'timestamp'> | null;
 }
 
 // Helper function to generate a captcha token
@@ -29,8 +39,21 @@ const generateCaptchaToken = async () => {
 /**
  * Sign in with email and password
  */
-export async function login(email: string, password: string): Promise<AuthResponse> {
+export async function login(email: string, password: string): Promise<AuthResult> {
   try {
+    // Validate inputs
+    if (!email || !password) {
+      return {
+        success: false,
+        error: {
+          message: 'Email and password are required',
+          severity: 'warning',
+          code: ErrorCode.VALIDATION_REQUIRED_FIELD,
+          source: 'auth'
+        }
+      };
+    }
+    
     // Generate captcha token
     const captchaToken = await generateCaptchaToken();
     
@@ -44,23 +67,59 @@ export async function login(email: string, password: string): Promise<AuthRespon
     });
 
     if (error) {
-      console.error('Login error:', error.message);
-      throw new Error(error.message);
+      const errorObj = handleAuthError(error);
+      return {
+        success: false,
+        error: errorObj
+      };
     }
 
-    console.log('Login success');
-    return data;
+    return {
+      success: true,
+      user: data.user,
+      session: data.session
+    };
   } catch (error) {
     console.error('Login error:', error);
-    throw error;
+    const errorObj = handleAuthError(error);
+    return {
+      success: false,
+      error: errorObj
+    };
   }
 }
 
 /**
  * Sign up with email and password
  */
-export async function signUp(email: string, password: string): Promise<{ data: any; error: any }> {
+export async function signUp(email: string, password: string): Promise<AuthResult> {
   try {
+    // Validate inputs
+    if (!email || !password) {
+      return {
+        success: false,
+        error: {
+          message: 'Email and password are required',
+          severity: 'warning',
+          code: ErrorCode.VALIDATION_REQUIRED_FIELD,
+          source: 'auth'
+        }
+      };
+    }
+    
+    // Validate password strength
+    if (password.length < 8) {
+      return {
+        success: false,
+        error: {
+          message: 'Password must be at least 8 characters',
+          severity: 'warning',
+          code: ErrorCode.VALIDATION_INVALID_VALUE,
+          source: 'auth'
+        }
+      };
+    }
+    
     // Generate captcha token
     const captchaToken = await generateCaptchaToken();
     
@@ -77,140 +136,223 @@ export async function signUp(email: string, password: string): Promise<{ data: a
     });
 
     if (error) {
-      console.error('Signup error:', error.message);
-      return { data: null, error };
+      const errorObj = handleAuthError(error);
+      return {
+        success: false,
+        error: errorObj
+      };
     }
 
-    console.log('Signup success');
-    return { data, error: null };
+    return {
+      success: true,
+      data,
+      user: data.user
+    };
   } catch (error) {
     console.error('Signup error:', error);
-    return { data: null, error };
+    const errorObj = handleAuthError(error);
+    return {
+      success: false,
+      error: errorObj
+    };
   }
 }
 
 /**
  * Sign out the current user
  */
-export async function signOut(): Promise<void> {
+export async function signOut(): Promise<AuthResult> {
   try {
     const { error } = await supabase.auth.signOut();
     
     if (error) {
-      console.error('Signout error:', error.message);
-      throw new Error(error.message);
+      const errorObj = handleAuthError(error);
+      return {
+        success: false,
+        error: errorObj
+      };
     }
     
-    console.log('Signout success');
+    return {
+      success: true
+    };
   } catch (error) {
     console.error('Signout error:', error);
-    throw error;
+    const errorObj = handleAuthError(error);
+    return {
+      success: false,
+      error: errorObj
+    };
   }
 }
 
 /**
  * Get the current session
  */
-export async function getCurrentSession(): Promise<Session | null> {
+export async function getCurrentSession(): Promise<AuthResult> {
   try {
     const { data, error } = await supabase.auth.getSession();
     
     if (error) {
-      console.error('Get session error:', error.message);
-      throw new Error(error.message);
+      const errorObj = handleAuthError(error);
+      return {
+        success: false,
+        error: errorObj
+      };
     }
     
-    return data.session;
+    return {
+      success: true,
+      session: data.session
+    };
   } catch (error) {
     console.error('Get session error:', error);
-    throw error;
+    const errorObj = handleAuthError(error);
+    return {
+      success: false,
+      error: errorObj
+    };
   }
 }
 
 /**
  * Refresh the current session
  */
-export async function refreshSession(): Promise<Session | null> {
+export async function refreshSession(): Promise<AuthResult> {
   try {
     const { data, error } = await supabase.auth.refreshSession();
     
     if (error) {
-      console.error('Refresh session error:', error.message);
-      
       // If the error is about invalid refresh token, clear the session
       if (error.message.includes('Invalid Refresh Token') || 
           error.message.includes('Refresh Token Not Found')) {
-        console.log('Invalid refresh token detected, clearing session');
         await supabase.auth.signOut();
+        
+        return {
+          success: false,
+          error: {
+            message: 'Your session has expired. Please sign in again.',
+            severity: 'error',
+            code: ErrorCode.AUTH_EXPIRED_SESSION,
+            source: 'auth'
+          }
+        };
       }
       
-      throw new Error(error.message);
+      const errorObj = handleAuthError(error);
+      return {
+        success: false,
+        error: errorObj
+      };
     }
     
-    return data.session;
+    return {
+      success: true,
+      session: data.session,
+      user: data.user
+    };
   } catch (error) {
     console.error('Refresh session error:', error);
-    throw error;
-  }
-}
-
-/**
- * Get the current user
- */
-export async function getCurrentUser(): Promise<User | null> {
-  try {
-    const { data, error } = await supabase.auth.getUser();
-    
-    if (error) {
-      console.error('Get user error:', error.message);
-      throw new Error(error.message);
-    }
-    
-    return data.user;
-  } catch (error) {
-    console.error('Get user error:', error);
-    throw error;
+    const errorObj = handleAuthError(error);
+    return {
+      success: false,
+      error: errorObj
+    };
   }
 }
 
 /**
  * Reset password
  */
-export async function resetPassword(email: string): Promise<void> {
+export async function resetPassword(email: string): Promise<AuthResult> {
   try {
+    if (!email) {
+      return {
+        success: false,
+        error: {
+          message: 'Email is required',
+          severity: 'warning',
+          code: ErrorCode.VALIDATION_REQUIRED_FIELD,
+          source: 'auth'
+        }
+      };
+    }
+    
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     
     if (error) {
-      console.error('Reset password error:', error.message);
-      throw new Error(error.message);
+      const errorObj = handleAuthError(error);
+      return {
+        success: false,
+        error: errorObj
+      };
     }
     
-    console.log('Reset password email sent');
+    return {
+      success: true
+    };
   } catch (error) {
     console.error('Reset password error:', error);
-    throw error;
+    const errorObj = handleAuthError(error);
+    return {
+      success: false,
+      error: errorObj
+    };
   }
 }
 
 /**
  * Update password
  */
-export async function updatePassword(password: string): Promise<void> {
+export async function updatePassword(password: string): Promise<AuthResult> {
   try {
+    if (!password) {
+      return {
+        success: false,
+        error: {
+          message: 'Password is required',
+          severity: 'warning',
+          code: ErrorCode.VALIDATION_REQUIRED_FIELD,
+          source: 'auth'
+        }
+      };
+    }
+    
+    if (password.length < 8) {
+      return {
+        success: false,
+        error: {
+          message: 'Password must be at least 8 characters',
+          severity: 'warning',
+          code: ErrorCode.VALIDATION_INVALID_VALUE,
+          source: 'auth'
+        }
+      };
+    }
+    
     const { error } = await supabase.auth.updateUser({
       password,
     });
     
     if (error) {
-      console.error('Update password error:', error.message);
-      throw new Error(error.message);
+      const errorObj = handleAuthError(error);
+      return {
+        success: false,
+        error: errorObj
+      };
     }
     
-    console.log('Password updated successfully');
+    return {
+      success: true
+    };
   } catch (error) {
     console.error('Update password error:', error);
-    throw error;
+    const errorObj = handleAuthError(error);
+    return {
+      success: false,
+      error: errorObj
+    };
   }
 }

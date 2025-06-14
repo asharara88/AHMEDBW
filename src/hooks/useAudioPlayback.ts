@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useError } from '../contexts/ErrorContext';
+import { handleAudioError, ErrorCode, createErrorObject } from '../utils/errorHandling';
 
 interface AudioPlaybackOptions {
   rate?: number;  // Speech rate, default is 1.0
@@ -13,13 +15,21 @@ export const useAudioPlayback = (options?: AudioPlaybackOptions) => {
   const [audioQueue, setAudioQueue] = useState<string[]>([]);
   const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesis | null>(null);
   const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
+  const { addError } = useError();
 
   // Initialize speech synthesis
   useEffect(() => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       setSpeechSynthesis(window.speechSynthesis);
     } else {
-      setError('Speech synthesis is not supported in this browser');
+      const errorObj = createErrorObject(
+        'Speech synthesis is not supported in this browser',
+        'warning',
+        ErrorCode.AUDIO_PLAYBACK_FAILED,
+        'audio'
+      );
+      addError(errorObj);
+      setError(errorObj.message);
     }
 
     // Clean up on unmount
@@ -28,7 +38,7 @@ export const useAudioPlayback = (options?: AudioPlaybackOptions) => {
         window.speechSynthesis.cancel();
       }
     };
-  }, []);
+  }, [addError]);
 
   // Process audio queue when it changes
   useEffect(() => {
@@ -56,9 +66,9 @@ export const useAudioPlayback = (options?: AudioPlaybackOptions) => {
       .replace(/\n/g, ' ') // Replace single newlines with space
       .replace(/\s+/g, ' ') // Replace multiple spaces with single space
       // Handle common symbols
-      .replace(/&amp;/g, 'and')
-      .replace(/&lt;/g, 'less than')
-      .replace(/&gt;/g, 'greater than')
+      .replace(/&/g, 'and')
+      .replace(/</g, 'less than')
+      .replace(/>/g, 'greater than')
       // Add pauses for better speech flow
       .replace(/\./g, '. ')
       .replace(/\!/g, '! ')
@@ -102,7 +112,14 @@ export const useAudioPlayback = (options?: AudioPlaybackOptions) => {
   // Function to speak text
   const speakText = useCallback((text: string) => {
     if (!speechSynthesis) {
-      setError('Speech synthesis not available');
+      const errorObj = createErrorObject(
+        'Speech synthesis not available',
+        'warning',
+        ErrorCode.AUDIO_PLAYBACK_FAILED,
+        'audio'
+      );
+      addError(errorObj);
+      setError(errorObj.message);
       return;
     }
 
@@ -148,7 +165,15 @@ export const useAudioPlayback = (options?: AudioPlaybackOptions) => {
 
         // Handle speech error event
         utterance.onerror = (event) => {
-          setError(`Speech synthesis error: ${event.error}`);
+          const errorObj = createErrorObject(
+            `Speech synthesis error: ${event.error}`,
+            'error',
+            ErrorCode.AUDIO_PLAYBACK_FAILED,
+            'audio',
+            event
+          );
+          addError(errorObj);
+          setError(errorObj.message);
           setIsPlaying(false);
           setAudioQueue(prev => prev.slice(1));
         };
@@ -163,11 +188,13 @@ export const useAudioPlayback = (options?: AudioPlaybackOptions) => {
       // Start with the first chunk
       speakChunk(0);
     } catch (err) {
-      setError(`Failed to play audio: ${err instanceof Error ? err.message : String(err)}`);
+      const errorObj = handleAudioError(err);
+      addError(errorObj);
+      setError(errorObj.message);
       setIsPlaying(false);
       setAudioQueue(prev => prev.slice(1));
     }
-  }, [speechSynthesis, options, cleanTextForSpeech, breakIntoSentences]);
+  }, [speechSynthesis, options, cleanTextForSpeech, breakIntoSentences, addError]);
 
   // Function to play audio from text
   const playAudio = useCallback((text: string) => {

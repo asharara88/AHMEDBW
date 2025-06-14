@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { AlertCircle } from 'lucide-react';
+import { login } from '../../lib/auth';
+import { useError } from '../../contexts/ErrorContext';
+import ErrorDisplay from '../../components/common/ErrorDisplay';
 import Logo from '../../components/common/Logo';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   
-  const { signIn, startDemo, user, checkOnboardingStatus } = useAuth();
+  const { addError } = useError();
+  const { user, startDemo, checkOnboardingStatus } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -35,43 +37,41 @@ const LoginPage = () => {
           return;
         }
         
-        const redirectUrl = sessionStorage.getItem('redirectUrl') || '/dashboard';
+        // Get redirect URL from query parameters or session storage
+        const params = new URLSearchParams(location.search);
+        const redirectParam = params.get('redirectUrl');
+        const redirectUrl = redirectParam || sessionStorage.getItem('redirectUrl') || '/dashboard';
+        
         navigate(redirectUrl, { replace: true });
       }
     };
     
     checkUserStatus();
-  }, [user, navigate, checkOnboardingStatus]);
-  
-  // Check for auth error in URL params
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const authError = params.get('error');
-    if (authError) {
-      setError(decodeURIComponent(authError));
-    }
-  }, [location]);
+  }, [user, navigate, checkOnboardingStatus, location.search]);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !password) {
-      setError('Email and password are required');
+      addError({
+        message: 'Email and password are required',
+        severity: 'warning',
+        source: 'login-form'
+      });
       return;
     }
     
     setLoading(true);
-    setError(null);
     
     try {
-      const { error: signInError } = await signIn(email, password);
+      const result = await login(email, password);
       
-      if (signInError) {
-        if (signInError.message === 'Invalid login credentials') {
-          setError('Incorrect email or password. Please try again.');
-          return;
-        }
-        throw new Error(signInError.message);
+      if (result.error) {
+        addError({
+          ...result.error,
+          source: 'login'
+        });
+        return;
       }
       
       // Check if user has completed onboarding
@@ -90,12 +90,17 @@ const LoginPage = () => {
         return;
       }
       
-      const redirectUrl = sessionStorage.getItem('redirectUrl') || '/dashboard';
+      // Get redirect URL from query parameters or session storage
+      const params = new URLSearchParams(location.search);
+      const redirectParam = params.get('redirectUrl');
+      const redirectUrl = redirectParam || sessionStorage.getItem('redirectUrl') || '/dashboard';
+      
+      // Clear stored redirect URL
       sessionStorage.removeItem('redirectUrl');
+      
       navigate(redirectUrl);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
-      setError(errorMessage);
+      console.error('Login error:', err);
     } finally {
       setLoading(false);
     }
@@ -120,12 +125,7 @@ const LoginPage = () => {
             </p>
           </div>
           
-          {error && (
-            <div className="mb-6 flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error">
-              <AlertCircle className="h-5 w-5" />
-              <span>{error}</span>
-            </div>
-          )}
+          <ErrorDisplay />
           
           <form onSubmit={handleSubmit}>
             <div className="mb-4">

@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { useSupabase } from './SupabaseContext';
+import { useError } from './ErrorContext';
+import { ErrorCode, createErrorObject } from '../utils/errorHandling';
 
 interface AuthContextType {
   user: User | null;
@@ -55,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isDemo, setIsDemo] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
+  const { addError } = useError();
 
   // Function to check if user has completed onboarding
   const checkOnboardingStatus = async (): Promise<boolean> => {
@@ -64,62 +67,79 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       // First check localStorage for saved profile data
       const savedUserData = localStorage.getItem('biowell-user-data');
+      let onboardingCompleted = false;
+      
       if (savedUserData) {
         const userData = JSON.parse(savedUserData);
-        if (userData.firstName && userData.lastName) {
-          setUserProfile(userData);
+        onboardingCompleted = !!(userData.firstName && userData.lastName);
+      } else {
+        // If not in localStorage, check database
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('onboarding_completed, first_name, last_name, email, is_admin')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        if (error) {
+          addError(createErrorObject(
+            'Error checking onboarding status',
+            'warning',
+            ErrorCode.API_REQUEST_FAILED,
+            'auth',
+            error
+          ));
+          return false;
+        }
+        
+        // If no profile exists yet, create a default one
+        if (!data) {
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert({
+              id: user.id,
+              email: user.email,
+              onboarding_completed: false,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            });
+          
+          if (insertError) {
+            addError(createErrorObject(
+              'Error creating user profile',
+              'warning',
+              ErrorCode.API_REQUEST_FAILED,
+              'auth',
+              insertError
+            ));
+          }
+          return false;
+        }
+        
+        // If we have profile data in the database, save it to localStorage for future use
+        if (data && (data.onboarding_completed || (data.first_name && data.last_name))) {
+          const profileData: UserProfileData = {
+            firstName: data.first_name || '',
+            lastName: data.last_name || '',
+            email: user.email || '',
+            mobile: '',
+            onboardingCompleted: data.onboarding_completed || false
+          };
+          
+          setUserProfile(profileData);
+          localStorage.setItem('biowell-user-data', JSON.stringify(profileData));
           return true;
         }
       }
       
-      // If not in localStorage, check database
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('onboarding_completed, first_name, last_name, email, is_admin')
-        .eq('id', user.id)
-        .maybeSingle();
-      
-      if (error) {
-        console.error('Error checking onboarding status:', error);
-        return false;
-      }
-      
-      // If no profile exists yet, create a default one
-      if (!data) {
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .insert({
-            id: user.id,
-            email: user.email,
-            onboarding_completed: false,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          });
-        
-        if (insertError) {
-          console.error('Error creating default profile:', insertError);
-        }
-        return false;
-      }
-      
-      // If we have profile data in the database, save it to localStorage for future use
-      if (data && (data.onboarding_completed || (data.first_name && data.last_name))) {
-        const profileData: UserProfileData = {
-          firstName: data.first_name || '',
-          lastName: data.last_name || '',
-          email: user.email || '',
-          mobile: '',
-          onboardingCompleted: data.onboarding_completed || false
-        };
-        
-        setUserProfile(profileData);
-        localStorage.setItem('biowell-user-data', JSON.stringify(profileData));
-        return true;
-      }
-      
       return false;
     } catch (err) {
-      console.error('Unexpected error checking onboarding status:', err);
+      addError(createErrorObject(
+        'Unexpected error checking onboarding status',
+        'error',
+        ErrorCode.UNKNOWN_ERROR,
+        'auth',
+        err
+      ));
       return false;
     }
   };
@@ -156,6 +176,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (metadataError) {
         console.error('Error updating user metadata:', metadataError);
+        addError(createErrorObject(
+          'Error updating user metadata',
+          'warning',
+          ErrorCode.API_REQUEST_FAILED,
+          'auth',
+          metadataError
+        ));
       }
       
       // Save to localStorage for future use
@@ -175,6 +202,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: null };
     } catch (err) {
       console.error('Error updating profile:', err);
+      addError(createErrorObject(
+        'Error updating user profile',
+        'error',
+        ErrorCode.API_REQUEST_FAILED,
+        'auth',
+        err
+      ));
       return { error: err };
     }
   };
@@ -186,11 +220,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (error) {
         console.error('Error refreshing session:', error);
+        addError(createErrorObject(
+          'Your session has expired. Please sign in again.',
+          'error',
+          ErrorCode.AUTH_EXPIRED_SESSION,
+          'auth',
+          error
+        ));
         
         // If the error is about invalid refresh token, clear the session
         if (error.message.includes('Invalid Refresh Token') || 
             error.message.includes('Refresh Token Not Found')) {
-          console.log('Invalid refresh token detected, clearing session');
           await supabase.auth.signOut();
           setUser(null);
           setSession(null);
@@ -207,6 +247,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data.session?.user ?? null);
     } catch (err) {
       console.error('Unexpected error during session refresh:', err);
+      addError(createErrorObject(
+        'Error refreshing your session',
+        'error',
+        ErrorCode.UNKNOWN_ERROR,
+        'auth',
+        err
+      ));
     }
   };
 
@@ -223,6 +270,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (error) {
           console.error('Error getting session:', error);
+          addError(createErrorObject(
+            'Error retrieving your session',
+            'error',
+            ErrorCode.AUTH_EXPIRED_SESSION,
+            'auth',
+            error
+          ));
           setLoading(false);
           return;
         }
@@ -247,6 +301,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (err) {
         console.error('Error initializing auth:', err);
+        addError(createErrorObject(
+          'Error initializing authentication',
+          'error',
+          ErrorCode.UNKNOWN_ERROR,
+          'auth',
+          err
+        ));
       } finally {
         setLoading(false);
       }
@@ -262,6 +323,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (error) {
           console.error('Error loading user profile:', error);
+          addError(createErrorObject(
+            'Error loading your profile data',
+            'warning',
+            ErrorCode.API_REQUEST_FAILED,
+            'auth',
+            error
+          ));
           return;
         }
         
@@ -279,6 +347,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (err) {
         console.error('Error loading user profile:', err);
+        addError(createErrorObject(
+          'Error loading your profile data',
+          'warning',
+          ErrorCode.UNKNOWN_ERROR,
+          'auth',
+          err
+        ));
       }
     };
 
@@ -332,27 +407,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [supabase, isDemo, session]);
 
-  // Helper function to generate a captcha token
-  const generateCaptchaToken = async () => {
-    try {
-      // In a real implementation, this would integrate with a captcha provider like hCaptcha or reCAPTCHA
-      // For development purposes, we're using a dummy token
-      const captchaSecretKey = import.meta.env.VITE_CAPTCHA_SECRET_KEY;
-      
-      if (!captchaSecretKey) {
-        console.warn('Captcha secret key not found in environment variables');
-        return null;
-      }
-      
-      // Simulate a captcha verification request
-      // In production, this would be a real API call to verify the captcha
-      return `${captchaSecretKey}-${Date.now()}`;
-    } catch (error) {
-      console.error('Error generating captcha token:', error);
-      return null;
-    }
-  };
-
   const signIn = async (email: string, password: string) => {
     try {
       // Generate captcha token
@@ -369,6 +423,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (error) {
         console.error('Sign in error:', error);
+        
+        // Add to global error context
+        addError(createErrorObject(
+          error.message.includes('Invalid login credentials')
+            ? 'Incorrect email or password. Please try again.'
+            : error.message,
+          'error',
+          ErrorCode.AUTH_INVALID_CREDENTIALS,
+          'auth',
+          error
+        ));
+        
         return { error };
       }
       
@@ -401,6 +467,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: null };
     } catch (err) {
       console.error('Unexpected error during sign in:', err);
+      
+      // Add to global error context
+      addError(createErrorObject(
+        'An unexpected error occurred during sign in. Please try again.',
+        'error',
+        ErrorCode.UNKNOWN_ERROR,
+        'auth',
+        err
+      ));
+      
       return { error: err };
     }
   };
@@ -415,12 +491,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
         options: {
           captchaToken,
-          redirectTo: 'https://leznzqfezoofngumpiqf.supabase.co/auth/v1/callback'
+          emailRedirectTo: 'https://leznzqfezoofngumpiqf.supabase.co/auth/v1/callback'
         }
       });
       
       if (error) {
         console.error('Sign up error:', error);
+        
+        // Add to global error context
+        addError(createErrorObject(
+          error.message,
+          'error',
+          ErrorCode.API_REQUEST_FAILED,
+          'auth',
+          error
+        ));
+        
         return { data: null, error };
       }
       
@@ -438,12 +524,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (profileError) {
           console.error('Error creating default profile:', profileError);
+          
+          // Add to global error context
+          addError(createErrorObject(
+            'Error creating your profile. Some features might be limited.',
+            'warning',
+            ErrorCode.API_REQUEST_FAILED,
+            'auth',
+            profileError
+          ));
         }
       }
       
       return { data, error: null };
     } catch (err) {
       console.error('Unexpected error during sign up:', err);
+      
+      // Add to global error context
+      addError(createErrorObject(
+        'An unexpected error occurred during sign up. Please try again.',
+        'error',
+        ErrorCode.UNKNOWN_ERROR,
+        'auth',
+        err
+      ));
+      
       return { data: null, error: err };
     }
   };
@@ -454,6 +559,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { error } = await supabase.auth.signOut();
         if (error) {
           console.error('Sign out error:', error);
+          
+          // Add to global error context
+          addError(createErrorObject(
+            'Error signing out. Please try again.',
+            'warning',
+            ErrorCode.API_REQUEST_FAILED,
+            'auth',
+            error
+          ));
+          
           throw error;
         }
       }
@@ -466,6 +581,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem('biowell-user-data');
     } catch (err) {
       console.error('Unexpected error during sign out:', err);
+      
+      // Add to global error context
+      addError(createErrorObject(
+        'Error during sign out. Please try refreshing the page.',
+        'warning',
+        ErrorCode.UNKNOWN_ERROR,
+        'auth',
+        err
+      ));
+      
       // Even if there's an error, we should still clear the local state
       setIsDemo(false);
       setUser(null);
@@ -493,6 +618,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Save demo user data to localStorage
     localStorage.setItem('biowell-user-data', JSON.stringify(demoProfile));
+  };
+
+  // Helper function to generate a captcha token
+  const generateCaptchaToken = async () => {
+    try {
+      // In a real implementation, this would integrate with a captcha provider like hCaptcha or reCAPTCHA
+      // For development purposes, we're using a dummy token
+      const captchaSecretKey = import.meta.env.VITE_CAPTCHA_SECRET_KEY;
+      
+      if (!captchaSecretKey) {
+        console.warn('Captcha secret key not found in environment variables');
+        return null;
+      }
+      
+      // Simulate a captcha verification request
+      return `${captchaSecretKey}-${Date.now()}`;
+    } catch (error) {
+      console.error('Error generating captcha token:', error);
+      return null;
+    }
   };
 
   const value = {

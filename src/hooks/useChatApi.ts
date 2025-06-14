@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { useError } from "../contexts/ErrorContext";
+import { handleApiError, ErrorCode, createErrorObject } from "../utils/errorHandling";
 
 export function useChatApi() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { addError } = useError();
 
   const sendMessage = async (messages: { role: string; content: string }[], userId?: string) => {
     setLoading(true);
@@ -13,7 +16,14 @@ export function useChatApi() {
       // Validate Supabase URL
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       if (!supabaseUrl) {
-        throw new Error("Supabase URL is missing. Please check your environment variables.");
+        const configError = createErrorObject(
+          "Supabase URL is missing. Please check your environment variables.",
+          'error',
+          ErrorCode.API_REQUEST_FAILED,
+          'chat-api'
+        );
+        addError(configError);
+        throw new Error(configError.message);
       }
 
       // Get the current session
@@ -39,8 +49,6 @@ export function useChatApi() {
 
       // Use the chat-assistant endpoint
       const endpoint = `${supabaseUrl}/functions/v1/chat-assistant`;
-
-      console.log("Sending chat request to:", endpoint);
 
       // Use a timeout to prevent hanging requests
       const controller = new AbortController();
@@ -68,8 +76,10 @@ export function useChatApi() {
         if (!response.ok) {
           // Try to get detailed error message from response
           let errorMessage = `Request failed with status ${response.status}`;
+          let errorData = {};
+          
           try {
-            const errorData = await response.json();
+            errorData = await response.json();
             if (errorData.error?.message) {
               errorMessage = errorData.error.message;
             }
@@ -77,40 +87,58 @@ export function useChatApi() {
             console.error("Error parsing error response:", parseError);
           }
 
-          console.error(`Chat API request failed with status ${response.status}`);
-          // Handle specific status codes
-          switch (response.status) {
-            case 401:
-              throw new Error("Authentication failed. Please try logging in again.");
-            case 404:
-              throw new Error("Chat service endpoint not found. Please try again later.");
-            case 429:
-              throw new Error("Too many requests. Please wait a moment and try again.");
-            default:
-              throw new Error(errorMessage);
-          }
+          const errorObj = handleApiError({
+            status: response.status,
+            message: errorMessage,
+            ...errorData
+          });
+          
+          addError({
+            ...errorObj,
+            source: 'chat-api',
+            data: { endpoint, status: response.status, ...errorData }
+          });
+
+          throw new Error(errorObj.message);
         }
 
         const data = await response.json();
         return data.choices?.[0]?.message?.content || "";
       } catch (err: any) {
-        console.error("Chat API error:", err);
+        let errorObj;
         
-        let errorMessage: string;
         if (err.name === 'AbortError') {
-          errorMessage = "Request timed out. The server took too long to respond.";
+          errorObj = createErrorObject(
+            "Request timed out. The server took too long to respond.",
+            'error',
+            ErrorCode.API_TIMEOUT,
+            'chat-api'
+          );
         } else if (err instanceof TypeError && err.message === "Failed to fetch") {
-          errorMessage = "Network error: Unable to connect to the chat service. Please check your internet connection and ensure the Supabase Edge Function is deployed.";
+          errorObj = createErrorObject(
+            "Network error: Unable to connect to the chat service. Please check your internet connection and ensure the Supabase Edge Function is deployed.",
+            'error',
+            ErrorCode.NETWORK_ERROR,
+            'chat-api'
+          );
         } else if (err.message.includes("Supabase URL") || err.message.includes("Anon Key")) {
-          errorMessage = "Configuration error: Supabase settings are missing or invalid.";
+          errorObj = createErrorObject(
+            "Configuration error: Supabase settings are missing or invalid.",
+            'error',
+            ErrorCode.API_REQUEST_FAILED,
+            'chat-api'
+          );
         } else {
-          errorMessage = err.message || "Failed to connect to chat service. Please try again.";
+          errorObj = handleApiError(err);
         }
 
-        setError(errorMessage);
-        throw new Error(errorMessage);
-      } finally {
-        setLoading(false);
+        addError({
+          ...errorObj,
+          source: 'chat-api'
+        });
+        
+        setError(errorObj.message);
+        throw new Error(errorObj.message);
       }
     } catch (err: any) {
       console.error("Error in useChatApi:", err);
@@ -121,5 +149,9 @@ export function useChatApi() {
     }
   };
 
-  return { sendMessage, loading, error };
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  return { sendMessage, loading, error, clearError };
 }

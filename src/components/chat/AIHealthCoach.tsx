@@ -7,6 +7,9 @@ import { useTheme } from '../../contexts/ThemeContext';
 import ReactMarkdown from 'react-markdown'; 
 import { useAudioPlayback } from '../../hooks/useAudioPlayback';
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
+import { useError } from '../../contexts/ErrorContext';
+import ErrorDisplay from '../common/ErrorDisplay';
+import { ErrorCode } from '../../utils/errorHandling';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -90,10 +93,11 @@ export default function HealthCoach() {
   const [audioLevel, setAudioLevel] = useState(0);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { sendMessage, loading, error: apiError } = useChatApi();
+  const { sendMessage, loading, error: apiError, clearError } = useChatApi();
   const { user, isDemo } = useAuth();
   const { currentTheme } = useTheme();
-  const [error, setError] = useState<string | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
+  const { addError } = useError();
   
   const { playAudio, stopAudio, isPlaying, error: audioError } = useAudioPlayback({
     rate: voiceSettings.rate,
@@ -107,7 +111,9 @@ export default function HealthCoach() {
     transcript, 
     resetTranscript, 
     browserSupportsSpeechRecognition,
-    isListening
+    isListening,
+    error: speechError,
+    clearError: clearSpeechError
   } = useSpeechRecognition({
     continuous: false,
     interimResults: true,
@@ -144,10 +150,28 @@ export default function HealthCoach() {
     setSelectedSuggestions(shuffled.slice(0, 5));
   }, []);
 
+  // Update local error state when API error changes
   useEffect(() => {
-    // Update local error state when API error changes
-    setError(apiError || audioError);
-  }, [apiError, audioError]);
+    const error = apiError || audioError || speechError;
+    if (error) {
+      setLocalError(error);
+      
+      // Add to global error context if it's a significant error
+      if (error !== 'Speech recognition is not available' && 
+          !error.includes('Speech recognition not initialized')) {
+        addError({
+          message: error,
+          severity: 'warning',
+          source: speechError ? 'speech' : audioError ? 'audio' : 'chat',
+          code: speechError ? ErrorCode.SPEECH_RECOGNITION_FAILED : 
+                audioError ? ErrorCode.AUDIO_PLAYBACK_FAILED : 
+                ErrorCode.API_REQUEST_FAILED
+        });
+      }
+    } else {
+      setLocalError(null);
+    }
+  }, [apiError, audioError, speechError, addError]);
 
   useEffect(() => {
     // Set input when transcript changes and submit if autoSubmit is enabled
@@ -210,6 +234,12 @@ export default function HealthCoach() {
         updateLevel();
       } catch (err) {
         console.error('Error setting up audio analyzer:', err);
+        addError({
+          message: `Microphone error: ${err instanceof Error ? err.message : String(err)}`,
+          severity: 'error',
+          code: ErrorCode.DEVICE_PERMISSION_DENIED,
+          source: 'audio'
+        });
       }
     };
     
@@ -220,7 +250,7 @@ export default function HealthCoach() {
       if (source) source.disconnect();
       if (audioContext) audioContext.close();
     };
-  }, [isRecording]);
+  }, [isRecording, addError]);
 
   const handleSubmit = async (e: React.FormEvent | string) => {
     e?.preventDefault?.();
@@ -228,7 +258,10 @@ export default function HealthCoach() {
     
     if (!messageContent.trim()) return;
 
-    setError(null); // Clear any previous errors
+    // Clear any previous errors
+    if (clearError) clearError();
+    if (clearSpeechError) clearSpeechError();
+    setLocalError(null);
 
     const userMessage: Message = {
       role: 'user',
@@ -278,8 +311,8 @@ export default function HealthCoach() {
         }
       }
     } catch (err: any) {
+      // Error is now handled by the useChatApi hook and propagated to the global error context
       console.error("Error in chat submission:", err);
-      setError(err.message || "Failed to get a response. Please try again.");
     }
   };
 
@@ -475,11 +508,17 @@ export default function HealthCoach() {
       </div>
       
       <div className="flex-1 overflow-y-auto p-4 overscroll-contain">
-        {error && (
-          <div className="mb-4 flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error">
-            <AlertCircle className="h-5 w-5" />
-            <p>{error}</p>
-          </div>
+        {localError && (
+          <ErrorDisplay 
+            error={{
+              id: 'local-error',
+              message: localError,
+              severity: 'error',
+              source: 'chat',
+              timestamp: new Date(),
+              dismissable: true
+            }}
+          />
         )}
 
         {messages.length === 0 ? (

@@ -16,6 +16,8 @@ import CheckoutPage from './pages/checkout/CheckoutPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import PricingPage from './pages/PricingPage';
 import HowItWorksPage from './pages/HowItWorksPage';
+import ErrorBoundary from './components/common/ErrorBoundary';
+import ErrorPage from './pages/ErrorPage';
 
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -41,48 +43,55 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   return (
-    <SupabaseProvider>
-      <ThemeProvider>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<HomePage />} />
-              <Route path="login" element={<LoginPage />} />
-              <Route path="signup" element={<SignupPage />} />
-              <Route path="onboarding" element={<OnboardingPage />} />
-              <Route path="pricing" element={<PricingPage />} />
-              <Route path="how-it-works" element={<HowItWorksPage />} />
-              <Route path="dashboard" element={
-                <ProtectedRoute>
-                  <DashboardPage />
-                </ProtectedRoute>
-              } />
-              <Route path="chat" element={
-                <ProtectedRoute>
-                  <ChatPage />
-                </ProtectedRoute>
-              } />
-              <Route path="supplements" element={
-                <ProtectedRoute>
-                  <SupplementsPage />
-                </ProtectedRoute>
-              } />
-              <Route path="checkout" element={
-                <ProtectedRoute>
-                  <CheckoutPage />
-                </ProtectedRoute>
-              } />
-              <Route path="profile" element={
-                <ProtectedRoute>
-                  <ProfilePage />
-                </ProtectedRoute>
-              } />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Route>
-          </Routes>
-        </AuthProvider>
-      </ThemeProvider>
-    </SupabaseProvider>
+    <ErrorBoundary fallback={<ErrorPage />}>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<HomePage />} />
+          <Route path="login" element={<LoginPage />} />
+          <Route path="signup" element={<SignupPage />} />
+          <Route path="onboarding" element={<OnboardingPage />} />
+          <Route path="pricing" element={<PricingPage />} />
+          <Route path="how-it-works" element={<HowItWorksPage />} />
+          <Route path="dashboard" element={
+            <ProtectedRoute>
+              <ErrorBoundary>
+                <DashboardPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="chat" element={
+            <ProtectedRoute>
+              <ErrorBoundary>
+                <ChatPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="supplements" element={
+            <ProtectedRoute>
+              <ErrorBoundary>
+                <SupplementsPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="checkout" element={
+            <ProtectedRoute>
+              <ErrorBoundary>
+                <CheckoutPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="profile" element={
+            <ProtectedRoute>
+              <ErrorBoundary>
+                <ProfilePage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="error" element={<ErrorPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </ErrorBoundary>
   );
 }
 
