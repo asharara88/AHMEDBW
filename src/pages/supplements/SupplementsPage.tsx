@@ -2,177 +2,42 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { Package, ShoppingCart, Search, Filter, Grid3X3, List } from 'lucide-react';
+import { Package, Search, Filter, Grid3X3, List } from 'lucide-react';
 import SupplementList from '../../components/supplements/SupplementList';
 import SupplementRecommender from '../../components/supplements/SupplementRecommender';
 import StackBuilder from '../../components/supplements/StackBuilder';
 import ShoppingCartSidebar from '../../components/supplements/ShoppingCartSidebar';
+import ShoppingCartButton from '../../components/supplements/ShoppingCartButton';
+import { useCartContext } from '../../providers/CartProvider';
 import { Supplement } from '../../types/supplements';
+import dataService from '../../services/dataService';
 
 const SupplementsPage = () => {
   const [supplements, setSupplements] = useState<Supplement[]>([]);
   const [userSupplements, setUserSupplements] = useState<string[]>([]);
-  const [cartItems, setCartItems] = useState<{ supplement: Supplement; quantity: number }[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'recommendations' | 'stacks'>('all');
-  const [cartTotal, setCartTotal] = useState(0);
   
   const { supabase } = useSupabase();
   const { user } = useAuth();
+  const { items, isOpen, closeCart } = useCartContext();
   
   useEffect(() => {
     fetchSupplements();
-    
-    // Load cart from localStorage
-    const savedCart = localStorage.getItem('biowell-cart');
-    if (savedCart) {
-      try {
-        const parsedCart = JSON.parse(savedCart);
-        setCartItems(parsedCart);
-      } catch (err) {
-        console.error('Error loading cart from localStorage:', err);
-      }
-    }
   }, []);
-  
-  useEffect(() => {
-    // Calculate cart total
-    const total = cartItems.reduce((sum, item) => sum + (item.supplement.price_aed * item.quantity), 0);
-    setCartTotal(total);
-    
-    // Save cart to localStorage
-    localStorage.setItem('biowell-cart', JSON.stringify(cartItems));
-  }, [cartItems]);
   
   const fetchSupplements = async () => {
     try {
       setLoading(true);
       
       // Fetch supplements
-      const { data: supplementsData, error: supplementsError } = await supabase
-        .from('supplements')
-        .select('*')
-        .order('name');
-      
-      if (supplementsError) throw supplementsError;
+      const supplements = await dataService.getSupplements();
+      setSupplements(supplements);
       
       // Fetch user supplements
       if (user) {
-        const { data: userSupplementsData, error: userSupplementsError } = await supabase
-          .from('user_supplements')
-          .select('supplement_id')
-          .eq('user_id', user.id);
-        
-        if (userSupplementsError) throw userSupplementsError;
-        
-        setUserSupplements(userSupplementsData?.map(us => us.supplement_id) || []);
-      }
-      
-      // If no supplements in database, use mock data
-      if (!supplementsData || supplementsData.length === 0) {
-        const mockSupplements = [
-          {
-            id: '1',
-            name: 'Magnesium Glycinate',
-            description: 'Supports sleep quality, muscle recovery, and stress reduction.',
-            categories: ['Sleep', 'Stress', 'Recovery'],
-            evidence_level: 'Green',
-            use_cases: ['Sleep quality', 'Muscle recovery', 'Stress management'],
-            stack_recommendations: ['Sleep Stack', 'Recovery Stack'],
-            dosage: '300-400mg before bed',
-            form: 'Capsule',
-            form_type: 'capsule_powder',
-            brand: 'Pure Encapsulations',
-            availability: true,
-            price_aed: 89,
-            image_url: 'https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg'
-          },
-          {
-            id: '2',
-            name: 'Vitamin D3 + K2',
-            description: 'Synergistic combination for optimal calcium utilization and immune support.',
-            categories: ['Immunity', 'Bone Health'],
-            evidence_level: 'Green',
-            use_cases: ['Immune support', 'Bone health', 'Cardiovascular health'],
-            stack_recommendations: ['Immunity Stack', 'Bone Health Stack'],
-            dosage: '5000 IU D3 / 100mcg K2',
-            form: 'Softgel',
-            form_type: 'softgel',
-            brand: 'Thorne Research',
-            availability: true,
-            price_aed: 75,
-            image_url: 'https://images.pexels.com/photos/4004612/pexels-photo-4004612.jpeg'
-          },
-          {
-            id: '3',
-            name: 'Omega-3 Fish Oil',
-            description: 'High-potency EPA/DHA from sustainable sources for brain and heart health.',
-            categories: ['Brain Health', 'Heart Health', 'Inflammation'],
-            evidence_level: 'Green',
-            use_cases: ['Cognitive function', 'Heart health', 'Joint health'],
-            stack_recommendations: ['Brain Health Stack', 'Heart Health Stack'],
-            dosage: '2-3g daily (1000mg EPA/DHA)',
-            form: 'Softgel',
-            form_type: 'softgel',
-            brand: 'Nordic Naturals',
-            availability: true,
-            price_aed: 120,
-            image_url: 'https://images.pexels.com/photos/4004626/pexels-photo-4004626.jpeg'
-          },
-          {
-            id: '4',
-            name: 'Berberine HCl',
-            description: 'Powerful compound for metabolic health and glucose management.',
-            categories: ['Metabolic Health', 'Blood Sugar'],
-            evidence_level: 'Green',
-            use_cases: ['Blood sugar control', 'Metabolic health', 'Gut health'],
-            stack_recommendations: ['Metabolic Stack'],
-            dosage: '500mg 2-3x daily',
-            form: 'Capsule',
-            form_type: 'capsule_powder',
-            brand: 'Thorne Research',
-            availability: true,
-            price_aed: 95,
-            image_url: 'https://images.pexels.com/photos/3683098/pexels-photo-3683098.jpeg'
-          },
-          {
-            id: '5',
-            name: "Lion's Mane Mushroom",
-            description: 'Nootropic mushroom for cognitive enhancement and nerve health.',
-            categories: ['Cognitive', 'Brain Health'],
-            evidence_level: 'Yellow',
-            use_cases: ['Mental clarity', 'Memory', 'Nerve health'],
-            stack_recommendations: ['Cognitive Stack'],
-            dosage: '1000mg 1-2x daily',
-            form: 'Capsule',
-            form_type: 'capsule_powder',
-            brand: 'Host Defense',
-            availability: true,
-            price_aed: 110,
-            image_url: 'https://images.pexels.com/photos/3683047/pexels-photo-3683047.jpeg'
-          },
-          {
-            id: '6',
-            name: 'Ashwagandha KSM-66',
-            description: 'Premium ashwagandha extract for stress and anxiety support.',
-            categories: ['Stress', 'Sleep', 'Recovery'],
-            evidence_level: 'Green',
-            use_cases: ['Stress reduction', 'Sleep quality', 'Recovery'],
-            stack_recommendations: ['Stress Stack', 'Sleep Stack'],
-            dosage: '600mg daily',
-            form: 'Capsule',
-            form_type: 'capsule_powder',
-            brand: 'Jarrow Formulas',
-            availability: true,
-            price_aed: 85,
-            image_url: 'https://images.pexels.com/photos/3683051/pexels-photo-3683051.jpeg'
-          }
-        ];
-        
-        setSupplements(mockSupplements);
-      } else {
-        setSupplements(supplementsData);
+        const userSupps = await dataService.getUserSupplements(user.id);
+        setUserSupplements(userSupps);
       }
     } catch (err) {
       console.error('Error fetching supplements:', err);
@@ -213,47 +78,6 @@ const SupplementsPage = () => {
     }
   };
   
-  const addToCart = (supplement: Supplement) => {
-    const existingItem = cartItems.find(item => item.supplement.id === supplement.id);
-    
-    if (existingItem) {
-      // Increment quantity if already in cart
-      setCartItems(cartItems.map(item => 
-        item.supplement.id === supplement.id 
-          ? { ...item, quantity: item.quantity + 1 } 
-          : item
-      ));
-    } else {
-      // Add new item to cart
-      setCartItems([...cartItems, { supplement, quantity: 1 }]);
-    }
-    
-    // Open cart
-    setIsCartOpen(true);
-  };
-  
-  const updateCartItemQuantity = (supplementId: string, quantity: number) => {
-    if (quantity <= 0) {
-      // Remove item if quantity is 0 or less
-      setCartItems(cartItems.filter(item => item.supplement.id !== supplementId));
-    } else {
-      // Update quantity
-      setCartItems(cartItems.map(item => 
-        item.supplement.id === supplementId 
-          ? { ...item, quantity } 
-          : item
-      ));
-    }
-  };
-  
-  const removeFromCart = (supplementId: string) => {
-    setCartItems(cartItems.filter(item => item.supplement.id !== supplementId));
-  };
-  
-  const clearCart = () => {
-    setCartItems([]);
-  };
-  
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
@@ -265,18 +89,7 @@ const SupplementsPage = () => {
         </div>
         
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsCartOpen(true)}
-            className="relative flex items-center gap-2 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-4 py-2 text-sm font-medium transition-colors hover:bg-[hsl(var(--color-card-hover))]"
-          >
-            <ShoppingCart className="h-5 w-5" />
-            <span>Cart</span>
-            {cartItems.length > 0 && (
-              <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
-                {cartItems.length}
-              </span>
-            )}
-          </button>
+          <ShoppingCartButton />
         </div>
       </div>
       
@@ -331,7 +144,6 @@ const SupplementsPage = () => {
                 supplements={supplements}
                 userSupplements={userSupplements}
                 onToggleSubscription={handleToggleSubscription}
-                onAddToCart={addToCart}
                 loading={loading}
               />
             </motion.div>
@@ -366,13 +178,8 @@ const SupplementsPage = () => {
         
         <div className="lg:col-span-3">
           <ShoppingCartSidebar
-            cartItems={cartItems}
-            updateQuantity={updateCartItemQuantity}
-            removeItem={removeFromCart}
-            clearCart={clearCart}
-            total={cartTotal}
-            isOpen={isCartOpen}
-            onClose={() => setIsCartOpen(false)}
+            isOpen={isOpen}
+            onClose={closeCart}
           />
         </div>
       </div>

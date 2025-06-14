@@ -1,35 +1,23 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingCart, Minus, Plus, Trash2, ChevronRight, CreditCard, Shield } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ImageWithFallback from '../common/ImageWithFallback';
-import { Supplement } from '../../types/supplements';
-
-interface CartItem {
-  supplement: Supplement;
-  quantity: number;
-}
+import { useCartContext } from '../../providers/CartProvider';
 
 interface ShoppingCartSidebarProps {
-  cartItems: CartItem[];
-  updateQuantity: (supplementId: string, quantity: number) => void;
-  removeItem: (supplementId: string) => void;
-  clearCart: () => void;
-  total: number;
   isOpen: boolean;
   onClose: () => void;
 }
 
 const ShoppingCartSidebar = ({
-  cartItems,
-  updateQuantity,
-  removeItem,
-  clearCart,
-  total,
   isOpen,
   onClose
 }: ShoppingCartSidebarProps) => {
+  const navigate = useNavigate();
+  const { items, total, updateQuantity, removeItem, clearCart } = useCartContext();
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'shipping' | 'payment' | 'review'>('cart');
+  
   const [shippingInfo, setShippingInfo] = useState({
     firstName: '',
     lastName: '',
@@ -39,6 +27,7 @@ const ShoppingCartSidebar = ({
     country: '',
     postalCode: ''
   });
+  
   const [paymentInfo, setPaymentInfo] = useState({
     cardNumber: '',
     cardName: '',
@@ -61,11 +50,12 @@ const ShoppingCartSidebar = ({
     clearCart();
     onClose();
     setCheckoutStep('cart');
+    navigate('/dashboard');
   };
 
   const renderCartItems = () => (
     <div className="flex-1 overflow-y-auto">
-      {cartItems.length === 0 ? (
+      {items.length === 0 ? (
         <div className="flex h-full flex-col items-center justify-center p-6 text-center">
           <ShoppingCart className="mb-4 h-12 w-12 text-text-light" />
           <h3 className="mb-2 text-lg font-medium">Your cart is empty</h3>
@@ -75,7 +65,7 @@ const ShoppingCartSidebar = ({
         </div>
       ) : (
         <div className="space-y-4 p-4">
-          {cartItems.map((item) => (
+          {items.map((item) => (
             <div
               key={item.supplement.id}
               className="flex items-center gap-3 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3 dark:bg-[hsl(var(--color-card-hover))]"
@@ -358,7 +348,7 @@ const ShoppingCartSidebar = ({
       <div className="mb-4 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3 dark:bg-[hsl(var(--color-card-hover))]">
         <h4 className="mb-2 text-sm font-medium">Order Summary</h4>
         <div className="space-y-2">
-          {cartItems.map((item) => (
+          {items.map((item) => (
             <div key={item.supplement.id} className="flex justify-between text-xs">
               <span>{item.quantity} x {item.supplement.name}</span>
               <span>AED {(item.supplement.price_aed * item.quantity).toFixed(2)}</span>
@@ -501,17 +491,17 @@ const ShoppingCartSidebar = ({
                       </div>
                       <div className="flex justify-between">
                         <span className="text-text-light">Shipping</span>
-                        <span>{cartItems.length > 0 ? 'AED 15.00' : 'AED 0.00'}</span>
+                        <span>{items.length > 0 ? 'AED 15.00' : 'AED 0.00'}</span>
                       </div>
                       <div className="flex justify-between font-bold">
                         <span>Total</span>
-                        <span>AED {cartItems.length > 0 ? (total + 15).toFixed(2) : '0.00'}</span>
+                        <span>AED {items.length > 0 ? (total + 15).toFixed(2) : '0.00'}</span>
                       </div>
                     </div>
                     <button
-                      onClick={() => cartItems.length > 0 && setCheckoutStep('shipping')}
+                      onClick={() => items.length > 0 && setCheckoutStep('shipping')}
                       className={`mb-2 flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 font-medium text-white transition-colors hover:bg-primary-dark ${
-                        cartItems.length === 0 ? 'pointer-events-none opacity-50' : ''
+                        items.length === 0 ? 'pointer-events-none opacity-50' : ''
                       }`}
                     >
                       Checkout
@@ -519,7 +509,7 @@ const ShoppingCartSidebar = ({
                     </button>
                     <button
                       onClick={clearCart}
-                      disabled={cartItems.length === 0}
+                      disabled={items.length === 0}
                       className="flex w-full items-center justify-center gap-2 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-4 py-2 text-sm font-medium transition-colors hover:bg-[hsl(var(--color-card-hover))] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[hsl(var(--color-surface-1))]"
                     >
                       Clear Cart
@@ -540,7 +530,7 @@ const ShoppingCartSidebar = ({
           </div>
           <h3 className="mb-2 text-lg font-semibold">Your Cart</h3>
           <p className="mb-4 text-text-light">
-            {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in your cart
+            {items.length} {items.length === 1 ? 'item' : 'items'} in your cart
           </p>
           <button 
             onClick={() => onClose()}
