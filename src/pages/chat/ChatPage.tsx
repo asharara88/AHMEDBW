@@ -16,6 +16,11 @@ const ChatPage = () => {
           <p className="text-text-light">
             Chat with your personal coach for evidence-based health advice
           </p>
+          <p className="text-sm mt-2 text-primary">
+            <span className="inline-flex items-center gap-1 bg-primary/10 px-2 py-0.5 rounded-full">
+              <span>🎙️</span> New! Voice interaction now available
+            </span>
+          </p>
         </div>
 
         <div className="h-[calc(100vh-16rem)]">

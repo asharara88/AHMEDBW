@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, AlertCircle, Info, User, Package, Brain, Moon, Heart, Zap, Mic, Volume2, VolumeX } from 'lucide-react';
+import { Send, Loader, AlertCircle, Info, User, Package, Brain, Moon, Heart, Zap, Mic, Volume2, VolumeX, Settings, Check } from 'lucide-react';
 import { useChatApi } from '../../hooks/useChatApi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -12,6 +12,14 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+}
+
+interface VoiceSettings {
+  rate: number;
+  pitch: number;
+  voice: string | null;
+  autoSubmit: boolean;
+  language: string;
 }
 
 const suggestedQuestions = [
@@ -70,14 +78,61 @@ export default function HealthCoach() {
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const [audioEnabled, setAudioEnabled] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>({
+    rate: 1.0,
+    pitch: 1.0,
+    voice: null,
+    autoSubmit: true,
+    language: 'en-US'
+  });
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [audioLevel, setAudioLevel] = useState(0);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { sendMessage, loading, error: apiError } = useChatApi();
   const { user, isDemo } = useAuth();
   const { currentTheme } = useTheme();
   const [error, setError] = useState<string | null>(null);
   
-  const { playAudio, stopAudio, isPlaying, error: audioError } = useAudioPlayback();
-  const { startListening, stopListening, transcript, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
+  const { playAudio, stopAudio, isPlaying, error: audioError } = useAudioPlayback({
+    rate: voiceSettings.rate,
+    pitch: voiceSettings.pitch,
+    voice: voiceSettings.voice || undefined
+  });
+  
+  const { 
+    startListening, 
+    stopListening, 
+    transcript, 
+    resetTranscript, 
+    browserSupportsSpeechRecognition,
+    isListening
+  } = useSpeechRecognition({
+    continuous: false,
+    interimResults: true,
+    language: voiceSettings.language
+  });
+
+  // Load available voices
+  useEffect(() => {
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      setAvailableVoices(voices);
+    };
+
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      // Load voices on mount
+      loadVoices();
+      
+      // And also when voices change
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+      
+      return () => {
+        window.speechSynthesis.onvoiceschanged = null;
+      };
+    }
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -95,11 +150,77 @@ export default function HealthCoach() {
   }, [apiError, audioError]);
 
   useEffect(() => {
-    // Set input when transcript changes
-    if (transcript) {
+    // Set input when transcript changes and submit if autoSubmit is enabled
+    if (transcript && transcript.trim() !== '') {
       setInput(transcript);
+      
+      // Auto-submit after a short delay if enabled
+      if (voiceSettings.autoSubmit && !loading) {
+        const timer = setTimeout(() => {
+          if (isRecording) {
+            stopListening();
+            setIsRecording(false);
+          }
+          handleSubmit(transcript);
+        }, 1000); // 1 second delay
+        
+        return () => clearTimeout(timer);
+      }
     }
-  }, [transcript]);
+  }, [transcript, voiceSettings.autoSubmit, loading]);
+
+  // Handle audio level for visualization
+  useEffect(() => {
+    if (!isRecording) {
+      setAudioLevel(0);
+      return;
+    }
+    
+    // Set up audio analyzer if recording is active
+    let audioContext: AudioContext | null = null;
+    let analyser: AnalyserNode | null = null;
+    let dataArray: Uint8Array | null = null;
+    let source: MediaStreamAudioSourceNode | null = null;
+    let animationFrame: number | null = null;
+    
+    const setupAudioAnalyzer = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioContext = new AudioContext();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        
+        const bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+        
+        source = audioContext.createMediaStreamSource(stream);
+        source.connect(analyser);
+        
+        const updateLevel = () => {
+          if (!analyser || !dataArray) return;
+          
+          analyser.getByteFrequencyData(dataArray);
+          const average = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
+          const normalizedLevel = Math.min(1, average / 128); // Normalize between 0 and 1
+          
+          setAudioLevel(normalizedLevel);
+          animationFrame = requestAnimationFrame(updateLevel);
+        };
+        
+        updateLevel();
+      } catch (err) {
+        console.error('Error setting up audio analyzer:', err);
+      }
+    };
+    
+    setupAudioAnalyzer();
+    
+    return () => {
+      if (animationFrame) cancelAnimationFrame(animationFrame);
+      if (source) source.disconnect();
+      if (audioContext) audioContext.close();
+    };
+  }, [isRecording]);
 
   const handleSubmit = async (e: React.FormEvent | string) => {
     e?.preventDefault?.();
@@ -118,6 +239,17 @@ export default function HealthCoach() {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setShowSuggestions(false);
+    
+    // Stop recording if active
+    if (isRecording) {
+      stopListening();
+      setIsRecording(false);
+    }
+    
+    // Stop audio playback if active
+    if (isPlaying) {
+      stopAudio();
+    }
 
     try {
       if (!sendMessage) {
@@ -168,6 +300,13 @@ export default function HealthCoach() {
     }
     setAudioEnabled(!audioEnabled);
   };
+  
+  const handleVoiceSettingsChange = (setting: keyof VoiceSettings, value: any) => {
+    setVoiceSettings(prev => ({
+      ...prev,
+      [setting]: value
+    }));
+  };
 
   return (
     <div className="flex h-full flex-col rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] shadow-lg">
@@ -201,12 +340,138 @@ export default function HealthCoach() {
             </button>
             <button 
               className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
+              title="Voice Settings"
+              onClick={() => setShowSettings(!showSettings)}
+            >
+              <Settings className="h-4 w-4" />
+            </button>
+            <button 
+              className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
               title="About Health Coach"
             >
               <Info className="h-4 w-4" />
             </button>
           </div>
         </div>
+        
+        {/* Voice Settings Panel */}
+        <AnimatePresence>
+          {showSettings && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="mt-3 overflow-hidden rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3"
+            >
+              <h4 className="mb-2 text-sm font-medium">Voice Settings</h4>
+              
+              <div className="space-y-3">
+                {/* Voice Selection */}
+                <div>
+                  <label className="mb-1 block text-xs text-text-light">Voice</label>
+                  <select
+                    value={voiceSettings.voice || ''}
+                    onChange={(e) => handleVoiceSettingsChange('voice', e.target.value || null)}
+                    className="w-full rounded border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-2 py-1 text-xs"
+                  >
+                    <option value="">Browser Default</option>
+                    {availableVoices.map((voice) => (
+                      <option key={voice.name} value={voice.name}>
+                        {voice.name} ({voice.lang})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                {/* Speech Rate */}
+                <div>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs text-text-light">Speed: {voiceSettings.rate.toFixed(1)}x</label>
+                    <span className="text-xs text-text-light">{voiceSettings.rate.toFixed(1)}x</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="2"
+                    step="0.1"
+                    value={voiceSettings.rate}
+                    onChange={(e) => handleVoiceSettingsChange('rate', parseFloat(e.target.value))}
+                    className="w-full accent-primary"
+                  />
+                </div>
+                
+                {/* Speech Pitch */}
+                <div>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs text-text-light">Pitch</label>
+                    <span className="text-xs text-text-light">{voiceSettings.pitch.toFixed(1)}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="1.5"
+                    step="0.1"
+                    value={voiceSettings.pitch}
+                    onChange={(e) => handleVoiceSettingsChange('pitch', parseFloat(e.target.value))}
+                    className="w-full accent-primary"
+                  />
+                </div>
+                
+                {/* Language Selection */}
+                <div>
+                  <label className="mb-1 block text-xs text-text-light">Voice Recognition Language</label>
+                  <select
+                    value={voiceSettings.language}
+                    onChange={(e) => handleVoiceSettingsChange('language', e.target.value)}
+                    className="w-full rounded border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-2 py-1 text-xs"
+                  >
+                    <option value="en-US">English (US)</option>
+                    <option value="en-GB">English (UK)</option>
+                    <option value="ar-AE">Arabic (UAE)</option>
+                    <option value="fr-FR">French</option>
+                    <option value="de-DE">German</option>
+                    <option value="es-ES">Spanish</option>
+                  </select>
+                </div>
+                
+                {/* Auto-submit Toggle */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="autoSubmit"
+                    checked={voiceSettings.autoSubmit}
+                    onChange={(e) => handleVoiceSettingsChange('autoSubmit', e.target.checked)}
+                    className="h-3.5 w-3.5 rounded border-[hsl(var(--color-border))] accent-primary"
+                  />
+                  <label htmlFor="autoSubmit" className="text-xs text-text-light">
+                    Auto-submit after voice input
+                  </label>
+                </div>
+                
+                <div className="flex justify-between">
+                  <button
+                    onClick={() => setShowSettings(false)}
+                    className="rounded bg-[hsl(var(--color-card))] px-2 py-1 text-xs text-text-light"
+                  >
+                    Close
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      // Test voice with current settings
+                      playAudio("This is a test of your current voice settings. How does this sound?");
+                    }}
+                    className="flex items-center gap-1 rounded bg-primary px-2 py-1 text-xs text-white"
+                  >
+                    <Volume2 className="h-3 w-3" />
+                    Test Voice
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       
       <div className="flex-1 overflow-y-auto p-4 overscroll-contain">
@@ -265,6 +530,14 @@ export default function HealthCoach() {
                     {question}
                   </button>
                 ))}
+              </div>
+            )}
+            
+            {/* Voice interaction hint */}
+            {browserSupportsSpeechRecognition && (
+              <div className="mt-6 flex items-center gap-2 rounded-lg bg-[hsl(var(--color-surface-1))] p-3 text-sm text-text-light">
+                <Mic className="h-4 w-4 text-primary" />
+                <p>Try using voice input! Click the microphone icon to speak to your coach.</p>
               </div>
             )}
           </div>
@@ -357,23 +630,49 @@ export default function HealthCoach() {
               className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               disabled={loading || isRecording}
             />
+            
+            {/* Voice input visualization */}
+            {isRecording && (
+              <div className="absolute bottom-0 left-0 right-0 top-0 flex items-center justify-end pr-10 pointer-events-none">
+                <div className="flex h-full items-center gap-0.5 px-2">
+                  {[...Array(5)].map((_, i) => {
+                    // Calculate if bar should be active based on audio level
+                    const isActive = audioLevel * 5 > i;
+                    return (
+                      <div 
+                        key={i} 
+                        className={`h-${Math.min(4 + i * 2, 10)} w-1 rounded-full transition-colors duration-100 ${
+                          isActive ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
+                        }`}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            
             {browserSupportsSpeechRecognition && (
               <button
                 type="button"
                 onClick={handleVoiceInput}
                 className={`absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 ${
-                  isRecording ? 'bg-error/10 text-error' : 'bg-primary/10 text-primary hover:bg-primary/20'
+                  isRecording 
+                    ? 'animate-pulse bg-error/10 text-error' 
+                    : 'bg-primary/10 text-primary hover:bg-primary/20'
                 }`}
+                title={isRecording ? "Stop recording" : "Start voice input"}
               >
                 <Mic className="h-4 w-4" />
               </button>
             )}
+            
             {isRecording && (
               <div className="absolute left-0 top-full mt-1 text-xs text-primary">
-                Listening... Say your message and click again to stop.
+                Listening... {voiceSettings.autoSubmit ? "(Will submit automatically)" : "(Click mic or send when done)"}
               </div>
             )}
           </div>
+          
           <button
             type="submit"
             disabled={loading || (!input.trim() && !isRecording)}
