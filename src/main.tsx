@@ -8,6 +8,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './providers/CartProvider';
 import { ErrorProvider } from './contexts/ErrorContext';
+import { VoiceProvider } from './providers/VoiceProvider';
 import GlobalErrorHandler from './components/common/GlobalErrorHandler';
 import '@fontsource-variable/inter';
 
@@ -44,8 +45,10 @@ createRoot(document.getElementById('root')!).render(
           <ThemeProvider>
             <AuthProvider>
               <CartProvider>
-                <GlobalErrorHandler />
-                <App />
+                <VoiceProvider>
+                  <GlobalErrorHandler />
+                  <App />
+                </VoiceProvider>
               </CartProvider>
             </AuthProvider>
           </ThemeProvider>

@@ -9,15 +9,13 @@ import ErrorDisplay from '../common/ErrorDisplay';
 import { ErrorCode, createErrorObject } from '../../utils/errorHandling';
 import LoadingSpinner from '../common/LoadingSpinner';
 import TextToSpeechService from '../../services/TextToSpeechService';
-import Mic from './Mic';
+import { useVoiceSettings } from '../../hooks/useVoiceSettings';
+import EnhancedVoiceChatButton from './EnhancedVoiceChatButton';
+import VoicePanel from './VoicePanel';
 
 // Lazy-loaded components
 const ReactMarkdown = lazy(() => import('react-markdown'));
 const AudioControl = lazy(() => import('./AudioControl'));
-
-// Load VoiceChatButton component only when needed - this prevents any microphone initialization
-// until the user explicitly interacts with it
-const VoiceChatButton = lazy(() => import('./VoiceChatButton'));
 
 interface Message {
   id?: string;
@@ -25,27 +23,6 @@ interface Message {
   content: string;
   timestamp: Date;
 }
-
-interface VoiceSettings {
-  rate: number;
-  pitch: number;
-  voice: string | null;
-  autoSubmit: boolean;
-  language: string;
-}
-
-const suggestedQuestions = [
-  "What's my current health status?",
-  "How can I improve my sleep quality?",
-  "What supplements should I take?",
-  "Analyze my nutrition habits",
-  "Help me reduce stress",
-  "How's my metabolic health?",
-  "What's the best exercise for me?",
-  "How can I improve my energy levels?",
-  "What's my heart rate variability?",
-  "How can I optimize my recovery?"
-];
 
 // Predefined supplement stacks
 const supplementStacks = [
@@ -92,31 +69,47 @@ const MarkdownPlaceholder = () => (
   </div>
 );
 
+// Get suggested questions for health queries
+const getSuggestedQuestions = () => {
+  const questions = [
+    "What's my current health status?",
+    "How can I improve my sleep quality?",
+    "What supplements should I take?",
+    "Analyze my nutrition habits",
+    "Help me reduce stress",
+    "How's my metabolic health?",
+    "What's the best exercise for me?",
+    "How can I improve my energy levels?",
+    "What's my heart rate variability?",
+    "How can I optimize my recovery?"
+  ];
+  
+  // Shuffle and return 5 random questions
+  return [...questions]
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 5);
+};
+
 export default function HealthCoach() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
-  const [audioEnabled, setAudioEnabled] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>({
-    rate: 1.0,
-    pitch: 1.0,
-    voice: null,
-    autoSubmit: true,
-    language: 'en-US'
-  });
-  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [voicePanelVisible, setVoicePanelVisible] = useState(false);
   const [currentlySpeakingMessageId, setCurrentlySpeakingMessageId] = useState<string | null>(null);
-  const [voiceChatActive, setVoiceChatActive] = useState(false);
-
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { sendMessage, loading, error: apiError, clearError } = useChatApi();
   const { user, isDemo } = useAuth();
   const { currentTheme } = useTheme();
   const [localError, setLocalError] = useState<string | null>(null);
   const { addError } = useError();
-
+  
+  // Voice settings
+  const { settings, updateSetting, toggleVoice } = useVoiceSettings();
+  const audioEnabled = settings.enabled;
+  const isSpeaking = currentlySpeakingMessageId !== null;
+  
   // Initialize TTS service
   const ttsService = TextToSpeechService.getInstance();
   const ttsSupported = TextToSpeechService.isSupported();
@@ -128,8 +121,7 @@ export default function HealthCoach() {
 
   // Select random suggested questions on component mount
   useEffect(() => {
-    const shuffled = [...suggestedQuestions].sort(() => 0.5 - Math.random());
-    setSelectedSuggestions(shuffled.slice(0, 5));
+    setSelectedSuggestions(getSuggestedQuestions());
   }, []);
 
   // Update local error state when API error changes
@@ -148,6 +140,36 @@ export default function HealthCoach() {
       setLocalError(null);
     }
   }, [apiError, addError]);
+  
+  // Listen for voice query events from other components
+  useEffect(() => {
+    const handleVoiceQuery = (e: CustomEvent) => {
+      if (e.detail?.query) {
+        handleSubmit(e.detail.query);
+      }
+    };
+    
+    document.addEventListener('queryHealthCoach', handleVoiceQuery as EventListener);
+    
+    return () => {
+      document.removeEventListener('queryHealthCoach', handleVoiceQuery as EventListener);
+    };
+  }, []);
+  
+  // Listen for clear chat events
+  useEffect(() => {
+    const handleClearChat = () => {
+      setMessages([]);
+      setShowSuggestions(true);
+      setSelectedSuggestions(getSuggestedQuestions());
+    };
+    
+    document.addEventListener('clearChat', handleClearChat);
+    
+    return () => {
+      document.removeEventListener('clearChat', handleClearChat);
+    };
+  }, []);
 
   // Handle speech for assistant responses
   const handleMessageSpeech = useCallback((messageContent: string, messageId: string) => {
@@ -156,7 +178,6 @@ export default function HealthCoach() {
     if (isSpeaking && currentlySpeakingMessageId === messageId) {
       // Stop current speech
       ttsService.stop();
-      setIsSpeaking(false);
       setCurrentlySpeakingMessageId(null);
       return;
     }
@@ -165,14 +186,13 @@ export default function HealthCoach() {
     ttsService.stop();
     
     // Start speaking new content
-    setIsSpeaking(true);
     setCurrentlySpeakingMessageId(messageId);
     
     ttsService.speak(messageContent, {
-      rate: voiceSettings.rate,
-      pitch: voiceSettings.pitch,
-      voice: voiceSettings.voice || undefined,
-      language: voiceSettings.language
+      rate: settings.rate,
+      pitch: settings.pitch,
+      voice: settings.voice || undefined,
+      language: settings.language
     }).catch(error => {
       console.error('TTS error:', error);
       addError(createErrorObject(
@@ -182,10 +202,9 @@ export default function HealthCoach() {
         'tts'
       ));
     }).finally(() => {
-      setIsSpeaking(false);
       setCurrentlySpeakingMessageId(null);
     });
-  }, [audioEnabled, isSpeaking, currentlySpeakingMessageId, ttsSupported, voiceSettings, addError]);
+  }, [audioEnabled, isSpeaking, currentlySpeakingMessageId, ttsSupported, settings, addError]);
   
   // Auto-play latest assistant message when audioEnabled is on
   useEffect(() => {
@@ -202,7 +221,6 @@ export default function HealthCoach() {
   useEffect(() => {
     if (!audioEnabled && isSpeaking) {
       ttsService.stop();
-      setIsSpeaking(false);
       setCurrentlySpeakingMessageId(null);
     }
   }, [audioEnabled, isSpeaking]);
@@ -261,34 +279,18 @@ export default function HealthCoach() {
     }
   };
 
-  const toggleAudio = () => {
-    // If turning off audio while speaking, stop the current speech
-    if (audioEnabled && isSpeaking) {
-      ttsService.stop();
-      setIsSpeaking(false);
-      setCurrentlySpeakingMessageId(null);
+  // Handle voice input
+  const handleVoiceInput = (transcript: string, wasCommand?: boolean) => {
+    if (wasCommand) {
+      // If it was a command that was handled elsewhere, don't submit to chat
+      return;
     }
     
-    setAudioEnabled(!audioEnabled);
-  };
-  
-  const handleVoiceSettingsChange = (setting: keyof VoiceSettings, value: any) => {
-    setVoiceSettings(prev => ({
-      ...prev,
-      [setting]: value
-    }));
-  };
-  
-  // Handle voice input
-  const handleVoiceInput = (transcript: string) => {
-    // Set the transcript in the input field
+    // Otherwise, treat as a normal chat message
     setInput(transcript);
     
-    // Set flag to indicate voice chat was used
-    setVoiceChatActive(true);
-    
-    // If auto-submit is enabled and transcript is valid, submit it
-    if (voiceSettings.autoSubmit && transcript.trim()) {
+    // Auto submit if enabled
+    if (settings.autoSubmit) {
       handleSubmit(transcript);
     }
   };
@@ -320,7 +322,7 @@ export default function HealthCoach() {
             <button 
               className={`rounded-full p-1 ${audioEnabled ? 'bg-primary/10 text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
               title={audioEnabled ? "Turn voice off" : "Turn voice on"}
-              onClick={toggleAudio}
+              onClick={toggleVoice}
               aria-label={audioEnabled ? "Disable text-to-speech" : "Enable text-to-speech"}
               aria-pressed={audioEnabled}
             >
@@ -331,14 +333,12 @@ export default function HealthCoach() {
               )}
             </button>
             <button 
-              className={`rounded-full p-1 ${showSettings ? 'bg-primary/10 text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
-              title="Voice Settings"
-              onClick={() => setShowSettings(!showSettings)}
-              aria-label="Voice settings"
-              aria-expanded={showSettings}
-              aria-controls="voice-settings-panel"
+              className={`rounded-full p-1 ${voicePanelVisible ? 'bg-primary/10 text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
+              onClick={() => setVoicePanelVisible(!voicePanelVisible)}
+              aria-label="Voice commands and settings"
+              aria-expanded={voicePanelVisible}
             >
-              <Settings className="h-4 w-4" aria-hidden="true" />
+              <Mic className="h-4 w-4" aria-hidden="true" />
             </button>
             <button 
               className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
@@ -350,29 +350,20 @@ export default function HealthCoach() {
           </div>
         </div>
         
-        {/* Lazy load voice settings panel */}
+        {/* Voice panel - expandable */}
         <AnimatePresence>
-          {showSettings && (
-            <Suspense fallback={<div className="mt-3 h-40 animate-pulse rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3"></div>}>
-              <motion.div
-                id="voice-settings-panel"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className="mt-3 overflow-hidden rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3"
-                role="region"
-                aria-label="Voice settings"
-              >
-                <AudioControl 
-                  settings={voiceSettings}
-                  onChange={handleVoiceSettingsChange}
-                  onClose={() => setShowSettings(false)}
-                  audioEnabled={audioEnabled}
-                  onToggleAudio={toggleAudio}
-                />
-              </motion.div>
-            </Suspense>
+          {voicePanelVisible && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mt-3 overflow-hidden"
+            >
+              <VoicePanel 
+                onTranscript={handleVoiceInput}
+              />
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
@@ -451,16 +442,14 @@ export default function HealthCoach() {
               </div>
             )}
             
-            {/* Voice chat button shown on welcome screen only when needed */}
-            {voiceChatActive && (
-              <Suspense fallback={<div className="mt-6 h-12 animate-pulse rounded-lg bg-[hsl(var(--color-surface-1))]"></div>}>
-                <VoiceChatButton 
-                  onTranscript={handleVoiceInput}
-                  language={voiceSettings.language}
-                  autoSubmit={voiceSettings.autoSubmit}
-                />
-              </Suspense>
-            )}
+            {/* Enhanced Voice Button */}
+            <div className="mt-8">
+              <EnhancedVoiceChatButton 
+                onTranscript={handleVoiceInput}
+                showHelpButton
+                size="large"
+              />
+            </div>
           </div>
         ) : (
           messages.map((message, index) => (
@@ -591,28 +580,12 @@ export default function HealthCoach() {
             />
           </div>
           
-          {/* Voice Chat Button - Only load the component when clicked to prevent premature mic initialization */}
-          {!voiceChatActive ? (
-            <button
-              type="button"
-              onClick={() => setVoiceChatActive(true)}
-              className="flex h-[50px] min-w-[50px] items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors hover:bg-primary/20"
-              aria-label="Enable voice chat"
-            >
-              <Mic className="h-5 w-5" />
-              <span className="sr-only">Enable voice input</span>
-            </button>
-          ) : (
-            <Suspense fallback={<div className="h-[50px] w-[50px] animate-pulse rounded-lg bg-primary/20"></div>}>
-              <VoiceChatButton 
-                onTranscript={handleVoiceInput}
-                language={voiceSettings.language}
-                autoSubmit={voiceSettings.autoSubmit}
-                isButtonOnly={true}
-                variant="primary"
-              />
-            </Suspense>
-          )}
+          {/* Enhanced Voice Chat Button */}
+          <EnhancedVoiceChatButton 
+            onTranscript={handleVoiceInput}
+            isButtonOnly={true}
+            variant="primary"
+          />
           
           <button
             type="submit"
