@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, lazy, Suspense, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, AlertCircle, Info, User, Package, Brain, Moon, Heart, Zap, Mic, Volume2, VolumeX, Settings } from 'lucide-react';
+import { Send, Loader, AlertCircle, Info, User, Package, Brain, Moon, Heart, Zap, Volume2, VolumeX, Settings } from 'lucide-react';
 import { useChatApi } from '../../hooks/useChatApi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -13,7 +13,7 @@ import TextToSpeechService from '../../services/TextToSpeechService';
 // Lazy-loaded components
 const ReactMarkdown = lazy(() => import('react-markdown'));
 const AudioControl = lazy(() => import('./AudioControl'));
-const SpeechInput = lazy(() => import('./SpeechInput'));
+const VoiceChatButton = lazy(() => import('./VoiceChatButton'));
 
 interface Message {
   id?: string;
@@ -94,7 +94,6 @@ export default function HealthCoach() {
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const [audioEnabled, setAudioEnabled] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>({
     rate: 1.0,
@@ -275,7 +274,7 @@ export default function HealthCoach() {
     }));
   };
   
-  // Handle voice input from SpeechInput component
+  // Handle voice input
   const handleVoiceInput = (transcript: string) => {
     setInput(transcript);
     
@@ -443,10 +442,10 @@ export default function HealthCoach() {
               </div>
             )}
             
-            {/* Voice interaction hint - lazily loaded */}
+            {/* Single centralized voice input button */}
             <Suspense fallback={<div className="mt-6 h-12 animate-pulse rounded-lg bg-[hsl(var(--color-surface-1))]"></div>}>
-              <SpeechInput 
-                onSubmit={handleSubmit}
+              <VoiceChatButton 
+                onTranscript={handleVoiceInput}
                 language={voiceSettings.language}
                 autoSubmit={voiceSettings.autoSubmit}
               />
@@ -580,23 +579,19 @@ export default function HealthCoach() {
               aria-label="Ask me anything about your health"
             />
             
-            {/* Voice input button - lazy loaded */}
-            <Suspense fallback={
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
-            }>
-              <SpeechInput 
-                isCompact={true} 
-                onTranscriptChange={setInput}
-                onSubmit={(transcript) => {
-                  if (transcript.trim()) {
-                    handleSubmit(transcript);
-                  }
-                }}
-                language={voiceSettings.language}
-                autoSubmit={voiceSettings.autoSubmit}
-              />
-            </Suspense>
+            {/* Centralized voice button will be used instead of this one */}
           </div>
+          
+          {/* Single Voice Chat Button - centered between input and send button */}
+          <Suspense fallback={<div className="h-12 w-12 animate-pulse rounded-full bg-primary/20"></div>}>
+            <VoiceChatButton 
+              onTranscript={handleVoiceInput}
+              language={voiceSettings.language}
+              autoSubmit={voiceSettings.autoSubmit}
+              isButtonOnly={true}
+              variant="primary"
+            />
+          </Suspense>
           
           <button
             type="submit"
