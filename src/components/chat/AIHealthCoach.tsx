@@ -9,6 +9,7 @@ import ErrorDisplay from '../common/ErrorDisplay';
 import { ErrorCode, createErrorObject } from '../../utils/errorHandling';
 import LoadingSpinner from '../common/LoadingSpinner';
 import TextToSpeechService from '../../services/TextToSpeechService';
+import Mic from './Mic';
 
 // Lazy-loaded components
 const ReactMarkdown = lazy(() => import('react-markdown'));
