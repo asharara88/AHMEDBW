@@ -13,6 +13,9 @@ import TextToSpeechService from '../../services/TextToSpeechService';
 // Lazy-loaded components
 const ReactMarkdown = lazy(() => import('react-markdown'));
 const AudioControl = lazy(() => import('./AudioControl'));
+
+// Load VoiceChatButton component only when needed - this prevents any microphone initialization
+// until the user explicitly interacts with it
 const VoiceChatButton = lazy(() => import('./VoiceChatButton'));
 
 interface Message {
@@ -104,6 +107,7 @@ export default function HealthCoach() {
   });
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [currentlySpeakingMessageId, setCurrentlySpeakingMessageId] = useState<string | null>(null);
+  const [voiceChatActive, setVoiceChatActive] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { sendMessage, loading, error: apiError, clearError } = useChatApi();
@@ -276,7 +280,11 @@ export default function HealthCoach() {
   
   // Handle voice input
   const handleVoiceInput = (transcript: string) => {
+    // Set the transcript in the input field
     setInput(transcript);
+    
+    // Set flag to indicate voice chat was used
+    setVoiceChatActive(true);
     
     // If auto-submit is enabled and transcript is valid, submit it
     if (voiceSettings.autoSubmit && transcript.trim()) {
@@ -442,14 +450,16 @@ export default function HealthCoach() {
               </div>
             )}
             
-            {/* Single centralized voice input button */}
-            <Suspense fallback={<div className="mt-6 h-12 animate-pulse rounded-lg bg-[hsl(var(--color-surface-1))]"></div>}>
-              <VoiceChatButton 
-                onTranscript={handleVoiceInput}
-                language={voiceSettings.language}
-                autoSubmit={voiceSettings.autoSubmit}
-              />
-            </Suspense>
+            {/* Voice chat button shown on welcome screen only when needed */}
+            {voiceChatActive && (
+              <Suspense fallback={<div className="mt-6 h-12 animate-pulse rounded-lg bg-[hsl(var(--color-surface-1))]"></div>}>
+                <VoiceChatButton 
+                  onTranscript={handleVoiceInput}
+                  language={voiceSettings.language}
+                  autoSubmit={voiceSettings.autoSubmit}
+                />
+              </Suspense>
+            )}
           </div>
         ) : (
           messages.map((message, index) => (
@@ -578,20 +588,30 @@ export default function HealthCoach() {
               disabled={loading}
               aria-label="Ask me anything about your health"
             />
-            
-            {/* Centralized voice button will be used instead of this one */}
           </div>
           
-          {/* Single Voice Chat Button - centered between input and send button */}
-          <Suspense fallback={<div className="h-12 w-12 animate-pulse rounded-full bg-primary/20"></div>}>
-            <VoiceChatButton 
-              onTranscript={handleVoiceInput}
-              language={voiceSettings.language}
-              autoSubmit={voiceSettings.autoSubmit}
-              isButtonOnly={true}
-              variant="primary"
-            />
-          </Suspense>
+          {/* Voice Chat Button - Only load the component when clicked to prevent premature mic initialization */}
+          {!voiceChatActive ? (
+            <button
+              type="button"
+              onClick={() => setVoiceChatActive(true)}
+              className="flex h-[50px] min-w-[50px] items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors hover:bg-primary/20"
+              aria-label="Enable voice chat"
+            >
+              <Mic className="h-5 w-5" />
+              <span className="sr-only">Enable voice input</span>
+            </button>
+          ) : (
+            <Suspense fallback={<div className="h-[50px] w-[50px] animate-pulse rounded-lg bg-primary/20"></div>}>
+              <VoiceChatButton 
+                onTranscript={handleVoiceInput}
+                language={voiceSettings.language}
+                autoSubmit={voiceSettings.autoSubmit}
+                isButtonOnly={true}
+                variant="primary"
+              />
+            </Suspense>
+          )}
           
           <button
             type="submit"

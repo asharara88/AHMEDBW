@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, StopCircle, Volume2 } from 'lucide-react';
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
@@ -27,6 +27,7 @@ export default function VoiceChatButton({
 }: VoiceChatButtonProps) {
   const [transcript, setLocalTranscript] = useState('');
   const [showTranscript, setShowTranscript] = useState(false);
+  const [micAccessRequested, setMicAccessRequested] = useState(false);
   const { addError } = useError();
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -44,6 +45,7 @@ export default function VoiceChatButton({
   };
 
   // Use speech recognition hook
+  // NOTE: This hook will not request microphone access until startListening is called
   const {
     transcript: hookTranscript,
     interimTranscript,
@@ -59,51 +61,48 @@ export default function VoiceChatButton({
     language
   });
 
-  // Handle recognition errors
-  useEffect(() => {
-    if (recognitionError) {
-      addError(createErrorObject(
-        recognitionError,
-        'warning',
-        ErrorCode.SPEECH_RECOGNITION_FAILED,
-        'voice-chat'
-      ));
-    }
-  }, [recognitionError, addError]);
-
   // Update local transcript from hook
-  useEffect(() => {
-    if (hookTranscript) {
-      setLocalTranscript(hookTranscript);
+  const handleTranscriptUpdate = useCallback((newTranscript: string) => {
+    if (newTranscript) {
+      setLocalTranscript(newTranscript);
       if (onTranscript) {
-        onTranscript(hookTranscript);
+        onTranscript(newTranscript);
       }
     }
-  }, [hookTranscript, onTranscript]);
+  }, [onTranscript]);
+
+  // Update local transcript from hook
+  if (hookTranscript !== transcript) {
+    handleTranscriptUpdate(hookTranscript);
+  }
 
   // Handle auto submission when speech recognition completes
-  useEffect(() => {
-    if (!isListening && transcript && autoSubmit && onSubmit) {
+  const handleSpeechEnd = useCallback(() => {
+    if (transcript && autoSubmit && onSubmit) {
       // Small delay to let user see what was transcribed
-      const timer = setTimeout(() => {
+      setTimeout(() => {
         onSubmit(transcript);
         resetHookTranscript();
         setLocalTranscript('');
         setShowTranscript(false);
       }, 1000);
-      
-      return () => clearTimeout(timer);
+    } else {
+      setShowTranscript(true);
     }
-  }, [isListening, transcript, autoSubmit, onSubmit, resetHookTranscript]);
+  }, [transcript, autoSubmit, onSubmit, resetHookTranscript]);
 
   // Toggle speech recognition
   const toggleSpeechRecognition = () => {
     if (isListening) {
       stopListening();
-      setShowTranscript(true);
+      handleSpeechEnd();
     } else {
+      // First time mic access request needs user gesture
+      setMicAccessRequested(true);
       resetHookTranscript();
       setLocalTranscript('');
+      
+      // This will now request microphone permission ONLY after clicking button
       startListening();
       setShowTranscript(false);
     }
@@ -127,19 +126,21 @@ export default function VoiceChatButton({
         } ${sizeMap[size]}`}
         aria-label={isListening ? "Stop voice recording" : "Start voice recording"}
         aria-pressed={isListening}
+        title={isListening ? "Click to stop recording" : "Click to start voice input"}
       >
         {isListening ? (
           <StopCircle className="h-5 w-5" aria-hidden="true" />
         ) : (
           <Mic className="h-5 w-5" aria-hidden="true" />
         )}
+        <span className="sr-only">{isListening ? "Stop recording" : "Start voice input"}</span>
       </button>
     );
   }
 
   // Full component with visualization
   return (
-    <div className="mt-8 text-center">
+    <div className="mt-8 text-center" aria-live="polite">
       <div className="inline-flex flex-col items-center">
         <button
           ref={buttonRef}
@@ -151,6 +152,7 @@ export default function VoiceChatButton({
           }`}
           aria-label={isListening ? "Stop voice recording" : "Start voice chat"}
           aria-pressed={isListening}
+          title={isListening ? "Click to stop recording" : "Click to start voice input"}
         >
           {isListening ? (
             <StopCircle className="h-8 w-8" aria-hidden="true" />

@@ -20,47 +20,27 @@ export const useSpeechRecognition = (options?: SpeechRecognitionOptions) => {
   const { addError } = useError();
   
   // Check for browser support of MediaDevices (for microphone detection)
+  // This doesn't actually request microphone access yet - just checks if the API exists
   const checkMicrophonePermission = useCallback(async () => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setIsMicrophoneAvailable(false);
       return false;
     }
     
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      // Stop all audio tracks
-      stream.getTracks().forEach(track => track.stop());
-      setIsMicrophoneAvailable(true);
-      return true;
-    } catch (err) {
-      console.error('Microphone permission error:', err);
-      setIsMicrophoneAvailable(false);
-      return false;
-    }
+    // We'll only actually request microphone access when startListening is called
+    return true;
   }, []);
 
-  // Initialize speech recognition
+  // Initialize speech recognition capabilities check - but don't create instance yet
   useEffect(() => {
     // Check for browser support
     if (typeof window !== 'undefined') {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
-        try {
-          setBrowserSupportsSpeechRecognition(true);
-          
-          // Check microphone permission
-          checkMicrophonePermission();
-        } catch (err) {
-          const errorObj = createErrorObject(
-            `Failed to initialize speech recognition: ${err instanceof Error ? err.message : String(err)}`,
-            'error',
-            ErrorCode.SPEECH_RECOGNITION_FAILED,
-            'speech'
-          );
-          addError(errorObj);
-          setError(errorObj.message);
-          setBrowserSupportsSpeechRecognition(false);
-        }
+        setBrowserSupportsSpeechRecognition(true);
+        
+        // Just check API availability, not actual permission
+        checkMicrophonePermission();
       } else {
         const errorObj = createErrorObject(
           'Speech recognition is not supported in this browser',
@@ -84,32 +64,60 @@ export const useSpeechRecognition = (options?: SpeechRecognitionOptions) => {
         }
       }
     };
-  }, [addError, checkMicrophonePermission]);
+  }, [checkMicrophonePermission, addError]);
 
-  // Update recognition instance when options change
-  useEffect(() => {
-    if (!browserSupportsSpeechRecognition) return;
+  // Function to start listening - THIS is where we request microphone access
+  const startListening = useCallback(async () => {
+    if (!browserSupportsSpeechRecognition) {
+      const errorObj = createErrorObject(
+        'Speech recognition is not available',
+        'warning',
+        ErrorCode.DEVICE_NOT_SUPPORTED,
+        'speech'
+      );
+      setError(errorObj.message);
+      return;
+    }
     
-    // Create a new instance with the updated options
+    // Actually request microphone permission only when user initiates listening
     try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Stop all audio tracks - we just needed the permission
+      stream.getTracks().forEach(track => track.stop());
+      setIsMicrophoneAvailable(true);
+    } catch (err) {
+      console.error('Microphone permission error:', err);
+      const errorObj = createErrorObject(
+        'Microphone access is required for voice input',
+        'warning',
+        ErrorCode.DEVICE_PERMISSION_DENIED,
+        'speech'
+      );
+      addError(errorObj);
+      setError(errorObj.message);
+      setIsMicrophoneAvailable(false);
+      return;
+    }
+
+    try {
+      // Only now create the recognition instance - when explicitly started by user
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognitionInstance = new SpeechRecognition();
+      recognitionRef.current = new SpeechRecognition();
       
       // Configure the recognition
-      recognitionInstance.continuous = options?.continuous ?? false;
-      recognitionInstance.interimResults = options?.interimResults ?? true;
-      recognitionInstance.lang = options?.language ?? 'en-US';
+      recognitionRef.current.continuous = options?.continuous ?? false;
+      recognitionRef.current.interimResults = options?.interimResults ?? true;
+      recognitionRef.current.lang = options?.language ?? 'en-US';
       
       // iOS Safari requires a different approach to audio handling
       if (isIOS() && isSafari()) {
         // Special handling for iOS Safari
-        // We need shorter recognition periods for iOS Safari
-        recognitionInstance.continuous = false;
-        recognitionInstance.interimResults = true;
+        recognitionRef.current.continuous = false;
+        recognitionRef.current.interimResults = true;
       }
       
       // Set up recognition event handlers
-      recognitionInstance.onresult = (event: any) => {
+      recognitionRef.current.onresult = (event: any) => {
         let finalTranscript = '';
         let interimTranscriptText = '';
         
@@ -130,7 +138,7 @@ export const useSpeechRecognition = (options?: SpeechRecognitionOptions) => {
         }
       };
       
-      recognitionInstance.onerror = (event: any) => {
+      recognitionRef.current.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         const errorObj = handleSpeechRecognitionError(event);
         
@@ -147,7 +155,7 @@ export const useSpeechRecognition = (options?: SpeechRecognitionOptions) => {
         }
       };
       
-      recognitionInstance.onend = () => {
+      recognitionRef.current.onend = () => {
         // Add a small delay to finalize any pending transcripts
         setTimeout(() => {
           setIsListening(false);
@@ -155,7 +163,7 @@ export const useSpeechRecognition = (options?: SpeechRecognitionOptions) => {
           
           // iOS and Android special case: automatically restart listening
           // for continuous recognition (since continuous doesn't work well on mobile)
-          if ((isIOS() || isAndroid()) && options?.continuous) {
+          if ((isIOS() || isAndroid()) && options?.continuous && isListening) {
             try {
               if (recognitionRef.current) {
                 recognitionRef.current.start();
@@ -168,85 +176,18 @@ export const useSpeechRecognition = (options?: SpeechRecognitionOptions) => {
         }, 500);
       };
       
-      // Save to ref
-      recognitionRef.current = recognitionInstance;
-    } catch (err) {
-      console.error('Error creating speech recognition:', err);
-      const errorObj = createErrorObject(
-        `Failed to create speech recognition: ${err instanceof Error ? err.message : String(err)}`,
-        'error',
-        ErrorCode.SPEECH_RECOGNITION_FAILED,
-        'speech'
-      );
-      addError(errorObj);
-      setError(errorObj.message);
-    }
-  }, [options?.continuous, options?.interimResults, options?.language, browserSupportsSpeechRecognition, addError]);
-
-  // Function to start listening
-  const startListening = useCallback(async () => {
-    if (!browserSupportsSpeechRecognition) {
-      const errorObj = createErrorObject(
-        'Speech recognition is not available',
-        'warning',
-        ErrorCode.DEVICE_NOT_SUPPORTED,
-        'speech'
-      );
-      setError(errorObj.message);
-      return;
-    }
-    
-    // Check microphone permission
-    const hasMicrophone = await checkMicrophonePermission();
-    if (!hasMicrophone) {
-      const errorObj = createErrorObject(
-        'Microphone access is required for voice input',
-        'warning',
-        ErrorCode.DEVICE_PERMISSION_DENIED,
-        'speech'
-      );
-      addError(errorObj);
-      setError(errorObj.message);
-      return;
-    }
-
-    try {
-      if (recognitionRef.current) {
-        setIsListening(true);
-        setError(null);
-        
-        // Clear previous transcript when starting a new session
-        if (!options?.continuous) {
-          setTranscript('');
-          setInterimTranscript('');
-        }
-        
-        // Start recognition
-        recognitionRef.current.start();
-        
-        // iOS Safari workaround - sometimes it doesn't start correctly
-        if (isIOS() && isSafari()) {
-          setTimeout(() => {
-            if (recognitionRef.current) {
-              try {
-                recognitionRef.current.stop();
-                recognitionRef.current.start();
-              } catch (err) {
-                console.error('iOS restart error:', err);
-              }
-            }
-          }, 100);
-        }
-      } else {
-        const errorObj = createErrorObject(
-          'Speech recognition not initialized',
-          'error',
-          ErrorCode.SPEECH_RECOGNITION_FAILED,
-          'speech'
-        );
-        addError(errorObj);
-        setError(errorObj.message);
+      setIsListening(true);
+      setError(null);
+      
+      // Clear previous transcript when starting a new session
+      if (!options?.continuous) {
+        setTranscript('');
+        setInterimTranscript('');
       }
+      
+      // Start recognition
+      recognitionRef.current.start();
+      
     } catch (err) {
       const errorObj = createErrorObject(
         `Failed to start speech recognition: ${err instanceof Error ? err.message : String(err)}`,
@@ -258,7 +199,7 @@ export const useSpeechRecognition = (options?: SpeechRecognitionOptions) => {
       setError(errorObj.message);
       setIsListening(false);
     }
-  }, [browserSupportsSpeechRecognition, options?.continuous, addError, checkMicrophonePermission]);
+  }, [browserSupportsSpeechRecognition, options?.continuous, options?.interimResults, options?.language, addError, isListening]);
 
   // Function to stop listening
   const stopListening = useCallback(() => {
