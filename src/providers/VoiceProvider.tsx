@@ -38,6 +38,7 @@ interface VoiceContextType {
 const VoiceContext = createContext<VoiceContextType | undefined>(undefined);
 
 export const VoiceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  }
   const navigate = useNavigate();
   const { addError } = useError();
   const { 
@@ -215,6 +216,7 @@ export const VoiceProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     </VoiceContext.Provider>
   );
 }; // <-- function closes here
+}
 
 export const useVoice = () => {
   const context = useContext(VoiceContext);
