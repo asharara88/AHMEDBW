@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, lazy, Suspense, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, AlertCircle, Info, User, Package, Brain, Moon, Heart, Zap, Volume2, VolumeX, Settings } from 'lucide-react';
+import { Send, Loader, AlertCircle, Info, User, Package, Brain, Moon, Heart, Zap } from 'lucide-react';
 import { useChatApi } from '../../hooks/useChatApi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -8,14 +8,9 @@ import { useError } from '../../contexts/ErrorContext';
 import ErrorDisplay from '../common/ErrorDisplay';
 import { ErrorCode, createErrorObject } from '../../utils/errorHandling';
 import LoadingSpinner from '../common/LoadingSpinner';
-import TextToSpeechService from '../../services/TextToSpeechService';
-import { useVoiceSettings } from '../../hooks/useVoiceSettings';
-import EnhancedVoiceChatButton from './EnhancedVoiceChatButton';
-import VoicePanel from './VoicePanel';
 
 // Lazy-loaded components
 const ReactMarkdown = lazy(() => import('react-markdown'));
-const AudioControl = lazy(() => import('./AudioControl'));
 
 interface Message {
   id?: string;
@@ -95,8 +90,6 @@ export default function HealthCoach() {
   const [input, setInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
-  const [voicePanelVisible, setVoicePanelVisible] = useState(false);
-  const [currentlySpeakingMessageId, setCurrentlySpeakingMessageId] = useState<string | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { sendMessage, loading, error: apiError, clearError } = useChatApi();
@@ -105,15 +98,6 @@ export default function HealthCoach() {
   const [localError, setLocalError] = useState<string | null>(null);
   const { addError } = useError();
   
-  // Voice settings
-  const { settings, updateSetting, toggleVoice } = useVoiceSettings();
-  const audioEnabled = settings.enabled;
-  const isSpeaking = currentlySpeakingMessageId !== null;
-  
-  // Initialize TTS service
-  const ttsService = TextToSpeechService.getInstance();
-  const ttsSupported = TextToSpeechService.isSupported();
-
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -141,21 +125,6 @@ export default function HealthCoach() {
     }
   }, [apiError, addError]);
   
-  // Listen for voice query events from other components
-  useEffect(() => {
-    const handleVoiceQuery = (e: CustomEvent) => {
-      if (e.detail?.query) {
-        handleSubmit(e.detail.query);
-      }
-    };
-    
-    document.addEventListener('queryHealthCoach', handleVoiceQuery as EventListener);
-    
-    return () => {
-      document.removeEventListener('queryHealthCoach', handleVoiceQuery as EventListener);
-    };
-  }, []);
-  
   // Listen for clear chat events
   useEffect(() => {
     const handleClearChat = () => {
@@ -170,60 +139,6 @@ export default function HealthCoach() {
       document.removeEventListener('clearChat', handleClearChat);
     };
   }, []);
-
-  // Handle speech for assistant responses
-  const handleMessageSpeech = useCallback((messageContent: string, messageId: string) => {
-    if (!audioEnabled || !ttsSupported) return;
-    
-    if (isSpeaking && currentlySpeakingMessageId === messageId) {
-      // Stop current speech
-      ttsService.stop();
-      setCurrentlySpeakingMessageId(null);
-      return;
-    }
-    
-    // Stop any current speech
-    ttsService.stop();
-    
-    // Start speaking new content
-    setCurrentlySpeakingMessageId(messageId);
-    
-    ttsService.speak(messageContent, {
-      rate: settings.rate,
-      pitch: settings.pitch,
-      voice: settings.voice || undefined,
-      language: settings.language
-    }).catch(error => {
-      console.error('TTS error:', error);
-      addError(createErrorObject(
-        `Error playing audio: ${error.message}`,
-        'warning',
-        ErrorCode.AUDIO_PLAYBACK_FAILED,
-        'tts'
-      ));
-    }).finally(() => {
-      setCurrentlySpeakingMessageId(null);
-    });
-  }, [audioEnabled, isSpeaking, currentlySpeakingMessageId, ttsSupported, settings, addError]);
-  
-  // Auto-play latest assistant message when audioEnabled is on
-  useEffect(() => {
-    if (audioEnabled && messages.length > 0 && !isSpeaking) {
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage.role === 'assistant') {
-        const messageId = lastMessage.id || String(messages.length - 1);
-        handleMessageSpeech(lastMessage.content, messageId);
-      }
-    }
-  }, [messages, audioEnabled, isSpeaking, handleMessageSpeech]);
-  
-  // Stop speech when audioEnabled is turned off
-  useEffect(() => {
-    if (!audioEnabled && isSpeaking) {
-      ttsService.stop();
-      setCurrentlySpeakingMessageId(null);
-    }
-  }, [audioEnabled, isSpeaking]);
 
   const handleSubmit = async (e: React.FormEvent | string) => {
     e?.preventDefault?.();
@@ -279,22 +194,6 @@ export default function HealthCoach() {
     }
   };
 
-  // Handle voice input
-  const handleVoiceInput = (transcript: string, wasCommand?: boolean) => {
-    if (wasCommand) {
-      // If it was a command that was handled elsewhere, don't submit to chat
-      return;
-    }
-    
-    // Otherwise, treat as a normal chat message
-    setInput(transcript);
-    
-    // Auto submit if enabled
-    if (settings.autoSubmit) {
-      handleSubmit(transcript);
-    }
-  };
-
   return (
     <div 
       className="flex h-full flex-col rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] shadow-lg"
@@ -320,27 +219,6 @@ export default function HealthCoach() {
           </div>
           <div className="flex items-center gap-2">
             <button 
-              className={`rounded-full p-1 ${audioEnabled ? 'bg-primary/10 text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
-              title={audioEnabled ? "Turn voice off" : "Turn voice on"}
-              onClick={toggleVoice}
-              aria-label={audioEnabled ? "Disable text-to-speech" : "Enable text-to-speech"}
-              aria-pressed={audioEnabled}
-            >
-              {audioEnabled ? (
-                <Volume2 className="h-4 w-4" aria-hidden="true" />
-              ) : (
-                <VolumeX className="h-4 w-4" aria-hidden="true" />
-              )}
-            </button>
-            <button 
-              className={`rounded-full p-1 ${voicePanelVisible ? 'bg-primary/10 text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
-              onClick={() => setVoicePanelVisible(!voicePanelVisible)}
-              aria-label="Voice commands and settings"
-              aria-expanded={voicePanelVisible}
-            >
-              <Mic className="h-4 w-4" aria-hidden="true" />
-            </button>
-            <button 
               className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
               title="About Health Coach"
               aria-label="About Health Coach"
@@ -349,23 +227,6 @@ export default function HealthCoach() {
             </button>
           </div>
         </div>
-        
-        {/* Voice panel - expandable */}
-        <AnimatePresence>
-          {voicePanelVisible && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="mt-3 overflow-hidden"
-            >
-              <VoicePanel 
-                onTranscript={handleVoiceInput}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
       
       <div 
@@ -441,15 +302,6 @@ export default function HealthCoach() {
                 ))}
               </div>
             )}
-            
-            {/* Enhanced Voice Button */}
-            <div className="mt-8">
-              <EnhancedVoiceChatButton 
-                onTranscript={handleVoiceInput}
-                showHelpButton
-                size="large"
-              />
-            </div>
           </div>
         ) : (
           messages.map((message, index) => (
@@ -486,38 +338,6 @@ export default function HealthCoach() {
                   <Suspense fallback={<MarkdownPlaceholder />}>
                     <div className="prose prose-base max-w-none dark:prose-invert">
                       <ReactMarkdown>{message.content}</ReactMarkdown>
-                      
-                      {/* Audio playback button for assistant messages */}
-                      {ttsSupported && (
-                        <button 
-                          onClick={() => handleMessageSpeech(
-                            message.content, 
-                            message.id || String(index)
-                          )}
-                          className={`mt-2 flex items-center gap-1 rounded-full ${
-                            isSpeaking && currentlySpeakingMessageId === (message.id || String(index))
-                              ? 'bg-error/10 text-error'
-                              : 'bg-primary/10 text-primary'
-                          } px-2 py-1 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2`}
-                          aria-label={
-                            isSpeaking && currentlySpeakingMessageId === (message.id || String(index))
-                              ? "Stop speaking this message"
-                              : "Listen to this message"
-                          }
-                        >
-                          {isSpeaking && currentlySpeakingMessageId === (message.id || String(index)) ? (
-                            <>
-                              <VolumeX className="h-4 w-4" aria-hidden="true" />
-                              <span>Stop</span>
-                            </>
-                          ) : (
-                            <>
-                              <Volume2 className="h-4 w-4" aria-hidden="true" />
-                              <span>Listen</span>
-                            </>
-                          )}
-                        </button>
-                      )}
                     </div>
                   </Suspense>
                 ) : (
@@ -579,13 +399,6 @@ export default function HealthCoach() {
               aria-label="Ask me anything about your health"
             />
           </div>
-          
-          {/* Enhanced Voice Chat Button */}
-          <EnhancedVoiceChatButton 
-            onTranscript={handleVoiceInput}
-            isButtonOnly={true}
-            variant="primary"
-          />
           
           <button
             type="submit"

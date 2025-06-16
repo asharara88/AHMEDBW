@@ -1,5 +1,5 @@
 /**
- * Utility functions for device detection and browser capability checking
+ * Utility functions for device detection
  */
 
 export const isMobileDevice = (): boolean => {
@@ -34,17 +34,6 @@ export const isChrome = (): boolean => {
   return /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
 };
 
-export const supportsWebSpeech = (): boolean => {
-  return typeof window !== 'undefined' && 
-         (window.SpeechRecognition !== undefined || 
-          window.webkitSpeechRecognition !== undefined);
-};
-
-export const supportsSpeechSynthesis = (): boolean => {
-  return typeof window !== 'undefined' && 
-         window.speechSynthesis !== undefined;
-};
-
 export const getDeviceInfo = () => {
   return {
     isMobile: isMobileDevice(),
@@ -52,8 +41,6 @@ export const getDeviceInfo = () => {
     isAndroid: isAndroid(),
     isSafari: isSafari(),
     isChrome: isChrome(),
-    supportsWebSpeech: supportsWebSpeech(),
-    supportsSpeechSynthesis: supportsSpeechSynthesis(),
   };
 };
 
@@ -63,7 +50,5 @@ export default {
   isAndroid,
   isSafari,
   isChrome,
-  supportsWebSpeech,
-  supportsSpeechSynthesis,
   getDeviceInfo
 };
