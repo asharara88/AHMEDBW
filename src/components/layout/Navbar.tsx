@@ -27,7 +27,6 @@ const Navbar = () => {
   };
   
   const isActive = (path: string) => location.pathname === path;
-  const isActiveCoach = () => location.pathname.startsWith('/chat');
 
   const getThemeIcon = () => {
     switch (theme) {
@@ -65,9 +64,8 @@ const Navbar = () => {
                   </Link>
                   <div className="relative">
                     <button
-                      className={`nav-link ${isActiveCoach() ? 'nav-link-active' : ''}`}
                       onClick={toggleCoachMenu}
-                      aria-expanded={isCoachMenuOpen}
+                      className={`nav-link ${isActive('/chat') || isActive('/quick-tip') ? 'nav-link-active' : ''}`}
                     >
                       Coach
                     </button>
@@ -79,10 +77,10 @@ const Navbar = () => {
                           onClick={() => setIsCoachMenuOpen(false)}
                         >
                           <MessageSquare className="h-4 w-4" />
-                          Chat with Coach
+                          Chat
                         </Link>
                         <Link 
-                          to="/chat/quick-tips" 
+                          to="/quick-tip" 
                           className="dropdown-item"
                           onClick={() => setIsCoachMenuOpen(false)}
                         >
@@ -222,25 +220,51 @@ const Navbar = () => {
                   >
                     Dashboard
                   </Link>
-                  <Link 
-                    to="/chat" 
-                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
-                      isActive('/chat') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
-                    }`}
-                    onClick={toggleMenu}
-                  >
-                    Coach
-                  </Link>
-                  <Link 
-                    to="/chat/quick-tips" 
-                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
-                      isActive('/chat/quick-tips') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
-                    }`}
-                    onClick={toggleMenu}
-                  >
-                    <MessageSquare className="h-5 w-5" />
-                    Quick Tips
-                  </Link>
+                  <div className="px-4 py-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-text-light">Coach</span>
+                      <button 
+                        onClick={() => setIsCoachMenuOpen(!isCoachMenuOpen)}
+                        className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card-hover))]"
+                      >
+                        {isCoachMenuOpen ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="15" x2="12" y2="9" />
+                            <line x1="12" y1="9" x2="6" y2="15" />
+                          </svg>
+                        ) : (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="6" y1="9" x2="12" y2="15" />
+                            <line x1="12" y1="15" x2="18" y2="9" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
+                    {isCoachMenuOpen && (
+                      <div className="mt-2 space-y-1 pl-4">
+                        <Link 
+                          to="/chat" 
+                          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
+                            isActive('/chat') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
+                          }`}
+                          onClick={toggleMenu}
+                        >
+                          <MessageSquare className="h-5 w-5" />
+                          Chat
+                        </Link>
+                        <Link 
+                          to="/quick-tip" 
+                          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
+                            isActive('/quick-tip') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
+                          }`}
+                          onClick={toggleMenu}
+                        >
+                          <Activity className="h-5 w-5" />
+                          Quick Tips
+                        </Link>
+                      </div>
+                    )}
+                  </div>
                   <Link 
                     to="/supplements" 
                     className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
