@@ -13,10 +13,12 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
+  const [isCoachMenuOpen, setIsCoachMenuOpen] = useState(false);
   
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
   const toggleThemeMenu = () => setIsThemeMenuOpen(!isThemeMenuOpen);
+  const toggleCoachMenu = () => setIsCoachMenuOpen(!isCoachMenuOpen);
   
   const handleSignOut = async () => {
     await signOut();
@@ -25,6 +27,7 @@ const Navbar = () => {
   };
   
   const isActive = (path: string) => location.pathname === path;
+  const isActiveCoach = () => location.pathname.startsWith('/chat');
 
   const getThemeIcon = () => {
     switch (theme) {
@@ -60,18 +63,35 @@ const Navbar = () => {
                   >
                     Dashboard
                   </Link>
-                  <Link 
-                    to="/chat" 
-                    className={`nav-link ${isActive('/chat') ? 'nav-link-active' : ''}`}
-                  >
-                    Coach
-                  </Link>
-                  <Link 
-                    to="/quick-tip" 
-                    className={`nav-link ${isActive('/quick-tip') ? 'nav-link-active' : ''}`}
-                  >
-                    Quick Tips
-                  </Link>
+                  <div className="relative">
+                    <button
+                      className={`nav-link ${isActiveCoach() ? 'nav-link-active' : ''}`}
+                      onClick={toggleCoachMenu}
+                      aria-expanded={isCoachMenuOpen}
+                    >
+                      Coach
+                    </button>
+                    {isCoachMenuOpen && (
+                      <div className="dropdown-menu">
+                        <Link 
+                          to="/chat" 
+                          className="dropdown-item"
+                          onClick={() => setIsCoachMenuOpen(false)}
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                          Chat with Coach
+                        </Link>
+                        <Link 
+                          to="/chat/quick-tips" 
+                          className="dropdown-item"
+                          onClick={() => setIsCoachMenuOpen(false)}
+                        >
+                          <Activity className="h-4 w-4" />
+                          Quick Tips
+                        </Link>
+                      </div>
+                    )}
+                  </div>
                   <Link 
                     to="/supplements" 
                     className={`nav-link ${isActive('/supplements') ? 'nav-link-active' : ''}`}
@@ -212,9 +232,9 @@ const Navbar = () => {
                     Coach
                   </Link>
                   <Link 
-                    to="/quick-tip" 
+                    to="/chat/quick-tips" 
                     className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
-                      isActive('/quick-tip') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
+                      isActive('/chat/quick-tips') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
                     }`}
                     onClick={toggleMenu}
                   >
