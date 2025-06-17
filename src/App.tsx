@@ -45,7 +45,7 @@ function App() {
                   <ChatPage />
                 </ProtectedRoute>
               } />
-              <Route path="quick-tip" element={
+              <Route path="chat/quick-tips" element={
                 <ProtectedRoute>
                   <QuickTipPage />
                 </ProtectedRoute>

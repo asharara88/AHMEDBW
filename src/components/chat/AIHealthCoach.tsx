@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, Info, User, Volume2, VolumeX, Settings, Headphones } from 'lucide-react';
+import { Send, Loader, User, Volume2, VolumeX, Info } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { logError } from '../../utils/logger';
@@ -32,7 +32,6 @@ export default function HealthCoach() {
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   
   const { user, isDemo } = useAuth();
@@ -52,7 +51,8 @@ export default function HealthCoach() {
     updateVoiceSettings
   } = useChatStore();
 
-  useAutoScroll(messagesEndRef, [messages]);
+  // Use the updated useAutoScroll hook with the onlyScrollDown parameter set to true
+  useAutoScroll(messagesEndRef, [messages], { behavior: 'smooth' }, true);
 
   useEffect(() => {
     // Select 5 random questions on component mount
@@ -115,18 +115,6 @@ export default function HealthCoach() {
     };
   }, []);
 
-  const toggleSpeech = () => {
-    setPreferSpeech(!preferSpeech);
-  };
-  
-  const stopAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setIsPlaying(false);
-    }
-  };
-
   return (
     <div className="flex h-full flex-col rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] shadow-lg">
       <div className="border-b border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] p-3">
@@ -149,16 +137,9 @@ export default function HealthCoach() {
             <button 
               className={`rounded-full p-1 ${preferSpeech ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
               title={preferSpeech ? "Turn off voice" : "Turn on voice"}
-              onClick={toggleSpeech}
+              onClick={() => setPreferSpeech(!preferSpeech)}
             >
               {preferSpeech ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-            </button>
-            <button 
-              className={`rounded-full p-1 ${showVoiceSettings ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
-              title={preferSpeech ? "Turn off voice" : "Turn on voice"}
-              onClick={() => setShowVoiceSettings(!showVoiceSettings)}
-            >
-              <Settings className="h-4 w-4" />
             </button>
             <button 
               className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
@@ -166,24 +147,17 @@ export default function HealthCoach() {
             >
               <Info className="h-4 w-4" />
             </button>
-            <ChatSettingsButton className="absolute right-2 top-2" />
+            <ChatSettingsButton 
+              className="absolute right-2 top-2"
+              showVoiceSettings={preferSpeech}
+              onVoiceToggle={() => setPreferSpeech(!preferSpeech)}
+              selectedVoice={selectedVoice}
+              onVoiceSelect={setSelectedVoice}
+              voiceSettings={voiceSettings}
+              onVoiceSettingsUpdate={updateVoiceSettings}
+            />
           </div>
         </div>
-        
-        {/* Voice Settings Panel */}
-        <AnimatePresence mode="wait">
-          {showVoiceSettings && (
-            <VoicePreferences
-              preferSpeech={preferSpeech}
-              onToggleSpeech={toggleSpeech}
-              selectedVoice={selectedVoice}
-              onSelectVoice={setSelectedVoice}
-              voiceSettings={voiceSettings}
-              onUpdateVoiceSettings={updateVoiceSettings}
-              className="mt-2"
-            />
-          )}
-        </AnimatePresence>
       </div>
       
       <div className="flex-1 overflow-y-auto p-4 overscroll-contain">
@@ -253,7 +227,7 @@ export default function HealthCoach() {
                 )}
                 {message.role === 'assistant' && preferSpeech && (
                   <div className="mt-2 flex items-center gap-2 text-xs text-text-light">
-                    <Headphones className="h-3 w-3" />
+                    <Volume2 className="h-3 w-3" />
                     <span>Voice response available</span>
                   </div>
                 )}
