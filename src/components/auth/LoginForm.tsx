@@ -2,6 +2,7 @@ import { useState, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../../lib/auth';
 import { AlertCircle, Info } from 'lucide-react';
+import { AlertCircle, Info } from 'lucide-react';
 import { supabase, checkSupabaseConnection } from '../../lib/supabaseClient';
 
 interface LoginFormProps {
@@ -14,6 +15,7 @@ export default function LoginForm({ onSuccess, redirectTo = '/dashboard' }: Logi
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<'checking' | 'connected' | 'error'>('checking');
   const [connectionStatus, setConnectionStatus] = useState<'checking' | 'connected' | 'error'>('checking');
   
   const navigate = useNavigate();
@@ -28,8 +30,23 @@ export default function LoginForm({ onSuccess, redirectTo = '/dashboard' }: Logi
     checkConnection();
   }, []);
 
+  // Check Supabase connection when the component mounts
+  useEffect(() => {
+    const checkConnection = async () => {
+      const { success } = await checkSupabaseConnection();
+      setConnectionStatus(success ? 'connected' : 'error');
+    };
+    
+    checkConnection();
+  }, []);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    
+    if (connectionStatus === 'error') {
+      setError('Unable to connect to the authentication service. Please try again later.');
+      return;
+    }
     
     if (connectionStatus === 'error') {
       setError('Unable to connect to the authentication service. Please try again later.');
@@ -65,6 +82,15 @@ export default function LoginForm({ onSuccess, redirectTo = '/dashboard' }: Logi
 
   return (
     <div className="w-full max-w-md">
+      {connectionStatus === 'error' && (
+        <div className="mb-4 flex items-center gap-2 rounded-lg bg-warning/10 p-3 text-sm text-warning">
+          <Info className="h-5 w-5" />
+          <span>
+            Connection to authentication service is unavailable. You can still try the demo version.
+          </span>
+        </div>
+      )}
+      
       {connectionStatus === 'error' && (
         <div className="mb-4 flex items-center gap-2 rounded-lg bg-warning/10 p-3 text-sm text-warning">
           <Info className="h-5 w-5" />

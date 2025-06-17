@@ -8,17 +8,12 @@ type SupabaseContextType = {
   supabase: SupabaseClient;
   isInitialized: boolean;
   connectionError: string | null;
+  isInitialized: boolean;
+  connectionError: string | null;
 };
 
 const SupabaseContext = createContext<SupabaseContextType | undefined>(undefined);
 
-export function SupabaseProvider({ children }: { children: React.ReactNode }) {
-  const [isInitialized, setIsInitialized] = useState<boolean>(false);
-  const [connectionError, setConnectionError] = useState<string | null>(null);
-  const { addError } = useError();
-
-  // Verify Supabase connection on component mount
-  useEffect(() => {
     const verifyConnection = async () => {
       const { success, error } = await checkSupabaseConnection();
       
@@ -43,6 +38,8 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <SupabaseContext.Provider value={{ 
+      supabase,
+      isInitialized,
       supabase,
       isInitialized,
       connectionError

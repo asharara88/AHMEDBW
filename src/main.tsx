@@ -23,9 +23,6 @@ if (process.env.NODE_ENV !== 'production') {
   };
   
   reportWebVitals();
-}
-
-// Check Supabase connection on startup
 import { checkSupabaseConnection } from './lib/supabaseClient';
 checkSupabaseConnection()
   .then(({success}) => {
