@@ -21,11 +21,34 @@ export async function checkSupabaseConnection(): Promise<boolean> {
 
   while (retryCount < MAX_RETRY_ATTEMPTS && !connected) {
     try {
+      // First check if we have the required environment variables
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseAnonKey) {
+        logError('Supabase environment variables are missing', { 
+          hasUrl: !!supabaseUrl, 
+          hasAnonKey: !!supabaseAnonKey 
+        });
+        return false;
+      }
+      
       // Attempt to make a simple query to check connection
-      // Using error_logs table as it doesn't have RLS enabled
-      const { data, error } = await supabase.from('error_logs').select('id').limit(1);
+      // Use a lightweight table or a health check endpoint if available
+      const { data, error } = await supabase
+        .from('configuration')
+        .select('key')
+        .limit(1)
+        .maybeSingle();
       
       if (error) {
+        // If the error is a 404, it might mean the table doesn't exist but connection is fine
+        if (error.code === 'PGRST104') {
+          connected = true;
+          logInfo('Supabase connection established (table not found but connection works)');
+          return true;
+        }
+        
         throw error;
       }
       
@@ -35,11 +58,17 @@ export async function checkSupabaseConnection(): Promise<boolean> {
       return true;
     } catch (error) {
       retryCount++;
-      logError(`Supabase connection attempt ${retryCount} failed`, error);
+      
+      // Log with more details about the attempt
+      logError(`Supabase connection attempt ${retryCount} failed`, {
+        error,
+        maxAttempts: MAX_RETRY_ATTEMPTS,
+        willRetry: retryCount < MAX_RETRY_ATTEMPTS
+      });
       
       if (retryCount < MAX_RETRY_ATTEMPTS) {
-        // Wait before retrying
-        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * retryCount));
+        // Wait before retrying with exponential backoff
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * Math.pow(2, retryCount - 1)));
       }
     }
   }
@@ -54,6 +83,9 @@ export async function checkSupabaseConnection(): Promise<boolean> {
       }
     });
     window.dispatchEvent(connectionErrorEvent);
+    
+    // Continue with the application in a degraded mode
+    logInfo('Application continuing in offline/demo mode due to connection failure');
   }
 
   return connected;

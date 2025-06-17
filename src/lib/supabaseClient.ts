@@ -7,7 +7,23 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Validate required environment variables
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Check your .env file.');
+  logError('Missing Supabase environment variables', { 
+    hasUrl: !!supabaseUrl, 
+    hasAnonKey: !!supabaseAnonKey 
+  });
+  
+  // Provide a more helpful error message in development
+  if (import.meta.env.DEV) {
+    console.error(`
+      ⚠️ Supabase configuration is missing! ⚠️
+      
+      Please ensure you have the following in your .env file:
+      VITE_SUPABASE_URL=your-supabase-url
+      VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+      
+      If you're running in development mode, you can create a .env.local file with these values.
+    `);
+  }
 }
 
 // Log environment setup in development only (prevents leaking info)
@@ -16,7 +32,7 @@ if (import.meta.env.DEV) {
 }
 
 // Create Supabase client (singleton)
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
   auth: {
     autoRefreshToken: true,
     persistSession: true,

@@ -19,6 +19,8 @@ function AppWrapper() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
+        // Try to connect to Supabase, but continue even if it fails
+        // The app will work in a degraded/demo mode if connection fails
         await checkSupabaseConnection();
       } catch (error) {
         logError('Failed to initialize app', error);
