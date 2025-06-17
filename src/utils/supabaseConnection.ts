@@ -22,7 +22,8 @@ export async function checkSupabaseConnection(): Promise<boolean> {
   while (retryCount < MAX_RETRY_ATTEMPTS && !connected) {
     try {
       // Attempt to make a simple query to check connection
-      const { data, error } = await supabase.from('configuration').select('key').limit(1);
+      // Using error_logs table as it doesn't have RLS enabled
+      const { data, error } = await supabase.from('error_logs').select('id').limit(1);
       
       if (error) {
         throw error;
