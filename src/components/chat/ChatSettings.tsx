@@ -7,23 +7,45 @@ import VoicePreferences from './VoicePreferences';
 interface ChatSettingsProps {
   onClose?: () => void;
   className?: string;
+  showVoiceSettings?: boolean;
+  onVoiceToggle?: () => void;
+  selectedVoice?: string;
+  onVoiceSelect?: (voiceId: string) => void;
+  voiceSettings?: {
+    stability: number;
+    similarityBoost: number;
+  };
+  onVoiceSettingsUpdate?: (settings: { stability: number; similarityBoost: number }) => void;
 }
 
-const ChatSettings = ({ onClose, className = '' }: ChatSettingsProps) => {
-  const [activeTab, setActiveTab] = useState<'voice' | 'chat'>('voice');
+const ChatSettings = ({
+  onClose,
+  className = '',
+  showVoiceSettings,
+  onVoiceToggle,
+  selectedVoice,
+  onVoiceSelect,
+  voiceSettings,
+  onVoiceSettingsUpdate
+}: ChatSettingsProps) => {
+  const [activeTab, setActiveTab] = useState<'voice' | 'chat'>(showVoiceSettings ? 'voice' : 'chat');
   
   const { 
     preferSpeech, 
     setPreferSpeech, 
-    selectedVoice, 
-    setSelectedVoice,
-    voiceSettings,
-    updateVoiceSettings
+    selectedVoice: storeSelectedVoice, 
+    setSelectedVoice: storeSetSelectedVoice,
+    voiceSettings: storeVoiceSettings,
+    updateVoiceSettings: storeUpdateVoiceSettings
   } = useChatStore();
 
-  const toggleSpeech = () => {
-    setPreferSpeech(!preferSpeech);
-  };
+  // Use props if provided, otherwise fall back to store values
+  const actualPreferSpeech = typeof showVoiceSettings !== 'undefined' ? showVoiceSettings : preferSpeech;
+  const actualToggleSpeech = onVoiceToggle || (() => setPreferSpeech(!preferSpeech));
+  const actualSelectedVoice = selectedVoice || storeSelectedVoice;
+  const actualSetSelectedVoice = onVoiceSelect || storeSetSelectedVoice;
+  const actualVoiceSettings = voiceSettings || storeVoiceSettings;
+  const actualUpdateVoiceSettings = onVoiceSettingsUpdate || storeUpdateVoiceSettings;
 
   return (
     <motion.div
@@ -72,12 +94,12 @@ const ChatSettings = ({ onClose, className = '' }: ChatSettingsProps) => {
           
           {activeTab === 'voice' && (
             <VoicePreferences
-              preferSpeech={preferSpeech}
-              onToggleSpeech={toggleSpeech}
-              selectedVoice={selectedVoice}
-              onSelectVoice={setSelectedVoice}
-              voiceSettings={voiceSettings}
-              onUpdateVoiceSettings={updateVoiceSettings}
+              preferSpeech={actualPreferSpeech}
+              onToggleSpeech={actualToggleSpeech}
+              selectedVoice={actualSelectedVoice}
+              onSelectVoice={actualSetSelectedVoice}
+              voiceSettings={actualVoiceSettings}
+              onUpdateVoiceSettings={actualUpdateVoiceSettings}
             />
           )}
           
@@ -161,7 +183,7 @@ const ChatSettings = ({ onClose, className = '' }: ChatSettingsProps) => {
               </div>
             </div>
           )}
-        </motion.div>
+    </motion.div>
   );
 };
 
