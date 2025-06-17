@@ -74,6 +74,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         onboardingCompleted = !!(userData.firstName && userData.lastName);
       } else {
         // If not in localStorage, check database
+        if (!isInitialized) {
+          console.warn('Skipping onboarding check - Supabase not initialized');
+          return false;
+        }
+
         const { data, error } = await supabase
           .from('profiles')
           .select('onboarding_completed, first_name, last_name, email, is_admin')
@@ -151,6 +156,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     
     try {
+      if (!isInitialized) {
+        return { error: 'Database connection not available' };
+      }
+
       // Update profile in database
       const { error } = await supabase
         .from('profiles')
@@ -333,6 +342,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const loadUserProfile = async (userId: string) => {
       try {
+        if (!isInitialized) {
+          console.warn('Skipping profile load - Supabase not initialized');
+          return;
+        }
+
         const { data, error } = await supabase
           .from('profiles')
           .select('first_name, last_name, email, onboarding_completed')
@@ -423,7 +437,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, 60000); // Check every minute
 
     return () => {
-      if (authListener?.subscription) {
+      if (authListener?.data?.subscription) {
         authListener.subscription.unsubscribe();
       }
       clearInterval(refreshInterval);
