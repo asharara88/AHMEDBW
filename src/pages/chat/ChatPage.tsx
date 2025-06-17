@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { MessageCircle, Volume2 } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import HealthCoach from '../../components/chat/AIHealthCoach';
 import ErrorBoundary from '../../components/common/ErrorBoundary';
 
@@ -16,12 +16,6 @@ const ChatPage = () => {
           <h1 className="text-2xl font-bold md:text-3xl">Health Coach</h1>
           <p className="text-text-light">
             Chat with your personal coach for evidence-based health advice
-          </p>
-          <p className="text-sm mt-2 text-primary">
-            <span className="inline-flex items-center gap-1 bg-primary/10 px-2 py-0.5 rounded-full">
-              <Volume2 className="h-4 w-4" aria-hidden="true" />
-              <span>New! Voice interaction now available</span>
-            </span>
           </p>
         </div>
 
