@@ -30,8 +30,6 @@ dist-ssr
 .env.test
 .env.production
 
-# Supabase
-.supabase
 
 # Build artifacts
 stats.html
