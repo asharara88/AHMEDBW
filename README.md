@@ -2,6 +2,8 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/5239b3f1-f78c-4857-ad9d-ad1bb351d322/deploy-status)](https://app.netlify.com/projects/biowellai/deploys)
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/5239b3f1-f78c-4857-ad9d-ad1bb351d322/deploy-status)](https://app.netlify.com/projects/biowellai/deploys)
+
 Biowell AI is a digital health platform that connects your wearable devices, delivers personalized insights, and offers evidence‑based supplement recommendations through an AI coach.
 
 ## Features
@@ -104,8 +106,8 @@ entries.
 ## Deployment
 
 The `netlify.toml` file specifies a Node.js 18 environment and uses the
-`netlify-plugin-fetch-feeds` plugin to download the latest Hacker News front
-page into `public/feeds/hn.xml` during each build.
+`netlify-plugin-fetch-feeds` plugin to download the latest Hacker News front page 
+into `public/feeds/hn.xml` during each build.
 
 ## Contributing
 
