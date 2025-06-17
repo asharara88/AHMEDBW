@@ -28,8 +28,14 @@ if (process.env.NODE_ENV !== 'production') {
 // Check Supabase connection on startup
 import { checkSupabaseConnection } from './lib/supabaseClient';
 checkSupabaseConnection()
-  .then(isConnected => {
-    console.log('Supabase connection check:', isConnected ? 'Success' : 'Failed');
+  .then(({success}) => {
+    console.log('Supabase connection check:', success ? 'Success' : 'Failed');
+    
+    // If connection fails, still proceed with app initialization
+    // The app will handle connection failures gracefully
+    if (!success) {
+      console.warn('Supabase connection failed - proceeding with limited functionality');
+    }
   })
   .catch(err => {
     console.error('Error checking Supabase connection:', err);

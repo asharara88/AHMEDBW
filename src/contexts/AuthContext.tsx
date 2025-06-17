@@ -51,7 +51,7 @@ const DEMO_USER: User = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { supabase } = useSupabase();
+  const { supabase, isInitialized } = useSupabase();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -216,6 +216,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Function to refresh the session
   const refreshSession = async () => {
     try {
+      if (!isInitialized) {
+        console.warn('Skipping session refresh - Supabase not initialized');
+        return;
+      }
+
       const { data, error } = await supabase.auth.refreshSession();
       
       if (error) {
@@ -264,6 +269,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const savedUserData = localStorage.getItem('biowell-user-data');
         if (savedUserData) {
           setUserProfile(JSON.parse(savedUserData));
+        }
+        
+        // Check for demo mode in URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('demo') === 'true') {
+          startDemo();
+          return;
+        }
+        
+        if (!isInitialized) {
+          console.warn('Skipping auth initialization - Supabase not initialized');
+          setLoading(false);
+          return;
         }
         
         const { data, error } = await supabase.auth.getSession();
@@ -361,33 +379,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       initializeAuth();
     }
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event);
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // If user signed in, load their profile
-        if (event === 'SIGNED_IN' && session?.user) {
-          await loadUserProfile(session.user.id);
+    // Set up auth listener only if Supabase is initialized
+    let authListener: { data: { subscription: { unsubscribe: () => void } } } | null = null;
+    
+    if (isInitialized) {
+      authListener = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          console.log('Auth state changed:', event);
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          // If user signed in, load their profile
+          if (event === 'SIGNED_IN' && session?.user) {
+            await loadUserProfile(session.user.id);
+          }
+          
+          // If the event is SIGNED_OUT, clear the session and profile
+          if (event === 'SIGNED_OUT') {
+            console.log('User signed out');
+            setUser(null);
+            setSession(null);
+            setUserProfile(null);
+            localStorage.removeItem('biowell-user-data');
+          }
+          
+          setLoading(false);
         }
-        
-        // If the event is SIGNED_OUT, clear the session and profile
-        if (event === 'SIGNED_OUT') {
-          console.log('User signed out');
-          setUser(null);
-          setSession(null);
-          setUserProfile(null);
-          localStorage.removeItem('biowell-user-data');
-        }
-        
-        setLoading(false);
-      }
-    );
+      );
+    }
 
     // Set up a timer to periodically check and refresh the session if needed
     const refreshInterval = setInterval(async () => {
-      if (!isDemo && session) {
+      if (!isDemo && session && isInitialized) {
         const expiresAt = session.expires_at;
         const now = Math.floor(Date.now() / 1000);
         
@@ -400,15 +423,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, 60000); // Check every minute
 
     return () => {
-      if (!isDemo) {
+      if (authListener?.subscription) {
         authListener.subscription.unsubscribe();
       }
       clearInterval(refreshInterval);
     };
-  }, [supabase, isDemo, session]);
+  }, [supabase, isDemo, session, refreshSession, isInitialized, userProfile, addError]);
 
   const signIn = async (email: string, password: string) => {
     try {
+      // Check if Supabase is initialized first
+      if (!isInitialized) {
+        console.error('Cannot sign in: Supabase not initialized');
+        return { 
+          error: new Error('Authentication service is not available. Please try again later or use the demo.') 
+        };
+      }
+
       // Generate captcha token
       const captchaToken = await generateCaptchaToken();
       
@@ -417,7 +448,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
         options: {
           captchaToken,
-          redirectTo: 'https://leznzqfezoofngumpiqf.supabase.co/auth/v1/callback'
+          redirectTo: 'https://biowell.ai/auth/v1/callback'
         }
       });
       
@@ -483,6 +514,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string) => {
     try {
+      // Check if Supabase is initialized first
+      if (!isInitialized) {
+        console.error('Cannot sign up: Supabase not initialized');
+        return { 
+          data: null, 
+          error: new Error('Authentication service is not available. Please try again later or use the demo.') 
+        };
+      }
+
       // Generate captcha token
       const captchaToken = await generateCaptchaToken();
       
@@ -491,7 +531,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
         options: {
           captchaToken,
-          emailRedirectTo: 'https://leznzqfezoofngumpiqf.supabase.co/auth/v1/callback'
+          emailRedirectTo: 'https://biowell.ai/auth/v1/callback'
         }
       });
       
@@ -555,7 +595,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
-      if (!isDemo) {
+      if (!isDemo && isInitialized) {
         const { error } = await supabase.auth.signOut();
         if (error) {
           console.error('Sign out error:', error);

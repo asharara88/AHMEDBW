@@ -44,10 +44,16 @@ export const supabase = createSupabaseClient();
 export const checkSupabaseConnection = async () => {
   try {
     const { error } = await supabase.auth.getSession();
-    if (error) throw error;
-    return true;
+    if (error) {
+      console.error('Supabase connection check failed:', error);
+      return { success: false, error: error.message };
+    }
+    return { success: true, error: null };
   } catch (error) {
-    console.error('Supabase connection check failed:', error);
-    return false;
+    console.error('Supabase connection check exception:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown connection error' 
+    };
   }
 };

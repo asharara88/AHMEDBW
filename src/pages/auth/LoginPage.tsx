@@ -20,14 +20,29 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
+  // Check if there's a demo flag in URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('demo') === 'true') {
+      startDemo();
+      navigate('/dashboard', { replace: true });
+    }
+  }, [location.search, startDemo, navigate]);
+  
   // Check Supabase connection when component mounts
   useEffect(() => {
     const verifyConnection = async () => {
-      const { success } = await checkSupabaseConnection();
-      setConnectionStatus(success ? 'connected' : 'error');
-      
-      if (!success) {
-        console.error('Error connecting to Supabase');
+      try {
+        const { success, error } = await checkSupabaseConnection();
+        setConnectionStatus(success ? 'connected' : 'error');
+        
+        if (!success) {
+          console.error('Error connecting to Supabase:', error);
+          setError('Connection to authentication service is unavailable. You can still try the demo version.');
+        }
+      } catch (e) {
+        console.error('Exception checking Supabase connection:', e);
+        setConnectionStatus('error');
         setError('Connection to authentication service is unavailable. You can still try the demo version.');
       }
     };
@@ -95,6 +110,7 @@ const LoginPage = () => {
           ...result.error,
           source: 'login'
         });
+        setError(result.error.message || 'Authentication failed');
         return;
       }
       
@@ -125,6 +141,7 @@ const LoginPage = () => {
       navigate(redirectUrl);
     } catch (err) {
       console.error('Login error:', err);
+      setError('An unexpected error occurred. Please try again or use the demo.');
     } finally {
       setLoading(false);
     }
