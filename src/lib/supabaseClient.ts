@@ -31,6 +31,9 @@ if (import.meta.env.DEV) {
   logInfo('Supabase environment variables are set.');
 }
 
+// Store reference to native fetch to avoid recursion
+const nativeFetch = globalThis.fetch;
+
 // Create Supabase client (singleton)
 export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
   auth: {
@@ -45,7 +48,8 @@ export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
     },
     fetch: async (...args) => {
       try {
-        return await fetch(...args);
+        // Use native fetch to avoid recursion
+        return await nativeFetch(...args);
       } catch (err) {
         logError('Global Supabase fetch failed:', err);
         throw err;
