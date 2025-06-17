@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_ANON;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Missing Supabase environment variables');
@@ -39,3 +39,27 @@ const createSupabaseClient = () => {
 };
 
 export const supabase = createSupabaseClient();
+
+// Check if connection to Supabase is working properly
+export const checkSupabaseConnection = async () => {
+  try {
+    const { error } = await supabase.auth.getSession();
+    
+    if (error) {
+      console.error('Supabase connection error:', error.message);
+      return { 
+        success: false, 
+        error: error.message 
+      };
+    }
+    
+    return { success: true };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error connecting to Supabase';
+    console.error('Supabase connection failed:', errorMessage);
+    return { 
+      success: false, 
+      error: errorMessage 
+    };
+  }
+};
