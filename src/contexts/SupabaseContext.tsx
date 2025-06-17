@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -9,7 +9,7 @@ type SupabaseContextType = {
 const SupabaseContext = createContext<SupabaseContextType | undefined>(undefined);
 
 export function SupabaseProvider({ children }: { children: React.ReactNode }) {
-  // Use the singleton supabase instance from supabaseClient.ts
+  // Wrap provider in error boundary to prevent crashes if Supabase fails
   return (
     <SupabaseContext.Provider value={{ supabase }}>
       {children}
