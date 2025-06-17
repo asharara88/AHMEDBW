@@ -10,6 +10,7 @@ import { CartProvider } from './providers/CartProvider';
 import { ErrorProvider } from './contexts/ErrorContext';
 import GlobalErrorHandler from './components/common/GlobalErrorHandler';
 import '@fontsource-variable/inter';
+import { checkSupabaseConnection } from './lib/supabaseClient';
 
 // Initialize performance monitoring
 if (process.env.NODE_ENV !== 'production') {
@@ -23,7 +24,8 @@ if (process.env.NODE_ENV !== 'production') {
   };
   
   reportWebVitals();
-import { checkSupabaseConnection } from './lib/supabaseClient';
+}
+
 checkSupabaseConnection()
   .then(({success}) => {
     console.log('Supabase connection check:', success ? 'Success' : 'Failed');
