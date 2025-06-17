@@ -1,3 +1,4 @@
+import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle, XCircle, AlertTriangle, Info, X, XSquare } from 'lucide-react';
 import { useError, AppError, ErrorSeverity } from '../../contexts/ErrorContext';
