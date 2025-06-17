@@ -37,8 +37,8 @@ const ConversationalOnboarding = () => {
   const { user, updateProfile } = useAuthStore();
   const navigate = useNavigate();
 
-  // Use the auto-scroll hook
-  useAutoScroll(messagesEndRef, [messages]);
+  // Use the auto-scroll hook with onlyScrollDown set to true
+  useAutoScroll(messagesEndRef, [messages], { behavior: 'smooth' }, true);
 
   // Initial greeting message
   useEffect(() => {

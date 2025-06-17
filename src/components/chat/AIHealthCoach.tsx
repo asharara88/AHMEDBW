@@ -52,7 +52,8 @@ export default function HealthCoach() {
     updateVoiceSettings
   } = useChatStore();
 
-  useAutoScroll(messagesEndRef, [messages]);
+  // Use the updated useAutoScroll hook with the onlyScrollDown parameter set to true
+  useAutoScroll(messagesEndRef, [messages], { behavior: 'smooth' }, true);
 
   useEffect(() => {
     // Select 5 random questions on component mount

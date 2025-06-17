@@ -7,6 +7,7 @@ import ApiErrorDisplay from '../common/ApiErrorDisplay';
 import { ApiError, ErrorType } from '../../api/apiClient';
 import ChatSettingsButton from './ChatSettingsButton';
 import { useChatStore } from '../../store';
+import { elevenlabsApi } from '../../api/elevenlabsApi';
 
 export default function CoachChat() {
   const [input, setInput] = useState('');
