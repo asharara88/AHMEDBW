@@ -5,16 +5,35 @@ import { login } from '../../lib/auth';
 import { useError } from '../../contexts/ErrorContext';
 import ErrorDisplay from '../../components/common/ErrorDisplay';
 import Logo from '../../components/common/Logo';
+import { checkSupabaseConnection } from '../../lib/supabaseClient';
+import { AlertCircle, Info } from 'lucide-react';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'checking' | 'connected' | 'error'>('checking');
+  const [error, setError] = useState<string | null>(null);
   
   const { addError } = useError();
   const { user, startDemo, checkOnboardingStatus } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Check Supabase connection when component mounts
+  useEffect(() => {
+    const verifyConnection = async () => {
+      const { success } = await checkSupabaseConnection();
+      setConnectionStatus(success ? 'connected' : 'error');
+      
+      if (!success) {
+        console.error('Error connecting to Supabase');
+        setError('Connection to authentication service is unavailable. You can still try the demo version.');
+      }
+    };
+    
+    verifyConnection();
+  }, []);
   
   // Check if user is already logged in
   useEffect(() => {
@@ -51,6 +70,11 @@ const LoginPage = () => {
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (connectionStatus === 'error') {
+      setError('Unable to connect to the authentication service. Please try again later or use the demo.');
+      return;
+    }
     
     if (!email || !password) {
       addError({
@@ -125,7 +149,23 @@ const LoginPage = () => {
             </p>
           </div>
           
+          {connectionStatus === 'error' && (
+            <div className="mb-4 flex items-center gap-2 rounded-lg bg-warning/10 p-3 text-sm text-warning">
+              <Info className="h-5 w-5" />
+              <span>
+                Connection to authentication service is unavailable. You can still try the demo version.
+              </span>
+            </div>
+          )}
+          
           <ErrorDisplay />
+          
+          {error && (
+            <div className="mb-4 flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error">
+              <AlertCircle className="h-5 w-5" />
+              <p>{error}</p>
+            </div>
+          )}
           
           <form onSubmit={handleSubmit} aria-label="Sign in form" className="space-y-4">
             <div>
@@ -174,9 +214,9 @@ const LoginPage = () => {
             <button
               type="submit"
               className="w-full rounded-lg bg-primary px-4 py-3 text-base font-medium text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
-              disabled={loading}
+              disabled={loading || connectionStatus === 'checking'}
               aria-busy={loading}
-              aria-disabled={loading}
+              aria-disabled={loading || connectionStatus === 'checking'}
             >
               {loading ? (
                 <span className="flex items-center justify-center">
