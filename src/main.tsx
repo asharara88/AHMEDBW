@@ -25,6 +25,16 @@ if (process.env.NODE_ENV !== 'production') {
   reportWebVitals();
 }
 
+// Check Supabase connection on startup
+import { checkSupabaseConnection } from './lib/supabaseClient';
+checkSupabaseConnection()
+  .then(isConnected => {
+    console.log('Supabase connection check:', isConnected ? 'Success' : 'Failed');
+  })
+  .catch(err => {
+    console.error('Error checking Supabase connection:', err);
+  });
+
 // Initialize variables for accessibility monitoring
 if (typeof window !== 'undefined') {
   window.addEventListener('DOMContentLoaded', () => {

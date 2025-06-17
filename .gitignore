@@ -7,7 +7,6 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Dependencies
 node_modules
 dist
 dist-ssr
@@ -26,8 +25,10 @@ dist-ssr
 
 # Environment variables
 .env
-.env.*
-!.env.example
+.env.local
+.env.development
+.env.test
+.env.production
 
 # Supabase
 .supabase
@@ -40,12 +41,8 @@ stats.html
 # API Keys and Secrets
 *.pem
 *.key
-*secret*
-*SECRET*
-*apikey*
-*APIKEY*
-*token*
-*TOKEN*
+*.cert
+*.p12
 
 # Temporary files
 .tmp
