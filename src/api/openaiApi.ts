@@ -55,7 +55,15 @@ export const openaiApi = {
         );
       } catch (networkError) {
         logError('Network request failed', networkError);
+        codex/fix-openai-api-fetch-error
+        throw {
+          type: ErrorType.NETWORK,
+          message: 'Unable to reach AI service. Please check your connection.',
+          originalError: networkError,
+        } as ApiError;
+
         throw new Error('Unable to reach AI service. Please check your connection.');
+        main
       }
 
       if (!response.ok) {
@@ -80,13 +88,25 @@ export const openaiApi = {
           }
         }
         
-        logError('Edge Function error', { 
+        logError('Edge Function error', {
           status: response.status,
           statusText: response.statusText,
           errorData
         });
-        
-        throw new Error(errorMessage);
+
+        const apiError: ApiError = {
+          type: ErrorType.SERVER,
+          message: errorMessage,
+          status: response.status,
+          originalError: errorData,
+        };
+
+        // Convert certain status codes to authentication errors
+        if (response.status === 401 || response.status === 403) {
+          apiError.type = ErrorType.AUTHENTICATION;
+        }
+
+        throw apiError;
       }
 
       return await response.json();
