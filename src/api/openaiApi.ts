@@ -40,13 +40,64 @@ export const openaiApi = {
       });
 
       if (error) {
-        throw new Error(error.message || 'OpenAI API request failed');
+        // Handle different types of Edge Function errors
+        let errorMessage = 'OpenAI API request failed';
+        
+        if (error.message) {
+          if (error.message.includes('Missing OpenAI API key')) {
+            errorMessage = 'OpenAI API key is not configured. Please contact support.';
+          } else if (error.message.includes('Invalid API key')) {
+            errorMessage = 'Invalid OpenAI API key. Please contact support.';
+          } else if (error.message.includes('rate limit')) {
+            errorMessage = 'API rate limit exceeded. Please try again in a moment.';
+          } else if (error.message.includes('insufficient_quota')) {
+            errorMessage = 'API quota exceeded. Please contact support.';
+          } else {
+            errorMessage = error.message;
+          }
+        }
+        
+        // Log the full error for debugging
+        logError('Edge Function error', { 
+          error, 
+          context: options.context,
+          messagesCount: messages?.length 
+        });
+        
+        throw new Error(errorMessage);
+      }
+
+      // Check if the response has an error structure
+      if (data && data.error) {
+        let errorMessage = 'OpenAI API error';
+        
+        if (data.error.message) {
+          if (data.error.message.includes('API key')) {
+            errorMessage = 'API key issue. Please contact support.';
+          } else if (data.error.message.includes('rate limit')) {
+            errorMessage = 'Rate limit exceeded. Please try again shortly.';
+          } else if (data.error.message.includes('insufficient_quota')) {
+            errorMessage = 'API quota exceeded. Please contact support.';
+          } else {
+            errorMessage = data.error.message;
+          }
+        }
+        
+        logError('OpenAI API error', data.error);
+        throw new Error(errorMessage);
       }
 
       return data;
     } catch (err) {
       logError('Error in OpenAI API createChatCompletion', err);
-      throw err;
+      
+      // Re-throw the error if it's already formatted
+      if (err instanceof Error) {
+        throw err;
+      }
+      
+      // Handle unexpected errors
+      throw new Error('An unexpected error occurred while processing your request');
     }
   },
   
@@ -62,9 +113,15 @@ export const openaiApi = {
       const data = await this.createChatCompletion(messages, { context });
       
       // Extract and return the response
-      return data.choices?.[0]?.message?.content || 'No response generated';
+      if (!data || !data.choices || !data.choices[0] || !data.choices[0].message) {
+        throw new Error('Invalid response format from AI service');
+      }
+      
+      return data.choices[0].message.content || 'No response generated';
     } catch (err) {
-      logError('Error in OpenAI API', err);
+      logError('Error in OpenAI API generateResponse', err);
+      
+      // Create a more specific API error
       const apiError: ApiError = {
         type: ErrorType.SERVER,
         message: err instanceof Error ? err.message : 'Failed to generate response',

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Loader, AlertCircle } from 'lucide-react';
+import { Loader, AlertCircle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { openaiApi } from '../../api/openaiApi';
 
@@ -22,10 +22,32 @@ export default function ChatButton() {
       setResponse(reply || 'No response received.');
     } catch (err: any) {
       console.error('Error in chat:', err);
-      setError(err.message || 'Failed to fetch assistant reply.');
+      
+      // Provide user-friendly error messages
+      let userMessage = 'Failed to fetch assistant reply.';
+      
+      if (err.message) {
+        if (err.message.includes('API key')) {
+          userMessage = 'AI service is not properly configured. Please contact support.';
+        } else if (err.message.includes('rate limit')) {
+          userMessage = 'Too many requests. Please wait a moment and try again.';
+        } else if (err.message.includes('quota')) {
+          userMessage = 'Service temporarily unavailable. Please try again later.';
+        } else if (err.message.includes('network') || err.message.includes('connection')) {
+          userMessage = 'Connection issue. Please check your internet and try again.';
+        } else {
+          userMessage = err.message;
+        }
+      }
+      
+      setError(userMessage);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    handleClick();
   };
 
   return (
@@ -33,7 +55,7 @@ export default function ChatButton() {
       <button
         onClick={handleClick}
         disabled={loading}
-        className="w-full px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark disabled:opacity-50 flex items-center justify-center gap-2 transition-colors"
       >
         {loading ? (
           <>
@@ -46,9 +68,19 @@ export default function ChatButton() {
       </button>
       
       {error && (
-        <div className="flex items-center gap-2 bg-error/10 p-3 rounded-lg text-sm text-error">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
-          <p>{error}</p>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 bg-error/10 p-3 rounded-lg text-sm text-error">
+            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+            <p>{error}</p>
+          </div>
+          <button
+            onClick={handleRetry}
+            disabled={loading}
+            className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Try Again
+          </button>
         </div>
       )}
       
