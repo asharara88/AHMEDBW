@@ -19,6 +19,12 @@ export const openaiApi = {
         'Authorization': `Bearer ${supabaseAnonKey}`,
         'Content-Type': 'application/json',
       };
+      
+      // If we have an OpenAI API key in the frontend, add it as fallback
+      const frontendApiKey = import.meta.env.VITE_OPENAI_API_KEY;
+      if (frontendApiKey) {
+        headers['x-openai-key'] = frontendApiKey;
+      }
 
       const response = await fetch(`${supabaseUrl}/functions/v1/openai-proxy`, {
         method: 'POST',
