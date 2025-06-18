@@ -9,17 +9,26 @@ export const openaiApi = {
       // This way we don't need the API key in the frontend
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY;
       
       if (!supabaseUrl || !supabaseAnonKey) {
         throw new Error("Missing Supabase configuration");
       }
 
+      // Prepare headers
+      const headers: Record<string, string> = {
+        'Authorization': `Bearer ${supabaseAnonKey}`,
+        'Content-Type': 'application/json',
+      };
+      
+      // If we have an OpenAI API key in frontend env vars, include it as a fallback
+      if (openaiApiKey) {
+        headers['x-openai-key'] = openaiApiKey;
+      }
+
       const response = await fetch(`${supabaseUrl}/functions/v1/openai-proxy`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${supabaseAnonKey}`,
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
           messages,
           context: options.context,
@@ -76,10 +85,10 @@ export const openaiApi = {
         content: 'You are a friendly onboarding assistant for Biowell. Ask questions one at a time to help the user complete their profile. Be conversational and engaging.' 
       };
       
-      const allMessages = [systemMessage, ...messages];
+      const formattedMessages = [systemMessage, ...messages];
       
       // Call the API
-      const data = await this.createChatCompletion(allMessages, { temperature: 0.7 });
+      const data = await this.createChatCompletion(formattedMessages, { temperature: 0.7 });
       
       // Return the response
       return data.choices?.[0]?.message?.content || 'What is your name?';

@@ -48,8 +48,22 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Extract OpenAI API key from environment variables
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    // Try to get OpenAI API key from environment, then from request headers as fallback
+    let OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    
+    // If not available in environment, check if it was passed in the request headers
+    if (!OPENAI_API_KEY) {
+      const apiKeyHeader = req.headers.get("x-openai-key");
+      if (apiKeyHeader) {
+        OPENAI_API_KEY = apiKeyHeader;
+      } else {
+        // As a last resort, try to get it from query parameters
+        const url = new URL(req.url);
+        OPENAI_API_KEY = url.searchParams.get("apiKey") || '';
+      }
+    }
+    
+    // If we still don't have an API key, throw an error
     if (!OPENAI_API_KEY) {
       throw new Error("Missing OpenAI API key");
     }
