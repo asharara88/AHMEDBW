@@ -48,10 +48,16 @@ const AuthErrorHandler = () => {
         ...init,
         credentials: 'include'
       };
-      
-      const response = await originalFetch(input, modifiedInit);
-      await handleApiResponse(response);
-      return response;
+
+      try {
+        const response = await originalFetch(input, modifiedInit);
+        await handleApiResponse(response);
+        return response;
+      } catch (error) {
+        // Log network errors for easier debugging
+        logError('Network request failed', error);
+        throw error;
+      }
     };
 
     // Cleanup function to restore original fetch
