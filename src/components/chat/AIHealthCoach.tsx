@@ -73,7 +73,6 @@ export default function HealthCoach() {
       await sendMessage(messageContent, user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined));
     } catch (err: any) {
       logError('Error in chat submission', err);
-      // Error is already handled in the sendMessage function and stored in the chat store
     }
   };
 

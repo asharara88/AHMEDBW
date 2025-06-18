@@ -1,38 +1,16 @@
 // src/api/openaiApi.ts
 import { ApiError, ErrorType } from './apiClient';
 import { logError } from '../utils/logger';
-import { supabase } from '../lib/supabaseClient';
 
 export const openaiApi = {
   async createChatCompletion(messages: any[], options: any = {}) {
     try {
-      // Get the Supabase URL and anon key from environment variables
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      
-      if (!supabaseUrl || !supabaseAnonKey) {
-        throw new Error('Missing Supabase configuration');
-      }
-
-      // Get the current session for authentication
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'apikey': supabaseAnonKey
-      };
-
-      // Add Authorization header if session exists
-      if (session?.access_token) {
-        headers['Authorization'] = `Bearer ${session.access_token}`;
-      } else {
-        // Fallback to anon key if no session
-        headers['Authorization'] = `Bearer ${supabaseAnonKey}`;
-      }
-      
-      const response = await fetch(`${supabaseUrl}/functions/v1/openai-proxy`, {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openai-proxy`, {
         method: 'POST',
-        headers,
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           messages,
           ...options
@@ -40,20 +18,14 @@ export const openaiApi = {
       });
 
       if (!response.ok) {
-        let errorMessage;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.error?.message || `OpenAI API request failed: ${response.statusText}`;
-        } catch (e) {
-          errorMessage = `OpenAI API request failed: ${response.statusText}`;
-        }
-        throw new Error(errorMessage);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error?.message || `OpenAI API request failed: ${response.statusText}`);
       }
 
       return response.json();
-    } catch (error) {
-      logError('Error in OpenAI API createChatCompletion', error);
-      throw error;
+    } catch (err) {
+      logError('Error in OpenAI API createChatCompletion', err);
+      throw err;
     }
   },
   
@@ -62,22 +34,11 @@ export const openaiApi = {
     try {
       // Format messages for the API
       const messages = [
-        { role: 'system', content: 'You are a helpful health assistant that provides evidence-based advice.' }
+        { role: 'user', content: prompt }
       ];
       
-      // Add context if provided
-      if (context) {
-        messages.push({ 
-          role: 'system', 
-          content: `Context: ${JSON.stringify(context)}` 
-        });
-      }
-      
-      // Add user message
-      messages.push({ role: 'user', content: prompt });
-      
       // Call the createChatCompletion method
-      const data = await this.createChatCompletion(messages, { temperature: 0.7 });
+      const data = await this.createChatCompletion(messages, { context });
       
       // Extract and return the response
       return data.choices?.[0]?.message?.content || 'No response generated';
