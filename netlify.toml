@@ -5,17 +5,13 @@
 
 [build.environment]
   NODE_VERSION = "18"
-codex/update-netlify.toml-to-include-datadir
   # Skip submodule processing since this repo does not use submodules
   GIT_SUBMODULE_STRATEGY = "none"
-=======
-main
 
 [[plugins]]
   package = "netlify-plugin-fetch-feeds"
 
   [plugins.inputs]
-codex/update-netlify.toml-to-include-datadir
     dataDir = "public/feeds"
     feeds = [
       { name = "hn", url = "https://hnrss.org/frontpage" }
@@ -25,8 +21,3 @@ codex/update-netlify.toml-to-include-datadir
   from = "/*"
   to = "/index.html"
   status = 200
-=======
-  feeds = [
-    { name = "hn", url = "https://hnrss.org/frontpage" }
-  ]
-main
