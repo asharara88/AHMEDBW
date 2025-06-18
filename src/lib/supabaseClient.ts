@@ -31,29 +31,17 @@ if (import.meta.env.DEV) {
   logInfo('Supabase environment variables are set.');
 }
 
-// Store reference to native fetch to avoid recursion
-const nativeFetch = globalThis.fetch;
-
-// Create Supabase client (singleton)
+// Create Supabase client with simplified configuration
 export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    storage: localStorage, // use sessionStorage if tokens must clear on tab close
+    storage: localStorage,
   },
   global: {
     headers: {
       'X-Client-Info': 'biowell-ai-web'
-    },
-    fetch: async (...args) => {
-      try {
-        // Use native fetch to avoid recursion
-        return await nativeFetch(...args);
-      } catch (err) {
-        logError('Global Supabase fetch failed:', err);
-        throw err;
-      }
     },
   },
 });

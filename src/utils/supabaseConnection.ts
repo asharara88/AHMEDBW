@@ -33,35 +33,30 @@ export async function checkSupabaseConnection(): Promise<boolean> {
         return false;
       }
       
-      // Attempt to make a simple query to check connection
-      // Use a lightweight table or a health check endpoint if available
-      const { data, error } = await supabase
-        .from('configuration')
-        .select('key')
-        .limit(1)
-        .maybeSingle();
+      // Try a simple health check first - just get the current user
+      // This is less likely to fail due to table permissions
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
       
-      if (error) {
-        // If the error is a 404, it might mean the table doesn't exist but connection is fine
-        if (error.code === 'PGRST104') {
-          connected = true;
-          logInfo('Supabase connection established (table not found but connection works)');
-          return true;
-        }
-        
-        throw error;
+      if (authError && authError.message !== 'Invalid JWT') {
+        // If it's not just an invalid JWT (which is expected for anonymous users), it's a real error
+        throw authError;
       }
       
-      // If we get here, connection is successful
+      // If we get here without throwing, the connection is working
       connected = true;
       logInfo('Supabase connection established successfully');
       return true;
+      
     } catch (error) {
       retryCount++;
       
       // Log with more details about the attempt
       logError(`Supabase connection attempt ${retryCount} failed`, {
-        error,
+        error: error instanceof Error ? {
+          message: error.message,
+          name: error.name,
+          details: error.toString()
+        } : String(error),
         maxAttempts: MAX_RETRY_ATTEMPTS,
         willRetry: retryCount < MAX_RETRY_ATTEMPTS
       });
