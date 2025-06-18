@@ -37,8 +37,10 @@ export async function checkSupabaseConnection(): Promise<boolean> {
       // This is less likely to fail due to table permissions
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
-      if (authError && authError.message !== 'Invalid JWT') {
-        // If it's not just an invalid JWT (which is expected for anonymous users), it's a real error
+      if (authError && 
+          authError.message !== 'Invalid JWT' && 
+          authError.name !== 'AuthSessionMissingError') {
+        // If it's not just an invalid JWT or missing auth session (which are expected for anonymous users), it's a real error
         throw authError;
       }
       
