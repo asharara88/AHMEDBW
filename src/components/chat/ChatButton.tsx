@@ -30,7 +30,7 @@ export default function ChatButton() {
         if (err.message.includes('API key')) {
           userMessage = 'AI service is not properly configured. Please contact support.';
         } else if (err.message.includes('rate limit')) {
-          userMessage = 'Too many requests. Please wait a moment and try again.';
+          userMessage = 'Too many requests. Please try again in a moment.';
         } else if (err.message.includes('quota')) {
           userMessage = 'Service temporarily unavailable. Please try again later.';
         } else if (err.message.includes('network') || err.message.includes('connection')) {
@@ -76,7 +76,7 @@ export default function ChatButton() {
           <button
             onClick={handleRetry}
             disabled={loading}
-            className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+            className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
           >
             <RefreshCw className="h-4 w-4" />
             Try Again

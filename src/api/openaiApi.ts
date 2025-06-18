@@ -6,102 +6,92 @@ import { supabase } from '../lib/supabaseClient';
 export const openaiApi = {
   async createChatCompletion(messages: any[], options: any = {}) {
     try {
-      // We'll use the Supabase Edge Function to proxy requests to OpenAI
-      // This way we don't need the API key in the frontend
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-      if (!supabaseAnonKey) {
-        throw new Error("Missing Supabase configuration");
-      }
-
-      // Prepare headers that will be forwarded to the edge function
+      // Get the current session for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      // Prepare headers
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
       
-      // If we have an OpenAI API key in the frontend, add it as fallback
+      // Add authorization if we have a session
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+      
+      // Always include the anon key
+      headers['apikey'] = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      // Optional: Add OpenAI API key if available in frontend env
       const frontendApiKey = import.meta.env.VITE_OPENAI_API_KEY;
       if (frontendApiKey) {
         headers['x-openai-key'] = frontendApiKey;
       }
+      
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      
+      if (!supabaseUrl) {
+        throw new Error('Missing Supabase URL');
+      }
+      
+      const response = await fetch(
+        `${supabaseUrl}/functions/v1/openai-proxy`,
+        {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            messages,
+            context: options.context,
+            options: {
+              temperature: options.temperature,
+              max_tokens: options.max_tokens,
+              model: options.model || 'gpt-4',
+              response_format: options.response_format,
+            },
+          }),
+        }
+      );
 
-      const { data, error } = await supabase.functions.invoke('openai-proxy', {
-        body: {
-          messages,
-          context: options.context,
-          options: {
-            temperature: options.temperature,
-            max_tokens: options.max_tokens,
-            model: options.model || 'gpt-4',
-            response_format: options.response_format,
-          },
-        },
-        headers,
-      });
-
-      if (error) {
-        // Handle different types of Edge Function errors
+      if (!response.ok) {
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (e) {
+          errorData = { error: { message: `HTTP error! status: ${response.status}` } };
+        }
+        
         let errorMessage = 'OpenAI API request failed';
         
-        if (error.message) {
-          if (error.message.includes('Missing OpenAI API key')) {
-            errorMessage = 'OpenAI API key is not configured. Please contact support.';
-          } else if (error.message.includes('Invalid API key')) {
-            errorMessage = 'Invalid OpenAI API key. Please contact support.';
-          } else if (error.message.includes('rate limit')) {
-            errorMessage = 'API rate limit exceeded. Please try again in a moment.';
-          } else if (error.message.includes('insufficient_quota')) {
-            errorMessage = 'API quota exceeded. Please contact support.';
+        if (errorData.error && errorData.error.message) {
+          if (errorData.error.message.includes('API key')) {
+            errorMessage = 'AI service is not properly configured. Please contact support.';
+          } else if (errorData.error.message.includes('rate limit')) {
+            errorMessage = 'Too many requests. Please try again in a moment.';
+          } else if (errorData.error.message.includes('quota')) {
+            errorMessage = 'Service temporarily unavailable. Please try again later.';
           } else {
-            errorMessage = error.message;
+            errorMessage = errorData.error.message;
           }
         }
         
-        // Log the full error for debugging
         logError('Edge Function error', { 
-          error, 
-          context: options.context,
-          messagesCount: messages?.length 
+          status: response.status,
+          statusText: response.statusText,
+          errorData
         });
         
         throw new Error(errorMessage);
       }
 
-      // Check if the response has an error structure
-      if (data && data.error) {
-        let errorMessage = 'OpenAI API error';
-        
-        if (data.error.message) {
-          if (data.error.message.includes('API key')) {
-            errorMessage = 'API key issue. Please contact support.';
-          } else if (data.error.message.includes('rate limit')) {
-            errorMessage = 'Rate limit exceeded. Please try again shortly.';
-          } else if (data.error.message.includes('insufficient_quota')) {
-            errorMessage = 'API quota exceeded. Please contact support.';
-          } else {
-            errorMessage = data.error.message;
-          }
-        }
-        
-        logError('OpenAI API error', data.error);
-        throw new Error(errorMessage);
-      }
-
-      return data;
+      return await response.json();
     } catch (err) {
-      logError('Error in OpenAI API createChatCompletion', err);
-      
-      // Re-throw the error if it's already formatted
       if (err instanceof Error) {
-        throw err;
+        throw err; // Re-throw if already a proper Error object
       }
-      
-      // Handle unexpected errors
-      throw new Error('An unexpected error occurred while processing your request');
+      throw new Error('Unexpected error communicating with AI service');
     }
   },
   
-  // Add the missing generateResponse function
   async generateResponse(prompt: string, context?: Record<string, any>): Promise<string> {
     try {
       // Format messages for the API
@@ -119,9 +109,8 @@ export const openaiApi = {
       
       return data.choices[0].message.content || 'No response generated';
     } catch (err) {
-      logError('Error in OpenAI API generateResponse', err);
+      logError('Error in OpenAI API', err);
       
-      // Create a more specific API error
       const apiError: ApiError = {
         type: ErrorType.SERVER,
         message: err instanceof Error ? err.message : 'Failed to generate response',
