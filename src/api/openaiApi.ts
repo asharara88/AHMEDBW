@@ -34,23 +34,33 @@ export const openaiApi = {
         throw new Error('Missing Supabase URL');
       }
       
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/openai-proxy`,
-        {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            messages,
-            context: options.context,
-            options: {
-              temperature: options.temperature,
-              max_tokens: options.max_tokens,
-              model: options.model || 'gpt-4',
-              response_format: options.response_format,
-            },
-          }),
-        }
-      );
+      let response: Response;
+      try {
+        response = await fetch(
+          `${supabaseUrl}/functions/v1/openai-proxy`,
+          {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              messages,
+              context: options.context,
+              options: {
+                temperature: options.temperature,
+                max_tokens: options.max_tokens,
+                model: options.model || 'gpt-4',
+                response_format: options.response_format,
+              },
+            }),
+          }
+        );
+      } catch (networkError) {
+        logError('Network request failed', networkError);
+        throw {
+          type: ErrorType.NETWORK,
+          message: 'Unable to reach AI service. Please check your connection.',
+          originalError: networkError,
+        } as ApiError;
+      }
 
       if (!response.ok) {
         let errorData;
@@ -74,13 +84,25 @@ export const openaiApi = {
           }
         }
         
-        logError('Edge Function error', { 
+        logError('Edge Function error', {
           status: response.status,
           statusText: response.statusText,
           errorData
         });
-        
-        throw new Error(errorMessage);
+
+        const apiError: ApiError = {
+          type: ErrorType.SERVER,
+          message: errorMessage,
+          status: response.status,
+          originalError: errorData,
+        };
+
+        // Convert certain status codes to authentication errors
+        if (response.status === 401 || response.status === 403) {
+          apiError.type = ErrorType.AUTHENTICATION;
+        }
+
+        throw apiError;
       }
 
       return await response.json();
