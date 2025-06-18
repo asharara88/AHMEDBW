@@ -5,6 +5,13 @@ import { logError } from '../utils/logger';
 export const openaiApi = {
   async createChatCompletion(messages: any[], options: any = {}) {
     try {
+      // Get the OpenAI API key from environment variables
+      const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+      
+      if (!apiKey) {
+        throw new Error("OpenAI API key is missing. Please check your environment variables.");
+      }
+
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openai-proxy`, {
         method: 'POST',
         headers: {
@@ -13,7 +20,13 @@ export const openaiApi = {
         },
         body: JSON.stringify({
           messages,
-          ...options
+          context: options.context,
+          options: {
+            temperature: options.temperature,
+            max_tokens: options.max_tokens,
+            model: options.model || "gpt-4",
+            response_format: options.response_format,
+          }
         })
       });
 
@@ -37,7 +50,7 @@ export const openaiApi = {
         { role: 'user', content: prompt }
       ];
       
-      // Call the createChatCompletion method
+      // Call the createChatCompletion method with context in options
       const data = await this.createChatCompletion(messages, { context });
       
       // Extract and return the response
