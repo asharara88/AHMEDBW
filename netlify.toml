@@ -4,7 +4,7 @@
   ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ./package-lock.json"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "22"
   PYENV_VERSION = "3.10.13"
   # Skip submodule processing since this repo does not use submodules
   GIT_SUBMODULE_STRATEGY = "none"
