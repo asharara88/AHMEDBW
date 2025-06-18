@@ -1,17 +1,27 @@
 // src/api/openaiApi.ts
 import { ApiError, ErrorType } from './apiClient';
 import { logError } from '../utils/logger';
+import { supabase } from '../lib/supabaseClient';
 
 export const openaiApi = {
   async createChatCompletion(messages: any[], options: any = {}) {
+    // Get the current user session for proper authentication
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      throw new Error('User not authenticated');
+    }
+
     const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openai-proxy`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        'Authorization': `Bearer ${session.access_token}`,
+        'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         messages,
+        userId: session.user.id,
         ...options
       })
     });
