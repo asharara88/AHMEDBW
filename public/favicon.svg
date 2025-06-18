@@ -1,41 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="620" height="100" viewBox="0 0 620 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- B -->
-  <path d="M0 0h70v100h-70z" fill="#FFFFFF"/>
-  
-  <!-- I -->
-  <path d="M90 0h70v100h-70z" fill="#FFFFFF"/>
-  
-  <!-- O -->
-  <path d="M180 0h70v100h-70z" fill="#FFFFFF"/>
-  
-  <!-- W -->
-  <path d="M270 0h70v100h-70z" fill="#FFFFFF"/>
-  
-  <!-- E Bars -->
-  <rect x="360" y="88" width="70" height="12" fill="url(#top-gradient)"/>
-  <rect x="360" y="44" width="42" height="12" fill="url(#middle-gradient)"/>
-  <rect x="360" y="0" width="70" height="12" fill="url(#bottom-gradient)"/>
-  
-  <!-- L -->
-  <path d="M450 0h70v100h-70z" fill="#FFFFFF"/>
-  
-  <!-- L -->
-  <path d="M540 0h70v100h-70z" fill="#FFFFFF"/>
-  
-  <!-- Gradients -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="top-gradient" x1="360" y1="94" x2="430" y2="94">
-      <stop offset="0%" stop-color="#0052FF"/>
-      <stop offset="100%" stop-color="#007AFF"/>
-    </linearGradient>
-    <linearGradient id="middle-gradient" x1="360" y1="50" x2="402" y2="50">
-      <stop offset="0%" stop-color="#0070FF"/>
-      <stop offset="100%" stop-color="#00A8FF"/>
-    </linearGradient>
-    <linearGradient id="bottom-gradient" x1="360" y1="6" x2="430" y2="6">
-      <stop offset="0%" stop-color="#008CFF"/>
-      <stop offset="100%" stop-color="#00C8FF"/>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#2563eb" />
     </linearGradient>
   </defs>
+  <rect width="512" height="512" rx="64" fill="url(#gradient)" />
+  <path d="M396 166L236 376 116 256" stroke="white" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" fill="none" />
 </svg>

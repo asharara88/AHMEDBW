@@ -9,7 +9,6 @@ export const openaiApi = {
       // This way we don't need the API key in the frontend
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      const openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY;
       
       if (!supabaseUrl || !supabaseAnonKey) {
         throw new Error("Missing Supabase configuration");
@@ -20,11 +19,6 @@ export const openaiApi = {
         'Authorization': `Bearer ${supabaseAnonKey}`,
         'Content-Type': 'application/json',
       };
-      
-      // If we have an OpenAI API key in frontend env vars, include it as a fallback
-      if (openaiApiKey) {
-        headers['x-openai-key'] = openaiApiKey;
-      }
 
       const response = await fetch(`${supabaseUrl}/functions/v1/openai-proxy`, {
         method: 'POST',
