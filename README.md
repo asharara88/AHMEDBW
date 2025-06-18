@@ -32,6 +32,7 @@ Biowell AI is a digital health platform that connects your wearable devices, del
 - Supabase account
 - OpenAI API key (for AI coach functionality)
 - Stripe account (for payment processing)
+- Supabase CLI installed globally (`npm install -g supabase`)
 
 ### Local Development
 
@@ -71,17 +72,80 @@ npm run dev
 1. Create a new Supabase project
 2. Run the SQL migrations from the `supabase/migrations` folder
 3. Set up authentication with email/password
-4. Deploy the Edge Function for OpenAI proxy:
+
+#### Setting up OpenAI API Key (Required for AI Chat)
+
+**IMPORTANT**: The AI chat functionality requires an OpenAI API key to be configured as a Supabase secret. Follow these steps:
+
+1. **Get your OpenAI API key** from [OpenAI's platform](https://platform.openai.com/api-keys)
+
+2. **Set the API key as a Supabase secret** (this is the recommended and secure approach):
+
+```bash
+# Login to Supabase CLI (if not already logged in)
+supabase login
+
+# Link your project (replace with your project reference)
+supabase link --project-ref your-project-ref
+
+# Set the OpenAI API key as a secret
+supabase secrets set OPENAI_API_KEY=your-actual-openai-api-key
+```
+
+3. **Deploy the Edge Function** for OpenAI proxy:
 
 ```bash
 supabase functions deploy openai-proxy
 ```
 
-5. Set the OpenAI API key as a secret:
+4. **Verify the setup** by checking that the secret was set correctly:
 
 ```bash
-supabase secrets set OPENAI_API_KEY=your-openai-api-key
+supabase secrets list
 ```
+
+You should see `OPENAI_API_KEY` in the list of secrets.
+
+#### Alternative Setup for Local Development
+
+If you're developing locally and want to test the Edge Function locally, you can also:
+
+1. Create a `.env` file in the `supabase/functions/openai-proxy/` directory:
+
+```bash
+# supabase/functions/openai-proxy/.env
+OPENAI_API_KEY=your-openai-api-key
+```
+
+2. Start the local Supabase development environment:
+
+```bash
+supabase start
+supabase functions serve
+```
+
+**Note**: The `.env` file approach only works for local development. For production, you must use Supabase secrets.
+
+### Troubleshooting OpenAI Integration
+
+If you encounter the error "Missing OpenAI API key":
+
+1. **Check if the secret is set**:
+   ```bash
+   supabase secrets list
+   ```
+
+2. **Redeploy the Edge Function** after setting the secret:
+   ```bash
+   supabase functions deploy openai-proxy
+   ```
+
+3. **Verify your OpenAI API key** is valid and has sufficient credits at [OpenAI's usage dashboard](https://platform.openai.com/usage)
+
+4. **Check the Edge Function logs** for more details:
+   ```bash
+   supabase functions logs openai-proxy
+   ```
 
 ### Audio Cache Table
 
