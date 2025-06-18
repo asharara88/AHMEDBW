@@ -5,17 +5,19 @@ import { logError } from '../utils/logger';
 export const openaiApi = {
   async createChatCompletion(messages: any[], options: any = {}) {
     try {
-      // Get the OpenAI API key from environment variables
-      const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+      // We'll use the Supabase Edge Function to proxy requests to OpenAI
+      // This way we don't need the API key in the frontend
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
       
-      if (!apiKey) {
-        throw new Error("OpenAI API key is missing. Please check your environment variables.");
+      if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error("Missing Supabase configuration");
       }
 
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openai-proxy`, {
+      const response = await fetch(`${supabaseUrl}/functions/v1/openai-proxy`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Authorization': `Bearer ${supabaseAnonKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
