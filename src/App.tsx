@@ -19,8 +19,8 @@ import HowItWorksPage from './pages/HowItWorksPage';
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Layout />}>
+    <Layout>
+      <Routes>
         <Route index element={<HomePage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="signup" element={<SignupPage />} />
@@ -68,8 +68,8 @@ function App() {
           </ProtectedRoute>
         } />
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Route>
-    </Routes>
+      </Routes>
+    </Layout>
   );
 }
 

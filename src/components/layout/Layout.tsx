@@ -1,12 +1,15 @@
-import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { useState, ReactNode } from 'react';
 import Navbar from './Navbar';
 import { useAuth } from '../../contexts/AuthContext';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import FloatingChatButton from '../chat/FloatingChatButton';
 import Footer from './Footer';
 
-const Layout = () => {
+interface LayoutProps {
+  children: ReactNode;
+}
+
+const Layout = ({ children }: LayoutProps) => {
   const { user, loading } = useAuth();
   const [showFullDisclaimer, setShowFullDisclaimer] = useState(false);
   
@@ -64,7 +67,7 @@ const Layout = () => {
         </div>
       </div>
       <main className="flex-1 px-4 py-6 sm:px-6 md:px-8 overflow-x-hidden max-w-full">
-        <Outlet />
+        {children}
       </main>
       <Footer />
       {user && <FloatingChatButton />}
