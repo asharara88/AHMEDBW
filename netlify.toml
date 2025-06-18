@@ -5,6 +5,7 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  PYENV_VERSION = "3.10.13"
   # Skip submodule processing since this repo does not use submodules
   GIT_SUBMODULE_STRATEGY = "none"
 
