@@ -1,43 +1,60 @@
 // src/api/openaiApi.ts
 import { ApiError, ErrorType } from './apiClient';
 import { logError } from '../utils/logger';
+import { supabase } from '../lib/supabaseClient';
 
 export const openaiApi = {
   async createChatCompletion(messages: any[], options: any = {}) {
-    // Get the Supabase URL and anon key from environment variables
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
-    if (!supabaseUrl || !supabaseAnonKey) {
-      throw new Error('Missing Supabase configuration');
-    }
-    
-    const response = await fetch(`${supabaseUrl}/functions/v1/openai-proxy`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${supabaseAnonKey}`,
+    try {
+      // Get the Supabase URL and anon key from environment variables
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error('Missing Supabase configuration');
+      }
+
+      // Get the current session for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const headers: Record<string, string> = {
         'Content-Type': 'application/json',
         'apikey': supabaseAnonKey
-      },
-      body: JSON.stringify({
-        messages,
-        ...options
-      })
-    });
+      };
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      let errorMessage;
-      try {
-        const errorData = JSON.parse(errorText);
-        errorMessage = errorData.error?.message || `OpenAI API request failed: ${response.statusText}`;
-      } catch (e) {
-        errorMessage = `OpenAI API request failed: ${response.statusText}`;
+      // Add Authorization header if session exists
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      } else {
+        // Fallback to anon key if no session
+        headers['Authorization'] = `Bearer ${supabaseAnonKey}`;
       }
-      throw new Error(errorMessage);
-    }
+      
+      const response = await fetch(`${supabaseUrl}/functions/v1/openai-proxy`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          messages,
+          ...options
+        })
+      });
 
-    return response.json();
+      if (!response.ok) {
+        let errorMessage;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error?.message || `OpenAI API request failed: ${response.statusText}`;
+        } catch (e) {
+          errorMessage = `OpenAI API request failed: ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      return response.json();
+    } catch (error) {
+      logError('Error in OpenAI API createChatCompletion', error);
+      throw error;
+    }
   },
   
   // Add the missing generateResponse function

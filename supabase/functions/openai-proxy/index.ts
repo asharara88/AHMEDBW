@@ -55,29 +55,61 @@ Deno.serve(async (req) => {
     }
 
     // Get request data
-    const { messages, userId, context } = await req.json();
+    const requestData = await req.json().catch(() => {
+      throw new Error("Invalid request body");
+    });
+    const { messages, context } = requestData;
 
-    // Create Supabase client
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") as string;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") as string;
-    
-    if (!supabaseUrl || !supabaseKey) {
-      throw new Error("Supabase configuration is missing");
+    // Validate messages
+    if (!messages || !Array.isArray(messages)) {
+      throw new Error("Invalid or missing messages");
     }
-    
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get user data if userId is provided
+    // Get auth info
+    let userId = null;
     let userData = null;
-    if (userId) {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
 
-      if (!error) {
-        userData = data;
+    // Check for Authorization header
+    const authHeader = req.headers.get("Authorization");
+    const apiKey = req.headers.get("apikey") || req.headers.get("x-api-key");
+
+    // If we have valid auth, try to get user data
+    if (authHeader || apiKey) {
+      try {
+        // Create Supabase client
+        const supabaseUrl = Deno.env.get("SUPABASE_URL") as string;
+        const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") as string;
+        
+        if (!supabaseUrl || !supabaseKey) {
+          console.error("Supabase configuration is missing");
+        } else {
+          const supabase = createClient(supabaseUrl, supabaseKey);
+
+          // Try to get user from token if Authorization header is present
+          if (authHeader && authHeader.startsWith("Bearer ")) {
+            const token = authHeader.split(" ")[1];
+            
+            const { data: { user }, error } = await supabase.auth.getUser(token);
+            
+            if (!error && user) {
+              userId = user.id;
+              
+              // Fetch user profile
+              const { data: profile } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", userId)
+                .single();
+                
+              if (profile) {
+                userData = profile;
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error getting user data:", error);
+        // Continue execution even if user data fetch fails
       }
     }
 
@@ -99,6 +131,8 @@ Deno.serve(async (req) => {
             },
           ]
         : []),
+      // Add additional context if provided
+      ...(context ? [{ role: "system", content: `Context: ${JSON.stringify(context)}` }] : []),
       ...messages,
     ];
 
@@ -118,8 +152,8 @@ Deno.serve(async (req) => {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || "OpenAI API call failed");
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error?.message || `OpenAI API call failed: ${response.status}`);
     }
 
     // Return OpenAI response
@@ -128,11 +162,22 @@ Deno.serve(async (req) => {
     // Store the chat history if we have a valid user ID
     if (userId) {
       try {
-        await supabase.from("chat_history").insert({
-          user_id: userId,
-          message: messages[messages.length - 1].content,
-          response: data.choices?.[0]?.message?.content || ""
-        });
+        const userMessage = messages[messages.length - 1].content;
+        const assistantResponse = data.choices?.[0]?.message?.content || "";
+        
+        // Create Supabase client
+        const supabaseUrl = Deno.env.get("SUPABASE_URL") as string;
+        const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") as string;
+        
+        if (supabaseUrl && supabaseKey) {
+          const supabase = createClient(supabaseUrl, supabaseKey);
+          
+          await supabase.from("chat_history").insert({
+            user_id: userId,
+            message: userMessage,
+            response: assistantResponse
+          });
+        }
       } catch (error) {
         console.error("Failed to store chat history:", error);
       }
@@ -142,6 +187,8 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
+    console.error("Error processing request:", error);
+    
     return new Response(
       JSON.stringify({ 
         error: {
