@@ -1,22 +1,21 @@
 // src/api/openaiApi.ts
 import { ApiError, ErrorType } from './apiClient';
 import { logError } from '../utils/logger';
+import { supabase } from '../lib/supabaseClient';
 
 export const openaiApi = {
   async createChatCompletion(messages: any[], options: any = {}) {
     try {
       // We'll use the Supabase Edge Function to proxy requests to OpenAI
       // This way we don't need the API key in the frontend
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      
-      if (!supabaseUrl || !supabaseAnonKey) {
+
+      if (!supabaseAnonKey) {
         throw new Error("Missing Supabase configuration");
       }
 
-      // Prepare headers
+      // Prepare headers that will be forwarded to the edge function
       const headers: Record<string, string> = {
-        'Authorization': `Bearer ${supabaseAnonKey}`,
         'Content-Type': 'application/json',
       };
       
@@ -26,27 +25,25 @@ export const openaiApi = {
         headers['x-openai-key'] = frontendApiKey;
       }
 
-      const response = await fetch(`${supabaseUrl}/functions/v1/openai-proxy`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('openai-proxy', {
+        body: {
           messages,
           context: options.context,
           options: {
             temperature: options.temperature,
             max_tokens: options.max_tokens,
-            model: options.model || "gpt-4",
+            model: options.model || 'gpt-4',
             response_format: options.response_format,
-          }
-        })
+          },
+        },
+        headers,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `OpenAI API request failed: ${response.statusText}`);
+      if (error) {
+        throw new Error(error.message || 'OpenAI API request failed');
       }
 
-      return response.json();
+      return data;
     } catch (err) {
       logError('Error in OpenAI API createChatCompletion', err);
       throw err;
