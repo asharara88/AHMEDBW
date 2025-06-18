@@ -8,7 +8,7 @@ function getCorsHeaders(origin: string | null) {
     "Access-Control-Allow-Origin": origin ?? "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers":
-      "Content-Type, Authorization, apikey, x-api-key, accept-profile, x-client-info",
+      "Content-Type, Authorization, apikey, x-api-key, accept-profile, x-client-info, x-openai-key",
     "Access-Control-Max-Age": "86400",
     "Access-Control-Allow-Credentials": "true",
     "Vary": "Origin",
@@ -48,22 +48,23 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Try to get OpenAI API key from environment, then from request headers as fallback
+    // Try to get OpenAI API key from different sources in order of priority:
+    // 1. Environment variable (set on Supabase)
+    // 2. Request header (sent from frontend)
+    // 3. Request parameters
     let OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     
-    // If not available in environment, check if it was passed in the request headers
     if (!OPENAI_API_KEY) {
-      const apiKeyHeader = req.headers.get("x-openai-key");
-      if (apiKeyHeader) {
-        OPENAI_API_KEY = apiKeyHeader;
-      } else {
-        // As a last resort, try to get it from query parameters
+      // Try to get from request header
+      OPENAI_API_KEY = req.headers.get("x-openai-key");
+      
+      // If still not found, check URL parameters
+      if (!OPENAI_API_KEY) {
         const url = new URL(req.url);
-        OPENAI_API_KEY = url.searchParams.get("apiKey") || '';
+        OPENAI_API_KEY = url.searchParams.get("apiKey");
       }
     }
     
-    // If we still don't have an API key, throw an error
     if (!OPENAI_API_KEY) {
       throw new Error("Missing OpenAI API key");
     }
@@ -71,10 +72,50 @@ Deno.serve(async (req) => {
     // Get request data
     const { messages, context, options = {} } = await req.json();
 
+    // Create Supabase client if we need user data
+    let userData = null;
+    if (context && context.userId) {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL");
+      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      
+      if (supabaseUrl && supabaseKey) {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        try {
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", context.userId)
+            .maybeSingle();
+
+          if (!error) {
+            userData = data;
+          }
+        } catch (e) {
+          console.error("Error fetching user data:", e);
+        }
+      }
+    }
+
     // Prepare messages for OpenAI API
     const formattedMessages = [
       { role: "system", content: SYSTEM_PROMPT },
-      // Add context if provided
+      // Add user context if available
+      ...(userData
+        ? [
+            {
+              role: "system",
+              content: `User Context: ${JSON.stringify({
+                name: userData.first_name
+                  ? `${userData.first_name} ${userData.last_name || ""}`
+                  : "Anonymous",
+                email: userData.email,
+                onboarding_completed: userData.onboarding_completed,
+              })}`,
+            },
+          ]
+        : []),
+      // Add general context if provided
       ...(context ? [{ role: "system", content: `Context: ${JSON.stringify(context)}` }] : []),
       ...messages,
     ];
@@ -96,7 +137,7 @@ Deno.serve(async (req) => {
     });
 
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({}));
       throw new Error(error.error?.message || `OpenAI API call failed with status ${response.status}`);
     }
 
