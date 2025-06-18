@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Package, Activity, MessageSquare } from 'lucide-react';
+import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Package, Activity, MessageCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import Logo from '../common/Logo';
@@ -65,7 +65,7 @@ const Navbar = () => {
                   <div className="relative">
                     <button
                       onClick={toggleCoachMenu}
-                      className={`nav-link ${isActive('/chat') || isActive('/quick-tip') ? 'nav-link-active' : ''}`}
+                      className={`nav-link ${isActive('/chat') || location.pathname.startsWith('/chat/') ? 'nav-link-active' : ''}`}
                     >
                       Coach
                     </button>
@@ -76,11 +76,11 @@ const Navbar = () => {
                           className="dropdown-item"
                           onClick={() => setIsCoachMenuOpen(false)}
                         >
-                          <MessageSquare className="h-4 w-4" />
+                          <MessageCircle className="h-4 w-4" />
                           Chat
                         </Link>
                         <Link 
-                          to="/quick-tip" 
+                          to="/chat/quick-tips" 
                           className="dropdown-item"
                           onClick={() => setIsCoachMenuOpen(false)}
                         >
@@ -249,13 +249,13 @@ const Navbar = () => {
                           }`}
                           onClick={toggleMenu}
                         >
-                          <MessageSquare className="h-5 w-5" />
+                          <MessageCircle className="h-5 w-5" />
                           Chat
                         </Link>
                         <Link 
-                          to="/quick-tip" 
+                          to="/chat/quick-tips" 
                           className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
-                            isActive('/quick-tip') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
+                            location.pathname === '/chat/quick-tips' ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
                           }`}
                           onClick={toggleMenu}
                         >
