@@ -55,11 +55,15 @@ export const openaiApi = {
         );
       } catch (networkError) {
         logError('Network request failed', networkError);
+        codex/fix-openai-api-fetch-error
         throw {
           type: ErrorType.NETWORK,
           message: 'Unable to reach AI service. Please check your connection.',
           originalError: networkError,
         } as ApiError;
+
+        throw new Error('Unable to reach AI service. Please check your connection.');
+        main
       }
 
       if (!response.ok) {

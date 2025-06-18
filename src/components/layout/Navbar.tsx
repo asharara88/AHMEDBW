@@ -96,18 +96,11 @@ const Navbar = () => {
                   >
                     Supplements
                   </Link>
-                  <Link 
-                    to="/test-openai" 
-                    className={`nav-link ${isActive('/test-openai') ? 'nav-link-active' : ''}`}
-                  >
-                    Test OpenAI
-                  </Link>
                 </>
               ) : (
                 <>
                   <Link to="/how-it-works" className="nav-link">How it Works</Link>
                   <Link to="/pricing" className="nav-link">Pricing</Link>
-                  <Link to="/test-openai" className="nav-link">Test OpenAI</Link>
                 </>
               )}
             </nav>
@@ -282,15 +275,6 @@ const Navbar = () => {
                     Supplements
                   </Link>
                   <Link 
-                    to="/test-openai" 
-                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
-                      isActive('/test-openai') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
-                    }`}
-                    onClick={toggleMenu}
-                  >
-                    Test OpenAI
-                  </Link>
-                  <Link 
                     to="/profile" 
                     className="flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
                     onClick={toggleMenu}
@@ -321,13 +305,6 @@ const Navbar = () => {
                     onClick={toggleMenu}
                   >
                     Pricing
-                  </Link>
-                  <Link 
-                    to="/test-openai" 
-                    className="rounded-lg px-4 py-2 text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
-                    onClick={toggleMenu}
-                  >
-                    Test OpenAI
                   </Link>
                   <Link 
                     to="/login" 
