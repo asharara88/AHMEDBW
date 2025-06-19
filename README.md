@@ -174,6 +174,10 @@ The `netlify.toml` file specifies a Node.js 18 environment and uses the
 `netlify-plugin-fetch-feeds` plugin to download the latest Hacker News front page 
 into `public/feeds/hn.xml` during each build.
 
+## Customizing Supabase Auth
+
+You can extend Supabase authentication using database triggers or Auth Webhooks. See [docs/customizing-supabase-auth.md](docs/customizing-supabase-auth.md) for examples of both approaches.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
