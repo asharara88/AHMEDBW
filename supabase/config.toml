@@ -50,3 +50,5 @@ port = 54327
 verify_jwt = true
 [functions.onboarding-status]
 verify_jwt = true
+[functions.auth-webhook]
+verify_jwt = false
