@@ -107,7 +107,7 @@ You should see `OPENAI_API_KEY` in the list of secrets.
 
 #### Troubleshooting OpenAI Integration
 
-If you encounter the error "Incorrect API key provided" or "Missing OpenAI API key":
+If you encounter the error "Failed to fetch", "Network request failed", or "Incorrect API key provided":
 
 1. **Verify your OpenAI API key is valid**:
    - Go to [OpenAI's API keys page](https://platform.openai.com/api-keys)
@@ -136,6 +136,20 @@ If you encounter the error "Incorrect API key provided" or "Missing OpenAI API k
    ```
 
 6. **Verify your OpenAI account** has sufficient credits at [OpenAI's usage dashboard](https://platform.openai.com/usage)
+
+7. **Test the Edge Function directly** to isolate the issue:
+   ```bash
+   curl -X POST "https://your-project-ref.supabase.co/functions/v1/openai-proxy" \
+     -H "Authorization: Bearer your-supabase-anon-key" \
+     -H "Content-Type: application/json" \
+     -d '{"messages":[{"role":"user","content":"Hello"}]}'
+   ```
+
+8. **Common fixes for "Failed to fetch" errors**:
+   - Ensure your Supabase project is not paused
+   - Check that the Edge Function is deployed and running
+   - Verify network connectivity to Supabase
+   - Clear browser cache and try again
 
 #### Alternative Setup for Local Development
 

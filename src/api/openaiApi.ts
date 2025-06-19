@@ -31,11 +31,17 @@ export const openaiApi = {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       
       if (!supabaseUrl) {
-        throw new Error('Missing Supabase URL');
+        throw new Error('Missing Supabase URL configuration');
+      }
+
+      if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        throw new Error('Missing Supabase anon key configuration');
       }
       
       let response;
       try {
+        console.log('Making request to Edge Function:', `${supabaseUrl}/functions/v1/openai-proxy`);
+        
         response = await fetch(
           `${supabaseUrl}/functions/v1/openai-proxy`,
           {
@@ -54,10 +60,19 @@ export const openaiApi = {
           }
         );
       } catch (networkError) {
+        console.error('Network request failed:', networkError);
         logError('Network request failed', networkError);
+        
+        // Provide more specific error messages based on the error type
+        let errorMessage = 'Unable to reach AI service. Please check your connection.';
+        
+        if (networkError instanceof TypeError && networkError.message.includes('Failed to fetch')) {
+          errorMessage = 'Connection failed. Please check if the Supabase Edge Function is deployed and your network connection is stable.';
+        }
+        
         throw {
           type: ErrorType.NETWORK,
-          message: 'Unable to reach AI service. Please check your connection.',
+          message: errorMessage,
           originalError: networkError,
         } as ApiError;
       }
@@ -70,19 +85,27 @@ export const openaiApi = {
           errorData = { error: { message: `HTTP error! status: ${response.status}` } };
         }
         
-        let errorMessage = 'OpenAI API request failed';
+        let errorMessage = 'AI service request failed';
         
         if (errorData.error && errorData.error.message) {
           if (errorData.error.message.includes('API key')) {
-            errorMessage = 'AI service is not properly configured. Please contact support.';
+            errorMessage = 'AI service is not properly configured. Please ensure the OpenAI API key is set correctly.';
           } else if (errorData.error.message.includes('rate limit')) {
             errorMessage = 'Too many requests. Please try again in a moment.';
           } else if (errorData.error.message.includes('quota')) {
             errorMessage = 'Service temporarily unavailable. Please try again later.';
+          } else if (errorData.error.message.includes('timeout')) {
+            errorMessage = 'Request timed out. Please try again.';
           } else {
             errorMessage = errorData.error.message;
           }
         }
+        
+        console.error('Edge Function error:', { 
+          status: response.status,
+          statusText: response.statusText,
+          errorData
+        });
         
         logError('Edge Function error', { 
           status: response.status,
@@ -105,10 +128,12 @@ export const openaiApi = {
         throw apiError;
       }
 
-      return await response.json();
+      const data = await response.json();
+      console.log('OpenAI API request successful');
+      return data;
     } catch (err) {
-      if (err instanceof Error) {
-        throw err; // Re-throw if already a proper Error object
+      if (err instanceof Error || (err && typeof err === 'object' && 'type' in err)) {
+        throw err; // Re-throw if already a proper Error object or ApiError
       }
       throw new Error('Unexpected error communicating with AI service');
     }
@@ -131,6 +156,7 @@ export const openaiApi = {
       
       return data.choices[0].message.content || 'No response generated';
     } catch (err) {
+      console.error('Error in OpenAI API:', err);
       logError('Error in OpenAI API', err);
       
       const apiError: ApiError = {
