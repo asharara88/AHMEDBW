@@ -2,19 +2,34 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
 
-const apiKey = process.env.OPENAI_API_KEY;
+function getApiKey(req: NextApiRequest): string | undefined {
+  // Priority: env var -> header -> query param
+  const envKey = process.env.OPENAI_API_KEY;
+  if (envKey) return envKey;
 
-if (!apiKey) {
-  console.error("OPENAI_API_KEY is missing");
-  throw new Error("OPENAI_API_KEY not configured");
+  const headerKey = req.headers["x-openai-key"] as string | undefined;
+  if (headerKey) return headerKey;
+
+  if (req.query.apiKey && typeof req.query.apiKey === "string") {
+    return req.query.apiKey;
+  }
+
+  return undefined;
 }
 
-const openai = new OpenAI({
-  apiKey,
-});
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const apiKey = getApiKey(req);
+
+  if (!apiKey) {
+    console.error("OPENAI_API_KEY is missing");
+    return res.status(500).json({ error: "OPENAI_API_KEY not configured" });
+  }
+
+  const openai = new OpenAI({ apiKey });
 
   const messages = req.body.messages;
 

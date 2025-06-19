@@ -2,9 +2,18 @@
 
 export async function createChatCompletion(messages: any) {
   try {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    const apiKey = process.env.OPENAI_API_KEY || '';
+    if (apiKey) {
+      headers["x-openai-key"] = apiKey;
+    }
+
     const res = await fetch("/api/openai-proxy", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({ messages }),
     });
 
