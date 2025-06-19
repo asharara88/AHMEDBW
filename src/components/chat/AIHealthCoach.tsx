@@ -3,7 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Loader, User, Volume2, VolumeX, Info } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+ s31x3q-codex/extract-complex-logic-to-custom-hooks
+
 import { logError } from '../../utils/logger';
+ main
 import { useAutoScroll } from '../../hooks/useAutoScroll';
 import ReactMarkdown from 'react-markdown';
 import { useChatStore } from '../../store';
@@ -51,8 +54,12 @@ export default function HealthCoach() {
     updateVoiceSettings
   } = useChatStore();
 
+ s31x3q-codex/extract-complex-logic-to-custom-hooks
+  useAutoScroll(messagesEndRef, [messages]);
+
   // Use the updated useAutoScroll hook with the onlyScrollDown parameter set to true
   useAutoScroll(messagesEndRef, [messages], { behavior: 'smooth' }, true);
+ main
 
   useEffect(() => {
     // Select 5 random questions on component mount

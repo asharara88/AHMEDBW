@@ -5,9 +5,12 @@ import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuthStore } from '../../store';
 import { Send, User, Loader, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAutoScroll } from '../../hooks/useAutoScroll';
+ s31x3q-codex/extract-complex-logic-to-custom-hooks
+
 import { openaiApi } from '../../api/openaiApi';
 import { logError } from '../../utils/logger';
 import { onboardingApi, OnboardingFormData } from '../../api/onboardingApi';
+main
 
 interface Message {
   role: 'system' | 'user';
@@ -66,6 +69,12 @@ const ConversationalOnboarding = () => {
     initializeChat();
   }, []);
 
+ s31x3q-codex/extract-complex-logic-to-custom-hooks
+  // Auto-scroll to bottom of messages
+  useAutoScroll(messagesEndRef, [messages]);
+
+
+ main
   // Check if onboarding is already completed
   useEffect(() => {
     const checkOnboardingStatus = async () => {
