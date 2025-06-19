@@ -2,48 +2,86 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
+interface Supplement {
+  id: string;
+  name: string;
+  goal: string;
+  mechanism: string;
+  dosage: string;
+  evidence_summary: string;
+  source_link: string;
+}
+
+const goals = ['All', 'Sleep', 'Muscle', 'Stress'];
+
 export default function StackPage() {
-  const [supplements, setSupplements] = useState([] as any[]);
-  const [goal, setGoal] = useState('All');
+  const [supplements, setSupplements] = useState<Supplement[]>([]);
+  const [goal, setGoal] = useState<string>('All');
 
   useEffect(() => {
     const fetchSupplements = async () => {
       let query = supabase.from('supplements').select('*');
-      if (goal !== 'All') query = query.ilike('goal', `%${goal}%`);
+      if (goal !== 'All') {
+        query = query.ilike('goal', `%${goal}%`);
+      }
       const { data, error } = await query;
-      if (!error) setSupplements(data as any[]);
+      if (!error && data) {
+        setSupplements(data as Supplement[]);
+      }
     };
+
     fetchSupplements();
   }, [goal]);
 
   return (
-    <div className="p-4 space-y-4">
-      <h2 className="text-2xl font-bold mb-2">Your Personalized Stack</h2>
+    <div className="container mx-auto space-y-4 p-4">
+      <h2 className="mb-2 text-2xl font-bold">Your Personalized Stack</h2>
 
-      <label className="block text-sm font-medium mb-1">Filter by goal:</label>
-      <select
-        onChange={(e) => setGoal(e.target.value)}
-        value={goal}
-        className="p-2 border rounded"
-      >
-        <option value="All">All</option>
-        <option value="Sleep">Sleep</option>
-        <option value="Muscle">Muscle</option>
-        <option value="Stress">Stress</option>
-      </select>
+      <div>
+        <label className="mb-1 block text-sm font-medium">Filter by goal:</label>
+        <select
+          onChange={(e) => setGoal(e.target.value)}
+          value={goal}
+          className="mt-1 w-full max-w-xs rounded-lg border border-[hsl(var(--color-border))] bg-background p-2"
+        >
+          {goals.map((g) => (
+            <option key={g} value={g}>
+              {g}
+            </option>
+          ))}
+        </select>
+      </div>
 
-      {supplements.map((s) => (
-        <div key={s.id} className="border p-4 rounded shadow">
-          <h3 className="text-xl font-semibold">{s.name}</h3>
-          <p><strong>Goal:</strong> {s.goal}</p>
-          <p><strong>Mechanism:</strong> {s.mechanism}</p>
-          <p><strong>Dosage:</strong> {s.dosage}</p>
-          <p><strong>Evidence:</strong> {s.evidence_summary}</p>
-          <a href={s.source_link} className="text-blue-600 underline" target="_blank" rel="noreferrer">
-            View Study ↗
-          </a>
-        </div>
-      ))}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {supplements.map((s) => (
+          <div
+            key={s.id}
+            className="rounded-lg border border-[hsl(var(--color-border))] bg-background p-4 shadow-sm"
+          >
+            <h3 className="mb-1 text-xl font-semibold">{s.name}</h3>
+            <p className="text-sm">
+              <strong>Goal:</strong> {s.goal}
+            </p>
+            <p className="text-sm">
+              <strong>Mechanism:</strong> {s.mechanism}
+            </p>
+            <p className="text-sm">
+              <strong>Dosage:</strong> {s.dosage}
+            </p>
+            <p className="text-sm">
+              <strong>Evidence:</strong> {s.evidence_summary}
+            </p>
+            <a
+              href={s.source_link}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-block text-primary underline"
+            >
+              View Study ↗
+            </a>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
