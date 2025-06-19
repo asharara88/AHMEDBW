@@ -22,7 +22,7 @@ Biowell AI is a digital health platform that connects your wearable devices, del
 - **Frontend**: React, TypeScript, TailwindCSS, Framer Motion
 - **Backend**: Supabase (Authentication, Database, Realtime)
 - **Serverless**: Supabase Edge Functions for OpenAI proxy
-- **Payments**: Stripe integration (stub for subscription handling)
+- **Payments**: Stripe integration (currently unused placeholder)
 
 ## Getting Started
 
@@ -31,7 +31,7 @@ Biowell AI is a digital health platform that connects your wearable devices, del
 - Node.js 18+ and npm
 - Supabase account
 - OpenAI API key (for AI coach functionality)
-- Stripe account (for payment processing)
+- Stripe account (optional - integration not currently used)
 - Supabase CLI installed globally (`npm install -g supabase`)
 
 ### Local Development
@@ -49,12 +49,12 @@ cd biowell-ai
 npm install
 ```
 
-3. Copy `.env.example` to `.env` and add your credentials:
+3. Copy `.env.production.example` to `.env` and add your credentials:
 
 ```
 VITE_SUPABASE_URL=your-supabase-url
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-VITE_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
+VITE_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key # optional, not currently used
 VITE_OPENAI_API_KEY=your-openai-api-key # optional for local dev
 VITE_CAPTCHA_SECRET_KEY=your-captcha-secret-key # optional
 ```
