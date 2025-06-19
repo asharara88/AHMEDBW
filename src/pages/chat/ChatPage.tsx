@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MessageCircle, Activity, ChevronRight } from 'lucide-react';
-import HealthCoach from '../../components/chat/AIHealthCoach';
+import BasicCoachChat from '../../components/chat/BasicCoachChat';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
 const ChatPage = () => {
@@ -51,7 +51,7 @@ const ChatPage = () => {
         {isMainChat ? (
           <>
             <div className="h-[calc(100vh-16rem)]">
-              <HealthCoach />
+              <BasicCoachChat />
             </div>
 
             <div className="mt-4 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 text-sm text-text-light">

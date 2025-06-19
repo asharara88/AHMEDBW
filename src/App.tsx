@@ -6,7 +6,7 @@ import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
 import OnboardingPage from './pages/auth/OnboardingPage';
 import QuizPage from './pages/QuizPage';
-import StackPage from './pages/StackPage';
+import StackPage from './pages/Stack';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import ChatPage from './pages/chat/ChatPage';

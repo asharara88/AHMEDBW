@@ -121,8 +121,8 @@ describe('apiClient', () => {
       } as Response);
 
       // Set environment variables
-      vi.stubEnv('VITE_SUPABASE_URL', 'https://test.supabase.co');
-      vi.stubEnv('VITE_SUPABASE_ANON_KEY', 'test-key');
+      vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co');
+      vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'test-key');
 
       // Act
       const result = await apiClient.callFunction(functionName, payload);
@@ -157,8 +157,8 @@ describe('apiClient', () => {
       } as Response);
 
       // Set environment variables
-      vi.stubEnv('VITE_SUPABASE_URL', 'https://test.supabase.co');
-      vi.stubEnv('VITE_SUPABASE_ANON_KEY', 'test-key');
+      vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co');
+      vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'test-key');
 
       // Act & Assert
       await expect(apiClient.callFunction(functionName, payload)).rejects.toMatchObject({

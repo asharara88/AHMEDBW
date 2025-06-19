@@ -34,10 +34,10 @@ export async function callOpenAiFunction(prompt: string, context?: Record<string
       }
 
       // Always include the anon key as a fallback
-      headers["apikey"] = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      headers["apikey"] = import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
       
       // Use the openai-proxy endpoint
-      const endpoint = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openai-proxy`;
+      const endpoint = `${import.meta.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/openai-proxy`;
       
       const response = await fetch(endpoint, {
         method: "POST",
