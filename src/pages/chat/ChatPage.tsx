@@ -1,21 +1,16 @@
 // pages/chat.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 
 export default function ChatCoach() {
   const [messages, setMessages] = useState([] as any[]);
   const [input, setInput] = useState('');
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
-
-    setMessages([...messages, { role: 'user', text: input }]);
-
-    const keyword = input.toLowerCase();
+  const fetchSupplement = async (keyword: string) => {
     const { data } = await supabase
       .from('supplements')
       .select('*')
-      .ilike('goal', `%${keyword}%`);
+      .ilike('goal', `%${keyword.toLowerCase()}%`);
 
     if (data && data.length > 0) {
       const s = data[0];
@@ -33,7 +28,21 @@ export default function ChatCoach() {
         { role: 'coach', text: "Hmm, I couldn't find a supplement for that goal yet." },
       ]);
     }
+  };
 
+  useEffect(() => {
+    const storedGoal = localStorage.getItem('goal');
+    if (storedGoal && messages.length === 0) {
+      fetchSupplement(storedGoal);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSend = async () => {
+    if (!input.trim()) return;
+
+    setMessages([...messages, { role: 'user', text: input }]);
+    await fetchSupplement(input);
     setInput('');
   };
 
