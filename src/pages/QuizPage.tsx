@@ -43,6 +43,9 @@ const QuizPage = () => {
 
   const handleSingleSelect = (option: string) => {
     setAnswers({ ...answers, [currentQuestion.id]: option });
+    if (currentQuestion.id === 'goal') {
+      localStorage.setItem('goal', option);
+    }
     if (step < questions.length - 1) {
       setStep(step + 1);
     }
