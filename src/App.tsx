@@ -16,6 +16,7 @@ import CheckoutCancelPage from './pages/checkout/CheckoutCancelPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import PricingPage from './pages/PricingPage';
 import HowItWorksPage from './pages/HowItWorksPage';
+import TestOpenAI from './pages/TestOpenAI';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="onboarding" element={<OnboardingPage />} />
         <Route path="pricing" element={<PricingPage />} />
         <Route path="how-it-works" element={<HowItWorksPage />} />
+        <Route path="test-openai" element={<TestOpenAI />} />
         <Route path="dashboard" element={
           <ProtectedRoute>
             <DashboardPage />

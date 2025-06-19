@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Try to get OpenAI API key from different sources in order of priority:
+    // Try to get OpenAI API key from different sources in priority order:
     // 1. Environment variable (set on Supabase)
     // 2. Request header (sent from frontend)
     // 3. Request parameters
