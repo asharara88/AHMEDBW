@@ -66,7 +66,7 @@ Deno.serve(async (req) => {
     }
     
     if (!OPENAI_API_KEY) {
-      throw new Error("Missing OpenAI API key");
+      throw new Error("Missing OpenAI API key. Please set the OPENAI_API_KEY secret in your Supabase project.");
     }
 
     // Get request data
