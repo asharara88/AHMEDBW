@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Plus, Minus, ExternalLink, AlertCircle, Info, ChevronDown, ChevronUp, ShoppingCart, Heart, Star } from 'lucide-react';
 import { Supplement } from '../../types/supplements';
 import { useCart } from '../shopping/CartProvider';
+import ImageWithFallback from '../common/ImageWithFallback';
 
 interface SupplementCardProps {
   supplement: Supplement;
@@ -91,6 +92,15 @@ const SupplementCard = ({
           </div>
         </div>
 
+        <div className="relative mb-3 h-32 w-full overflow-hidden rounded-lg">
+          <ImageWithFallback
+            src={supplement?.form_image_url || supplement?.image_url}
+            alt={supplement?.name || 'Supplement'}
+            className="h-full w-full object-contain"
+            fallbackSrc="https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg"
+          />
+        </div>
+
         <p className="text-xs text-text-light mb-3 line-clamp-2">{supplement?.description || 'No description available'}</p>
 
         {/* Categories */}
@@ -121,7 +131,7 @@ const SupplementCard = ({
 
         {/* Price and Action */}
         <div className="mt-auto flex items-center justify-between">
-          <div className="text-base font-bold">AED {supplement?.price_aed || 0}</div>
+          <div className="text-base font-bold">AED {supplement?.price_aed?.toFixed(2) || 0}</div>
           <div className="flex gap-2">
             <button
               onClick={isInStack ? onRemoveFromStack : onAddToStack}

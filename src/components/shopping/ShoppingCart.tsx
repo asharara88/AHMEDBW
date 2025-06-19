@@ -76,13 +76,13 @@ const ShoppingCart = ({
                             <ImageWithFallback
                               src={item.supplement.form_image_url || item.supplement.image_url}
                               alt={item.supplement.name}
-                              className="h-full w-full object-cover"
+                              className="h-full w-full object-contain"
                               fallbackSrc="https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg"
                             />
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="truncate text-sm font-medium">{item.supplement.name}</h4>
-                            <p className="text-xs text-text-light">AED {item.supplement.price_aed}</p>
+                            <p className="text-xs text-text-light">AED {item.supplement.price_aed.toFixed(2)}</p>
                             <div className="mt-1 flex items-center">
                               <button
                                 onClick={() => updateQuantity(item.supplement.id, item.quantity - 1)}
