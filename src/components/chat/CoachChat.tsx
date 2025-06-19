@@ -14,7 +14,6 @@ export default function CoachChat() {
     setError(null);
 
     try {
- codex/fix-chat-error-handling
       const res = await fetch('/api/openai-proxy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -28,39 +27,6 @@ export default function CoachChat() {
     } catch (err: any) {
       console.error('Chat error:', err);
       setError(err.message || 'There was an issue generating a response. Please try again later.');
-
-      const userId = user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined);
-      
-      const content = await openaiApi.generateResponse(input, { userId });
-      setResponse(content);
-      
-      // Generate speech if preferred
-      if (preferSpeech && elevenlabsApi.isConfigured()) {
-        try {
-          await generateSpeech(content);
-        } catch (speechError) {
-          // Log but don't block the response if speech fails
-          console.error("Speech generation failed:", speechError);
-        }
-      }
-    } catch (err: any) {
-      console.error("Chat error:", err);
-      
-      // Create a user-friendly error
-      const apiError: ApiError = {
-        type: ErrorType.UNKNOWN,
-        message: err.message || "Failed to fetch response"
-      };
-      
-      // If it's already an ApiError type, use it directly
-      if (err.type) {
-        setError(err as ApiError);
-      } else {
-        setError(apiError);
-      }
-    } finally {
-      setLoading(false);
- main
     }
   };
 
