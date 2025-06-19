@@ -4,15 +4,21 @@ import { Activity, Shield, Watch, Brain, MessageCircle, CheckCircle, ArrowRight,
 import { useAuth } from '../contexts/AuthContext';
 import ConnectCard from '../components/home/ConnectCard';
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
   const { user, startDemo } = useAuth();
   const [showTooltip, setShowTooltip] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const navigate = useNavigate();
 
   const handleDemoClick = () => {
     startDemo();
+  };
+
+  const handleGetStarted = () => {
+    navigate('/signup');
   };
 
   // Toggle tooltip visibility
@@ -107,13 +113,13 @@ const HomePage = () => {
                   </Link>
                 ) : (
                   <>
-                    <Link
-                      to="/signup"
+                    <button
+                      onClick={handleGetStarted}
                       className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-primary-dark sm:w-auto"
                     >
                       Get Started
                       <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                    </Link>
+                    </button>
                     <button
                       onClick={handleDemoClick}
                       className="inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-8 py-4 text-lg font-semibold transition-all hover:bg-[hsl(var(--color-card-hover))] sm:w-auto"
