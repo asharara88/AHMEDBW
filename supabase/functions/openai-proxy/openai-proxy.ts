@@ -1,7 +1,14 @@
 import OpenAI from "openai";
 
+const apiKey = Deno.env.get("OPENAI_API_KEY");
+
+if (!apiKey) {
+  console.error("OPENAI_API_KEY is missing");
+  throw new Error("OPENAI_API_KEY not configured");
+}
+
 const openai = new OpenAI({
-  apiKey: Deno.env.get("OPENAI_API_KEY"),
+  apiKey,
 });
 
 Deno.serve(async (req) => {
@@ -29,10 +36,14 @@ Deno.serve(async (req) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
     console.error("Proxy error:", err);
-    return new Response(JSON.stringify({ error: "AI service failure", details: err.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: "AI service failure", details: message }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 });

@@ -2,8 +2,15 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
 
+const apiKey = process.env.OPENAI_API_KEY;
+
+if (!apiKey) {
+  console.error("OPENAI_API_KEY is missing");
+  throw new Error("OPENAI_API_KEY not configured");
+}
+
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey,
 });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -18,9 +25,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       temperature: 0.7,
     });
     res.status(200).json({ result: completion.choices[0].message.content });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
     console.error("OpenAI Proxy Error:", error);
-    res.status(500).json({ error: error.message || "Failed to fetch from OpenAI" });
+    res.status(500).json({ error: message || "Failed to fetch from OpenAI" });
   }
 }
 
