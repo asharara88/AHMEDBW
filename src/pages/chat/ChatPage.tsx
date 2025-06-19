@@ -10,7 +10,14 @@ export default function ChatCoach() {
     const { data } = await supabase
       .from('supplements')
       .select('*')
+ menxox-codex/store-and-retrieve-goal-in-localstorage
       .ilike('goal', `%${keyword.toLowerCase()}%`);
+
+      .or(
+        `goal.ilike.%${keyword}%,mechanism.ilike.%${keyword}%,evidence_summary.ilike.%${keyword}%`
+      )
+      .limit(1);
+ main
 
     if (data && data.length > 0) {
       const s = data[0];
@@ -47,37 +54,49 @@ export default function ChatCoach() {
   };
 
   return (
-    <div className="p-4 space-y-2">
+    <div className="p-4 space-y-4">
       {messages.map((m, i) => (
-        <div key={i}>
-          <p className="font-semibold">{m.role === 'user' ? 'You' : 'Coach'}:</p>
-          <p>
-            {m.text}{' '}
-            {m.link && (
-              <a
-                href={m.link}
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-600 underline"
-              >
-                Study ↗
-              </a>
-            )}
-          </p>
+        <div
+          key={i}
+          className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+        >
+          <div
+            className={`max-w-xs rounded-lg px-3 py-2 text-sm ${
+              m.role === 'user'
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-200 text-gray-800'
+            }`}
+          >
+            <span>
+              {m.text}{' '}
+              {m.link && (
+                <a
+                  href={m.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline"
+                >
+                  Study ↗
+                </a>
+              )}
+            </span>
+          </div>
         </div>
       ))}
-      <input
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="What's your goal?"
-        className="border p-2 rounded w-full"
-      />
-      <button
-        onClick={handleSend}
-        className="p-2 mt-2 bg-blue-500 text-white rounded w-full"
-      >
-        Send
-      </button>
+      <div className="flex gap-2">
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="What's your goal?"
+          className="flex-1 rounded border p-2"
+        />
+        <button
+          onClick={handleSend}
+          className="rounded bg-blue-500 px-4 py-2 text-white"
+        >
+          Send
+        </button>
+      </div>
     </div>
   );
 }
