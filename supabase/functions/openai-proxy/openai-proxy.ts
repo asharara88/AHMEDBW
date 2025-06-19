@@ -1,8 +1,13 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: Deno.env.get("OPENAI_API_KEY"),
-});
+const OPENAI_KEY = Deno.env.get("OPENAI_API_KEY");
+
+if (!OPENAI_KEY) {
+  console.error("Missing OPENAI_API_KEY in Supabase environment.");
+  throw new Error("OPENAI_API_KEY not set");
+}
+
+const openai = new OpenAI({ apiKey: OPENAI_KEY });
 
 Deno.serve(async (req) => {
   try {
@@ -30,7 +35,10 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     console.error("Proxy error:", err);
-    return new Response(JSON.stringify({ error: "AI service failure", details: err.message }), {
+    return new Response(JSON.stringify({
+      error: "AI service failure",
+      details: err instanceof Error ? err.message : "Unknown error",
+    }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
