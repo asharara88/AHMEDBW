@@ -34,7 +34,7 @@ export const openaiApi = {
         throw new Error('Missing Supabase URL');
       }
       
-      let response: Response;
+      let response;
       try {
         response = await fetch(
           `${supabaseUrl}/functions/v1/openai-proxy`,
@@ -55,15 +55,11 @@ export const openaiApi = {
         );
       } catch (networkError) {
         logError('Network request failed', networkError);
-        codex/fix-openai-api-fetch-error
         throw {
           type: ErrorType.NETWORK,
           message: 'Unable to reach AI service. Please check your connection.',
           originalError: networkError,
         } as ApiError;
-
-        throw new Error('Unable to reach AI service. Please check your connection.');
-        main
       }
 
       if (!response.ok) {
@@ -88,12 +84,12 @@ export const openaiApi = {
           }
         }
         
-        logError('Edge Function error', {
+        logError('Edge Function error', { 
           status: response.status,
           statusText: response.statusText,
           errorData
         });
-
+        
         const apiError: ApiError = {
           type: ErrorType.SERVER,
           message: errorMessage,
