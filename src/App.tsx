@@ -6,6 +6,7 @@ import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
 import OnboardingPage from './pages/auth/OnboardingPage';
 import QuizPage from './pages/QuizPage';
+import StackPage from './pages/StackPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import ChatPage from './pages/chat/ChatPage';
@@ -28,6 +29,7 @@ function App() {
         <Route path="signup" element={<SignupPage />} />
         <Route path="onboarding" element={<OnboardingPage />} />
         <Route path="quiz" element={<QuizPage />} />
+        <Route path="stack" element={<StackPage />} />
         <Route path="pricing" element={<PricingPage />} />
         <Route path="how-it-works" element={<HowItWorksPage />} />
         <Route path="test-openai" element={<TestOpenAI />} />

@@ -99,8 +99,8 @@ const QuizPage = () => {
         });
       }
       
-      // Navigate to dashboard
-      navigate('/dashboard');
+      // Navigate to stack page with the selected goal
+      navigate(`/stack?goal=${encodeURIComponent(answers.goal as string)}`);
     } catch (error) {
       console.error('Error submitting quiz:', error);
     } finally {
@@ -197,9 +197,19 @@ const QuizPage = () => {
                   <button
                     onClick={handleNext}
                     className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary-dark"
+                    disabled={loading}
                   >
-                    {step === questions.length - 1 ? 'Complete' : 'Next'}
-                    <ChevronRight className="h-4 w-4" />
+                    {loading ? (
+                      <>
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        {step === questions.length - 1 ? 'Complete' : 'Next'}
+                        <ChevronRight className="h-4 w-4" />
+                      </>
+                    )}
                   </button>
                 </div>
               </>
