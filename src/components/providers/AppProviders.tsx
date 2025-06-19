@@ -3,9 +3,11 @@ import { BrowserRouter } from 'react-router-dom';
 import { SupabaseProvider } from '../../contexts/SupabaseContext';
 import { ThemeProvider } from '../../contexts/ThemeContext';
 import { AuthProvider } from '../../contexts/AuthContext';
-import { CartProvider } from '../../components/shopping/CartProvider';
-import ErrorHandler from '../../components/common/ErrorHandler';
-import AuthErrorHandler from '../../components/auth/AuthErrorHandler';
+import { CartProvider } from '../shopping/CartProvider';
+import ErrorHandler from '../common/ErrorHandler';
+import AuthErrorHandler from '../auth/AuthErrorHandler';
+import { SessionContextProvider } from '@supabase/auth-helpers-react';
+import { supabase } from '../../lib/supabaseClient';
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -17,17 +19,19 @@ interface AppProvidersProps {
 export function AppProviders({ children }: AppProvidersProps) {
   return (
     <BrowserRouter>
-      <SupabaseProvider>
-        <ThemeProvider>
-          <AuthProvider>
-            <CartProvider>
-              <ErrorHandler />
-              <AuthErrorHandler />
-              {children}
-            </CartProvider>
-          </AuthProvider>
-        </ThemeProvider>
-      </SupabaseProvider>
+      <SessionContextProvider supabaseClient={supabase}>
+        <SupabaseProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <CartProvider>
+                <ErrorHandler />
+                <AuthErrorHandler />
+                {children}
+              </CartProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </SupabaseProvider>
+      </SessionContextProvider>
     </BrowserRouter>
   );
 }
