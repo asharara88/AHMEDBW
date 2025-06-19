@@ -1,74 +1,74 @@
+// pages/chat.tsx
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { MessageCircle, Activity, ChevronRight } from 'lucide-react';
-import BasicCoachChat from '../../components/chat/BasicCoachChat';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { supabase } from '../../lib/supabaseClient';
 
-const ChatPage = () => {
-  const location = useLocation();
-  const isMainChat = location.pathname === '/chat';
+export default function ChatCoach() {
+  const [messages, setMessages] = useState([] as any[]);
+  const [input, setInput] = useState('');
+
+  const handleSend = async () => {
+    if (!input.trim()) return;
+
+    setMessages([...messages, { role: 'user', text: input }]);
+
+    const keyword = input.toLowerCase();
+    const { data } = await supabase
+      .from('supplements')
+      .select('*')
+      .ilike('goal', `%${keyword}%`);
+
+    if (data && data.length > 0) {
+      const s = data[0];
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'coach',
+          text: `Got it! Based on your goal, I suggest ${s.name}. ${s.evidence_summary}.`,
+          link: s.source_link,
+        },
+      ]);
+    } else {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'coach', text: "Hmm, I couldn't find a supplement for that goal yet." },
+      ]);
+    }
+
+    setInput('');
+  };
 
   return (
-    <div className="container mx-auto">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mx-auto max-w-4xl"
-      >
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold md:text-3xl">Health Coach</h1>
-          <p className="text-text-light">
-            Evidence-based health advice and personalized insights
+    <div className="p-4 space-y-2">
+      {messages.map((m, i) => (
+        <div key={i}>
+          <p className="font-semibold">{m.role === 'user' ? 'You' : 'Coach'}:</p>
+          <p>
+            {m.text}{' '}
+            {m.link && (
+              <a
+                href={m.link}
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-600 underline"
+              >
+                Study ↗
+              </a>
+            )}
           </p>
         </div>
-
-        <div className="mb-6 flex space-x-4">
-          <Link
-            to="/chat"
-            className={`flex items-center rounded-lg px-4 py-2 ${
-              isMainChat 
-                ? 'bg-primary text-white' 
-                : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
-            }`}
-          >
-            <MessageCircle className="mr-2 h-5 w-5" />
-            Chat
-          </Link>
-          <Link
-            to="/chat/quick-tips"
-            className={`flex items-center rounded-lg px-4 py-2 ${
-              !isMainChat 
-                ? 'bg-primary text-white' 
-                : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
-            }`}
-          >
-            <Activity className="mr-2 h-5 w-5" />
-            Quick Tips
-          </Link>
-        </div>
-
-        {isMainChat ? (
-          <>
-            <div className="h-[calc(100vh-16rem)]">
-              <BasicCoachChat />
-            </div>
-
-            <div className="mt-4 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 text-sm text-text-light">
-              <p className="flex items-center gap-2">
-                <MessageCircle className="h-4 w-4 text-primary" />
-                <span>
-                  Always consult with healthcare professionals before making significant changes to your health regimen.
-                </span>
-              </p>
-            </div>
-          </>
-        ) : (
-          <Outlet />
-        )}
-      </motion.div>
+      ))}
+      <input
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="What's your goal?"
+        className="border p-2 rounded w-full"
+      />
+      <button
+        onClick={handleSend}
+        className="p-2 mt-2 bg-blue-500 text-white rounded w-full"
+      >
+        Send
+      </button>
     </div>
   );
-};
-
-export default ChatPage;
+}
