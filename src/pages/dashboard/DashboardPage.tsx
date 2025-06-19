@@ -3,7 +3,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
 import HealthDashboard from '../../components/dashboard/HealthDashboard';
-import CoachChat from '../../components/chat/CoachChat';
 
 const DashboardPage = () => {
   const { user, isDemo } = useAuth();
@@ -31,13 +30,8 @@ const DashboardPage = () => {
         )}
 
         <div className="grid gap-6 md:grid-cols-12">
-          <div className="md:col-span-8 min-w-0 overflow-x-visible">
+          <div className="md:col-span-12 min-w-0 overflow-x-visible">
             <HealthDashboard />
-          </div>
-          <div className="md:col-span-4">
-            <div className="space-y-6">
-              <CoachChat />
-            </div>
           </div>
         </div>
       </motion.div>
