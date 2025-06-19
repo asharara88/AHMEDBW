@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Package, Activity, MessageCircle } from 'lucide-react';
+import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Package, Activity } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import Logo from '../common/Logo';
@@ -13,12 +13,10 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
-  const [isCoachMenuOpen, setIsCoachMenuOpen] = useState(false);
   
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
   const toggleThemeMenu = () => setIsThemeMenuOpen(!isThemeMenuOpen);
-  const toggleCoachMenu = () => setIsCoachMenuOpen(!isCoachMenuOpen);
   
   const handleSignOut = async () => {
     await signOut();
@@ -62,34 +60,12 @@ const Navbar = () => {
                   >
                     Dashboard
                   </Link>
-                  <div className="relative">
-                    <button
-                      onClick={toggleCoachMenu}
-                      className={`nav-link ${isActive('/chat') || location.pathname.startsWith('/chat/') ? 'nav-link-active' : ''}`}
-                    >
-                      Coach
-                    </button>
-                    {isCoachMenuOpen && (
-                      <div className="dropdown-menu">
-                        <Link 
-                          to="/chat" 
-                          className="dropdown-item"
-                          onClick={() => setIsCoachMenuOpen(false)}
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                          Chat
-                        </Link>
-                        <Link 
-                          to="/chat/quick-tips" 
-                          className="dropdown-item"
-                          onClick={() => setIsCoachMenuOpen(false)}
-                        >
-                          <Activity className="h-4 w-4" />
-                          Quick Tips
-                        </Link>
-                      </div>
-                    )}
-                  </div>
+                  <Link 
+                    to="/chat" 
+                    className={`nav-link ${isActive('/chat') || location.pathname.startsWith('/chat/') ? 'nav-link-active' : ''}`}
+                  >
+                    Coach
+                  </Link>
                   <Link 
                     to="/supplements" 
                     className={`nav-link ${isActive('/supplements') ? 'nav-link-active' : ''}`}
@@ -220,51 +196,16 @@ const Navbar = () => {
                   >
                     Dashboard
                   </Link>
-                  <div className="px-4 py-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-text-light">Coach</span>
-                      <button 
-                        onClick={() => setIsCoachMenuOpen(!isCoachMenuOpen)}
-                        className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card-hover))]"
-                      >
-                        {isCoachMenuOpen ? (
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="18" y1="15" x2="12" y2="9" />
-                            <line x1="12" y1="9" x2="6" y2="15" />
-                          </svg>
-                        ) : (
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="6" y1="9" x2="12" y2="15" />
-                            <line x1="12" y1="15" x2="18" y2="9" />
-                          </svg>
-                        )}
-                      </button>
-                    </div>
-                    {isCoachMenuOpen && (
-                      <div className="mt-2 space-y-1 pl-4">
-                        <Link 
-                          to="/chat" 
-                          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
-                            isActive('/chat') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
-                          }`}
-                          onClick={toggleMenu}
-                        >
-                          <MessageCircle className="h-5 w-5" />
-                          Chat
-                        </Link>
-                        <Link 
-                          to="/chat/quick-tips" 
-                          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
-                            location.pathname === '/chat/quick-tips' ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
-                          }`}
-                          onClick={toggleMenu}
-                        >
-                          <Activity className="h-5 w-5" />
-                          Quick Tips
-                        </Link>
-                      </div>
-                    )}
-                  </div>
+                  <Link 
+                    to="/chat" 
+                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
+                      isActive('/chat') || location.pathname.startsWith('/chat/') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
+                    }`}
+                    onClick={toggleMenu}
+                  >
+                    <Activity className="h-5 w-5" />
+                    Coach
+                  </Link>
                   <Link 
                     to="/supplements" 
                     className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
