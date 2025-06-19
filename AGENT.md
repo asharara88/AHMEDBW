@@ -51,4 +51,4 @@ When providing health advice:
 - Not a replacement for professional medical advice
 - Recommendations are general wellness suggestions, not medical treatment
 - Limited to analyzing available user data
-- Supplement recommendations focus on generally recognized as safe (GRAS) ingredients
+- Supplement recommendations focus on generally recognized as safe (GRAS) ingredients.

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { logError } from '../../utils/logger';
 
 /**
  * Component to handle authentication errors globally
@@ -22,19 +23,19 @@ const AuthErrorHandler = () => {
           if (response.status === 400 && 
               (errorData.error?.includes('Invalid Refresh Token') || 
                errorData.error?.includes('Refresh Token Not Found'))) {
-            console.error('Auth error detected:', errorData.error);
+            logError('Auth error detected', errorData.error);
             
             // Try to refresh the session
             try {
               await refreshSession();
             } catch (refreshError) {
               // If refresh fails, redirect to login
-              console.error('Session refresh failed:', refreshError);
+              logError('Session refresh failed', refreshError);
               navigate('/login', { replace: true });
             }
           }
         } catch (parseError) {
-          console.error('Error parsing API response:', parseError);
+          logError('Error parsing API response', parseError);
         }
       }
     };
@@ -42,9 +43,21 @@ const AuthErrorHandler = () => {
     // Create a fetch interceptor
     const originalFetch = window.fetch;
     window.fetch = async function(input, init) {
-      const response = await originalFetch(input, init);
-      await handleApiResponse(response);
-      return response;
+      // Add credentials to all requests
+      const modifiedInit = {
+        ...init,
+        credentials: 'include'
+      };
+
+      try {
+        const response = await originalFetch(input, modifiedInit);
+        await handleApiResponse(response);
+        return response;
+      } catch (error) {
+        // Log network errors for easier debugging
+        logError('Network request failed', error);
+        throw error;
+      }
     };
 
     // Cleanup function to restore original fetch
