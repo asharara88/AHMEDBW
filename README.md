@@ -76,36 +76,68 @@ npm run dev
 
 #### Setting up OpenAI API Key (Required for AI Chat)
 
-**IMPORTANT**: The AI chat functionality requires an OpenAI API key to be configured as a Supabase secret. Follow these steps:
+**IMPORTANT**: The AI chat functionality requires an OpenAI API key to be configured as a Supabase secret. Follow these steps carefully:
 
 1. **Get your OpenAI API key** from [OpenAI's platform](https://platform.openai.com/api-keys)
 
-2. **Set the API key as a Supabase secret** (this is the recommended and secure approach):
-
+2. **Login to Supabase CLI**:
 ```bash
-# Login to Supabase CLI (if not already logged in)
 supabase login
+```
 
-# Link your project (replace with your project reference)
+3. **Link your project** (replace with your actual project reference):
+```bash
 supabase link --project-ref your-project-ref
+```
 
-# Set the OpenAI API key as a secret
+4. **Set the OpenAI API key as a Supabase secret** (replace `your-actual-openai-api-key` with your real OpenAI API key):
+```bash
 supabase secrets set OPENAI_API_KEY=your-actual-openai-api-key
 ```
 
-3. **Deploy the Edge Function** for OpenAI proxy:
-
+5. **Deploy the Edge Function** for OpenAI proxy:
 ```bash
 supabase functions deploy openai-proxy
 ```
 
-4. **Verify the setup** by checking that the secret was set correctly:
-
+6. **Verify the setup** by checking that the secret was set correctly:
 ```bash
 supabase secrets list
 ```
 
 You should see `OPENAI_API_KEY` in the list of secrets.
+
+#### Troubleshooting OpenAI Integration
+
+If you encounter the error "Incorrect API key provided" or "Missing OpenAI API key":
+
+1. **Verify your OpenAI API key is valid**:
+   - Go to [OpenAI's API keys page](https://platform.openai.com/api-keys)
+   - Make sure your key is active and has sufficient credits
+   - Copy the exact key (it should start with `sk-`)
+
+2. **Check if the secret is properly set**:
+   ```bash
+   supabase secrets list
+   ```
+   You should see `OPENAI_API_KEY` listed.
+
+3. **If the secret is missing or incorrect, set it again**:
+   ```bash
+   supabase secrets set OPENAI_API_KEY=sk-your-actual-key-here
+   ```
+
+4. **Redeploy the Edge Function** after setting/updating the secret:
+   ```bash
+   supabase functions deploy openai-proxy
+   ```
+
+5. **Check the Edge Function logs** for more details:
+   ```bash
+   supabase functions logs openai-proxy
+   ```
+
+6. **Verify your OpenAI account** has sufficient credits at [OpenAI's usage dashboard](https://platform.openai.com/usage)
 
 #### Alternative Setup for Local Development
 
@@ -126,27 +158,6 @@ supabase functions serve
 ```
 
 **Note**: The `.env` file approach only works for local development. For production, you must use Supabase secrets.
-
-### Troubleshooting OpenAI Integration
-
-If you encounter the error "Missing OpenAI API key":
-
-1. **Check if the secret is set**:
-   ```bash
-   supabase secrets list
-   ```
-
-2. **Redeploy the Edge Function** after setting the secret:
-   ```bash
-   supabase functions deploy openai-proxy
-   ```
-
-3. **Verify your OpenAI API key** is valid and has sufficient credits at [OpenAI's usage dashboard](https://platform.openai.com/usage)
-
-4. **Check the Edge Function logs** for more details:
-   ```bash
-   supabase functions logs openai-proxy
-   ```
 
 ### Audio Cache Table
 
