@@ -13,7 +13,7 @@ export const sendChatMessage = async (messages: any[]) => {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${session.access_token}`,
-      'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
+      'apikey': import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     };
     
     // Optional: Add OpenAI API key if available in frontend env
@@ -23,7 +23,7 @@ export const sendChatMessage = async (messages: any[]) => {
     }
     
     const res = await fetch(
-      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-assistant`,
+      `${import.meta.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/chat-assistant`,
       {
         method: 'POST',
         headers,

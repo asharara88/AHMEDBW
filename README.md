@@ -50,8 +50,8 @@ npm install
 3. Copy `.env.production.example` to `.env` and add your credentials:
 
 ```
-VITE_SUPABASE_URL=your-supabase-url
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 VITE_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key # optional, not currently used
 VITE_OPENAI_API_KEY=your-openai-api-key # optional for local dev
 VITE_CAPTCHA_SECRET_KEY=your-captcha-secret-key # optional

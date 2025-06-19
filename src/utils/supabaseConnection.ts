@@ -22,8 +22,8 @@ export async function checkSupabaseConnection(): Promise<boolean> {
   while (retryCount < MAX_RETRY_ATTEMPTS && !connected) {
     try {
       // First check if we have the required environment variables
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const supabaseUrl = import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
       
       if (!supabaseUrl || !supabaseAnonKey) {
         logError('Supabase environment variables are missing', { 

@@ -2,8 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import { logError, logInfo, logWarning } from '../utils/logger';
 
 // Get environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Validate required environment variables
 if (!supabaseUrl || !supabaseAnonKey) {
@@ -18,8 +18,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
       ⚠️ Supabase configuration is missing! ⚠️
       
       Please ensure you have the following in your .env file:
-      VITE_SUPABASE_URL=your-supabase-url
-      VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+      NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+      NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
       
       If you're running in development mode, you can create a .env.local file with these values.
     `);
