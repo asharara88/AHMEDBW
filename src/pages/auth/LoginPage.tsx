@@ -31,7 +31,7 @@ const LoginPage = () => {
         }
         
         if (!onboardingCompleted) {
-          navigate('/onboarding');
+          navigate('/quiz');
           return;
         }
         
@@ -86,7 +86,7 @@ const LoginPage = () => {
       }
       
       if (!onboardingCompleted) {
-        navigate('/onboarding');
+        navigate('/quiz');
         return;
       }
       

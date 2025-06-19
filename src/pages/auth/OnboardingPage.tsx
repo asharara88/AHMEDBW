@@ -140,7 +140,7 @@ const OnboardingPage = () => {
           <div className="rounded-xl bg-[hsl(var(--color-card))] shadow-lg dark:shadow-lg dark:shadow-black/10">
             {useConversational ? (
               <div className="h-[600px]">
-                <ConversationalOnboarding />
+                <ConversationalOnboarding onComplete={handleOnboardingComplete} />
               </div>
             ) : (
               <div className="p-8">
