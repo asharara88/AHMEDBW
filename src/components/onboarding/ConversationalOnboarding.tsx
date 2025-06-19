@@ -92,7 +92,7 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
   const processUserInput = (userInput: string) => {
     try {
       switch(currentStep) {
-        case 'name':
+        case 'name': {
           // Extract name
           const nameParts = userInput.trim().split(' ');
           const firstName = nameParts[0];
@@ -104,6 +104,7 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
           // Next question
           addBotMessage(`Nice to meet you, ${firstName}! To help personalize your experience, could you tell me your gender?`);
           break;
+        }
           
         case 'gender':
           // Process gender
@@ -138,7 +139,7 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
           addBotMessage(`Got it. Are you currently taking any supplements? If yes, please list them.`);
           break;
           
-        case 'supplements':
+        case 'supplements': {
           // Extract supplements
           const supplements = userInput
             .split(/[,;]/)
@@ -159,6 +160,7 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
             }
           }, 2000);
           break;
+        }
           
         default:
           break;
