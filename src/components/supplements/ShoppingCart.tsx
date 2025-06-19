@@ -21,7 +21,7 @@ interface ShoppingCartProps {
 }
 
 const ShoppingCart = ({
-  cartItems,
+  cartItems = [],
   updateQuantity,
   removeItem,
   clearCart,
