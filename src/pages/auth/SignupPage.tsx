@@ -11,7 +11,7 @@ const SignupPage = () => {
   const { signUp } = useAuth();
   
   const handleSignupSuccess = () => {
-    navigate('/onboarding');
+    navigate('/quiz');
   };
   
   const handleSignUp = async (email: string, password: string) => {
@@ -63,7 +63,7 @@ const SignupPage = () => {
         )}
         
         <div className="rounded-xl bg-[hsl(var(--color-card))] p-8 shadow-lg dark:shadow-lg dark:shadow-black/10">
-          <SignUpForm onSuccess={handleSignupSuccess} onSignUp={handleSignUp} />
+          <SignUpForm onSuccess={handleSignupSuccess} onSignUp={handleSignUp} redirectTo="/quiz" />
         </div>
         
         <div className="mt-6 text-center text-sm text-text-light">
