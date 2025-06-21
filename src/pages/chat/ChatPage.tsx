@@ -10,14 +10,10 @@ export default function ChatCoach() {
     const { data } = await supabase
       .from('supplements')
       .select('*')
- b9wde5-codex/update-chat.tsx-with-supplement-search-and-styling
       .or(
         `goal.ilike.%${keyword}%,mechanism.ilike.%${keyword}%,evidence_summary.ilike.%${keyword}%`
       )
       .limit(1);
-
-      .ilike('goal', `%${keyword.toLowerCase()}%`);
- main
 
     if (data && data.length > 0) {
       const s = data[0];
