@@ -1,4 +1,4 @@
-import codex from './codex_biowell_export_v1.json';
+import codex from './codex_biowell_export_v1.json'
 
 /**
  * Get the appropriate prompt based on user phenotype
@@ -6,10 +6,7 @@ import codex from './codex_biowell_export_v1.json';
  * @returns Prompt string for the given phenotype or fallback message
  */
 export function getPromptByPhenotype(phenotype: string): string {
-  const phenotypeMap = codex.phenotype_to_prompt_map as Record<string, string>;
-  const fallbackLogic = codex.fallback_logic as Record<string, string>;
-  
-  return phenotypeMap[phenotype] || fallbackLogic.no_stack_match;
+  return codex.phenotype_to_prompt_map[phenotype] || codex.fallback_logic.no_stack_match
 }
 
 /**
@@ -18,33 +15,17 @@ export function getPromptByPhenotype(phenotype: string): string {
  * @param sleepData Sleep metrics data
  * @returns Boolean indicating if recovery mode should be triggered
  */
-export function shouldTriggerRecovery(userInput: string, sleepData: any): boolean {
-  // Extract recovery conditions from codex
-  const recoveryTriggers = codex.recovery_mode_trigger.conditions;
-  const keywordCondition = recoveryTriggers.find(c => c.includes('keywords:'));
-  
-  // Parse keywords from the condition string
-  const keywordsMatch = keywordCondition?.match(/keywords: (.*?)$/);
-  const keywords = keywordsMatch ? 
-    keywordsMatch[1].split(', ').map(k => k.trim()) : 
-    ['burnout', 'tired', 'demotivated', "can't focus"];
-  
-  // Check if user input contains any trigger keywords
-  const matchesInput = keywords.some(word => 
-    userInput.toLowerCase().includes(word.toLowerCase())
-  );
-  
-  // Check sleep data if available
-  let lowSleep = false;
-  if (sleepData) {
-    // Check for low REM or deep sleep
-    lowSleep = (
-      (sleepData.deepSleep && sleepData.deepSleep < 1.2) || 
-      (sleepData.remSleep && sleepData.remSleep < 1.5)
-    );
-  }
-  
-  return matchesInput || lowSleep;
+export function shouldTriggerRecovery(
+  userInput: string,
+  sleepData: { deepSleep: number; remSleep: number }
+): boolean {
+  const inputKeywords = ['burnout', 'tired', 'demotivated', "can't focus"]
+  const matchesInput = inputKeywords.some(word =>
+    userInput.toLowerCase().includes(word)
+  )
+  const lowSleep = sleepData.deepSleep < 40 && sleepData.remSleep < 60
+
+  return matchesInput || lowSleep
 }
 
 /**
@@ -59,9 +40,7 @@ export function getRecoveryActions(): string[] {
  * Get available codex functions
  * @returns Array of function names
  */
-export function getCodexFunctions(): string[] {
-  return codex.modular_functions;
-}
+export const codexFunctions = codex.modular_functions
 
 /**
  * Get fallback logic for a specific scenario
@@ -126,7 +105,7 @@ export default {
   getPromptByPhenotype,
   shouldTriggerRecovery,
   getRecoveryActions,
-  getCodexFunctions,
+  codexFunctions,
   getFallbackLogic,
   getAvailablePhenotypes,
   generateSupplementStack

@@ -8,7 +8,7 @@ export {
   getPromptByPhenotype,
   shouldTriggerRecovery,
   getRecoveryActions,
-  getCodexFunctions,
+  codexFunctions,
   getFallbackLogic,
   getAvailablePhenotypes,
   generateSupplementStack
