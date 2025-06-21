@@ -1,0 +1,34 @@
+{
+  "version": "v1.0",
+  "exported_at": "2025-06-21T14:49:25.320092",
+  "phenotype_to_prompt_map": {
+    "low_dopamine": "Trigger Recovery Mode with habit reset, emotional regulation, and dopamine stack.",
+    "poor_sleep": "Prioritize deep sleep protocol with magnesium glycinate, ashwagandha, and sleep hygiene habits.",
+    "high_performance": "Use performance stack: Rhodiola, creatine, and L-theanine. Emphasize recovery cues.",
+    "gut_issues": "Recommend probiotics + gut support protocol. Trigger meal timing and enzyme advice.",
+    "fat_loss": "Suggest metabolism stack + intermittent fasting + movement reminders."
+  },
+  "fallback_logic": {
+    "missing_quiz": "Prompt user to retake quiz or manually set phenotype in chat.",
+    "no_stack_match": "Display curated lifestyle advice and offer general wellness stack.",
+    "data_sync_error": "Display friendly message and retry wearable/API sync."
+  },
+  "modular_functions": [
+    "getPhenotypePrompt()",
+    "routeUserInput()",
+    "generateSupplementStack()",
+    "triggerRecoveryMode()",
+    "updateDashboardMetrics()"
+  ],
+  "recovery_mode_trigger": {
+    "conditions": [
+      "Low REM or deep sleep 3 nights in a row",
+      "User inputs keywords: burnout, tired, demotivated, can't focus"
+    ],
+    "actions": [
+      "Launch Recovery Mode intro message",
+      "Show dopamine protocol stack",
+      "Prioritize circadian rhythm cues and mindfulness habits"
+    ]
+  }
+}
