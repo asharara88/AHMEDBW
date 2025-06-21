@@ -11,7 +11,8 @@ const SignupPage = () => {
   const { signUp } = useAuth();
   
   const handleSignupSuccess = () => {
-    navigate('/quiz');
+    // After creating an account send the user to the onboarding flow
+    navigate('/onboarding');
   };
   
   const handleSignUp = async (email: string, password: string) => {
@@ -63,7 +64,7 @@ const SignupPage = () => {
         )}
         
         <div className="rounded-xl bg-[hsl(var(--color-card))] p-8 shadow-lg dark:shadow-lg dark:shadow-black/10">
-          <SignUpForm onSuccess={handleSignupSuccess} onSignUp={handleSignUp} redirectTo="/quiz" />
+          <SignUpForm onSuccess={handleSignupSuccess} onSignUp={handleSignUp} redirectTo="/onboarding" />
         </div>
         
         <div className="mt-6 text-center text-sm text-text-light">
