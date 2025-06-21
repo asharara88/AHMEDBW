@@ -10,10 +10,7 @@ export default function ChatCoach() {
     const { data } = await supabase
       .from('supplements')
       .select('*')
-      .or(
-        `goal.ilike.%${keyword}%,mechanism.ilike.%${keyword}%,evidence_summary.ilike.%${keyword}%`
-      )
-      .limit(1);
+      .ilike('goal', `%${keyword.toLowerCase()}%`);
 
     if (data && data.length > 0) {
       const s = data[0];

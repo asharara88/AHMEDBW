@@ -9,7 +9,6 @@ import QuizPage from './pages/QuizPage';
 import StackPage from './pages/Stack';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import DashboardPage from './pages/dashboard/DashboardPage';
-import CodexDashboard from './pages/dashboard/CodexDashboard';
 import ChatPage from './pages/chat/ChatPage';
 import QuickTipPage from './pages/chat/QuickTipPage';
 import SupplementsPage from './pages/supplements/SupplementsPage';
@@ -37,11 +36,6 @@ function App() {
         <Route path="dashboard" element={
           <ProtectedRoute>
             <DashboardPage />
-          </ProtectedRoute>
-        } />
-        <Route path="codex" element={
-          <ProtectedRoute>
-            <CodexDashboard />
           </ProtectedRoute>
         } />
         <Route path="chat" element={

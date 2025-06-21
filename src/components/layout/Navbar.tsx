@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Package, Activity, Brain } from 'lucide-react';
+import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Package, Activity } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import Logo from '../common/Logo';
@@ -59,13 +59,6 @@ const Navbar = () => {
                     className={`nav-link ${isActive('/dashboard') ? 'nav-link-active' : ''}`}
                   >
                     Dashboard
-                  </Link>
-                  <Link 
-                    to="/codex" 
-                    className={`nav-link ${isActive('/codex') ? 'nav-link-active' : ''}`}
-                  >
-                    <Brain className="mr-1 h-4 w-4 inline-block" />
-                    Codex
                   </Link>
                   <Link 
                     to="/chat" 
@@ -202,16 +195,6 @@ const Navbar = () => {
                     onClick={toggleMenu}
                   >
                     Dashboard
-                  </Link>
-                  <Link 
-                    to="/codex" 
-                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
-                      isActive('/codex') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
-                    }`}
-                    onClick={toggleMenu}
-                  >
-                    <Brain className="h-5 w-5" />
-                    Codex
                   </Link>
                   <Link 
                     to="/chat" 
