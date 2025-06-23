@@ -65,7 +65,7 @@ const ProductIntroduction = ({ onComplete }: ProductIntroductionProps) => {
         <div className="flex justify-between">
           <button
             onClick={handlePrev}
-            className={`flex items-center rounded-lg border border-[hsl(var(--color-border))] px-4 py-2 text-text-light ${
+            className={`flex items-center rounded-lg border border-[hsl(var(--color-border))] px-4 py-2 text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text ${
               currentStep === 0 ? 'invisible' : ''
             }`}
           >

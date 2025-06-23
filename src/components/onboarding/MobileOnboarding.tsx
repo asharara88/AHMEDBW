@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Check, AlertCircle } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, Shield } from 'lucide-react';
 import { OnboardingFormData } from '../../api/onboardingApi';
 
 interface MobileOnboardingProps {
@@ -193,7 +193,7 @@ const MobileOnboarding = ({ onComplete }: MobileOnboardingProps) => {
           
           <div className="mb-4 rounded-lg bg-[hsl(var(--color-surface-1))] p-3">
             <div className="flex items-start gap-2">
-              <AlertCircle className="mt-0.5 h-4 w-4 text-primary" />
+              <Shield className="mt-0.5 h-4 w-4 text-primary" />
               <p className="text-xs text-text-light">
                 This information helps us provide more personalized supplement recommendations.
               </p>

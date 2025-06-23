@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, User, Loader, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -35,7 +35,7 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   
-  // Use the auto-scroll hook with onlyScrollDown set to true
+  // Use the auto-scroll hook with the onlyScrollDown parameter set to true
   useAutoScroll(messagesEndRef, [messages], { behavior: 'smooth' }, true);
 
   // Initial greeting message

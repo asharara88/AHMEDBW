@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuthStore } from '../../store';
-import OnboardingForm from '../../components/auth/OnboardingForm';
+import OnboardingForm from '../../components/onboarding/OnboardingForm';
 import ConversationalOnboarding from '../../components/onboarding/ConversationalOnboarding';
 import { AlertCircle, CheckCircle } from 'lucide-react';
 import Logo from '../../components/common/Logo';
