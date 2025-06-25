@@ -19,10 +19,12 @@ import ProfilePage from './pages/profile/ProfilePage';
 import PricingPage from './pages/PricingPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import TestOpenAI from './pages/TestOpenAI';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
     <Layout>
+      <ScrollToTop />
       <Routes>
         <Route index element={<HomePage />} />
         <Route path="login" element={<LoginPage />} />
