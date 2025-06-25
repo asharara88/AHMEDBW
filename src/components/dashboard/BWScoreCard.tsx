@@ -1,191 +1,300 @@
-me="h-5 w-5"
-                loading="eager"
-              />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium">Health Coach</h3>
-              <p className="text-xs text-text-light">Personalized health guidance</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button 
-              className={`rounded-full p-1 ${preferSpeech ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'}`}
-              title={preferSpeech ? "Turn off voice" : "Turn on voice"}
-              onClick={() => setPreferSpeech(!preferSpeech)}
-            >
-              {preferSpeech ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-            </button>
-            <button 
-              className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
-              title="About Health Coach"
-            >
-              <Info className="h-4 w-4" />
-            </button>
-            <ChatSettingsButton 
-              className="absolute right-2 top-2"
-              showVoiceSettings={preferSpeech}
-              onVoiceToggle={() => setPreferSpeech(!preferSpeech)}
-              selectedVoice={selectedVoice}
-              onVoiceSelect={setSelectedVoice}
-              voiceSettings={voiceSettings}
-              onVoiceSettingsUpdate={updateVoiceSettings}
-            />
-          </div>
-        </div>
-      </div>
-      
-      <div className="flex-1 overflow-y-auto p-4 overscroll-contain">
-        {error && <ApiErrorDisplay error={{ type: 'unknown', message: error }} />}
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  ChevronDown, 
+  ChevronUp,
+  Activity,
+  Heart,
+  Moon,
+  Zap,
+  Brain,
+  Shield
+} from 'lucide-react';
 
-        {messages.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center text-center">
-            <div className="mb-4 rounded-full bg-primary/10 p-4">
-              <img 
-                src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
-                alt="Health Coach" 
-                className="h-8 w-8 text-primary"
-                loading="lazy"
-              />
-            </div>
-            <h3 className="mb-2 text-lg font-medium">Welcome to your Health Coach</h3>
-            <p className="mb-6 text-text-light">
-              Ask me anything about your health and wellness goals.
-            </p>
-            
-            {showSuggestions && (
-              <div className="flex flex-wrap justify-center gap-3">
-                {selectedSuggestions.map((question) => (
-                  <button
-                    key={question}
-                    onClick={() => handleSubmit(question)}
-                    className="rounded-full bg-primary/10 px-3 py-2 text-sm text-primary transition-colors hover:bg-primary/20"
-                  >
-                    {question}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : (
-          messages.map((message, index) => (
-            <div
-              key={index}
-              className={`mb-4 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {message.role === 'assistant' && (
-                <div className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <img 
-                    src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
-                    alt="Health Coach" 
-                    className="h-4 w-4"
-                    loading="lazy"
-                  />
-                </div>
-              )}
-              
-              <div
-                className={`max-w-[75%] rounded-lg px-4 py-3 ${
-                  message.role === 'user'
-                    ? 'bg-primary text-white'
-                    : currentTheme === 'dark'
-                    ? 'bg-[hsl(var(--color-card-hover))] text-text'
-                    : 'bg-[hsl(var(--color-surface-1))] text-text'
-                }`}
-              >
-                {message.role === 'assistant' ? (
-                  <div className="prose prose-sm max-w-none dark:prose-invert">
-                    <ReactMarkdown>{message.content}</ReactMarkdown>
-                  </div>
-                ) : (
-                  <div>{message.content}</div>
-                )}
-                {message.role === 'assistant' && preferSpeech && (
-                  <div className="mt-2 flex items-center gap-2 text-xs text-text-light">
-                    <Volume2 className="h-3 w-3" />
-                    <span>Voice response available</span>
-                  </div>
-                )}
-                <div className="mt-1 text-xs opacity-70">
-                  {message.timestamp?.toLocaleTimeString()}
-                </div>
-              </div>
-              
-              {message.role === 'user' && (
-                <div className="ml-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[hsl(var(--color-card-hover))] text-text-light">
-                  <User className="h-4 w-4" />
-                </div>
-              )}
-            </div>
-          ))
-        )}
-
-        {loading && (
-          <div className="flex justify-start">
-            <div className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <img 
-                src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
-                alt="Health Coach" 
-                className="h-4 w-4"
-                loading="lazy"
-              />
-            </div>
-            <div className="max-w-[75%] rounded-lg bg-[hsl(var(--color-card-hover))] p-4">
-              <Loader className="h-5 w-5 animate-spin text-primary" role="status" />
-            </div>
-          </div>
-        )}
-
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Speech loading indicator */}
-      {speechLoading && preferSpeech && (
-        <div className="flex items-center justify-center border-t border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] px-4 py-2">
-          <div className="flex items-center gap-2 text-xs text-text-light w-full">
-            <Loader className="h-3 w-3 animate-spin" />
-            <span>Generating voice response...</span>
-            <div className="flex-1">
-              <div className="h-1 w-full rounded-full bg-[hsl(var(--color-surface-2))]">
-                <div className="h-full w-1/3 animate-pulse rounded-full bg-primary"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Audio controls when playing */}
-      {audioUrl && preferSpeech && (
-        <div className="border-t border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] p-2 space-y-2">
-          <AudioPlayer 
-            src={audioUrl} 
-            onEnded={() => setIsPlaying(false)} 
-          />
-          <AudioVisualizer 
-            audioUrl={audioUrl} 
-            isPlaying={isPlaying} 
-          />
-        </div>
-      )}
-
-      <div className="border-t border-[hsl(var(--color-border))] p-4">
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask me anything about your health..."
-            className="flex-1 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            disabled={loading}
-          />
-          <button
-            type="submit"
-            disabled={loading || !input.trim()}
-            className="flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Send className="h-5 w-5" />
-          </button>
-        </form>
-      </div>
-    </div>
-  );
+interface BWScoreCardProps {
+  className?: string;
 }
+
+const BWScoreCard: React.FC<BWScoreCardProps> = ({ className = '' }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Mock data for demonstration
+  const overallScore = 82;
+  const scoreChange = 5;
+  const scoreChangeDirection = 'up';
+
+  const metrics = [
+    {
+      name: 'Sleep Quality',
+      value: 85,
+      change: 3,
+      trend: 'up',
+      icon: Moon,
+      color: 'text-blue-500'
+    },
+    {
+      name: 'Heart Rate Variability',
+      value: 78,
+      change: 2,
+      trend: 'up',
+      icon: Heart,
+      color: 'text-red-500'
+    },
+    {
+      name: 'Energy Level',
+      value: 90,
+      change: 7,
+      trend: 'up',
+      icon: Zap,
+      color: 'text-yellow-500'
+    },
+    {
+      name: 'Stress Management',
+      value: 75,
+      change: 1,
+      trend: 'down',
+      icon: Brain,
+      color: 'text-purple-500'
+    },
+    {
+      name: 'Recovery Score',
+      value: 88,
+      change: 4,
+      trend: 'up',
+      icon: Shield,
+      color: 'text-green-500'
+    }
+  ];
+
+  const activityData = [
+    { name: 'Morning Walk', duration: '30 min', calories: 120 },
+    { name: 'Strength Training', duration: '45 min', calories: 280 },
+    { name: 'Yoga Session', duration: '20 min', calories: 80 }
+  ];
+
+  const movementData = {
+    activeCalories: 480,
+    totalCalories: 2240,
+    standHours: 10,
+    steps: 8420,
+    nonExerciseActivity: '2.5 hrs'
+  };
+
+  return (
+    <motion.div 
+      className={`rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-6 ${className}`}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      {/* Header */}
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="rounded-full bg-primary/10 p-2">
+            <Activity className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold">BioWell Score</h3>
+            <p className="text-sm text-text-light">Your overall wellness score</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="rounded-full p-2 text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
+        >
+          {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+        </button>
+      </div>
+
+      {/* Main Score */}
+      <div className="mb-6 text-center">
+        <div className="mb-2 text-4xl font-bold text-primary">{overallScore}</div>
+        <div className="flex items-center justify-center gap-2">
+          {scoreChangeDirection === 'up' ? (
+            <TrendingUp className="h-4 w-4 text-success" />
+          ) : (
+            <TrendingDown className="h-4 w-4 text-error" />
+          )}
+          <span className={`text-sm font-medium ${
+            scoreChangeDirection === 'up' ? 'text-success' : 'text-error'
+          }`}>
+            {scoreChangeDirection === 'up' ? '+' : '-'}{scoreChange} from last week
+          </span>
+        </div>
+      </div>
+
+      {/* Progress Ring */}
+      <div className="mb-6 flex justify-center">
+        <div className="relative h-32 w-32">
+          <svg className="h-32 w-32 -rotate-90 transform" viewBox="0 0 120 120">
+            <circle
+              cx="60"
+              cy="60"
+              r="50"
+              stroke="hsl(var(--color-surface-2))"
+              strokeWidth="8"
+              fill="none"
+            />
+            <circle
+              cx="60"
+              cy="60"
+              r="50"
+              stroke="hsl(var(--color-primary))"
+              strokeWidth="8"
+              fill="none"
+              strokeLinecap="round"
+              strokeDasharray={`${(overallScore / 100) * 314} 314`}
+              className="transition-all duration-1000 ease-out"
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-lg font-semibold">{overallScore}%</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Expanded Content */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <div className="space-y-4 border-t border-[hsl(var(--color-border))] pt-4">
+              {/* Individual Metrics */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium">Health Metrics</h4>
+                {metrics.map((metric, index) => (
+                  <div key={index} className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3">
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <metric.icon className={`h-4 w-4 ${metric.color}`} />
+                        <span className="font-medium">{metric.name}</span>
+                      </div>
+                      <div className="flex items-center">
+                        {metric.trend === 'up' ? (
+                          <TrendingUp className="mr-1 h-3.5 w-3.5 text-success" />
+                        ) : (
+                          <TrendingDown className="mr-1 h-3.5 w-3.5 text-error" />
+                        )}
+                        <span className={`text-xs ${metric.trend === 'up' ? 'text-success' : 'text-error'}`}>
+                          {metric.trend === 'up' ? '+' : '-'}{metric.change}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mb-1 flex items-center justify-between text-xs">
+                      <span className="text-text-light">Score</span>
+                      <span className="font-medium">{metric.value}/100</span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-[hsl(var(--color-surface-2))]">
+                      <div 
+                        className={`h-full ${
+                          metric.value >= 80 ? 'bg-success' : 
+                          metric.value >= 70 ? 'bg-primary' : 
+                          metric.value >= 60 ? 'bg-warning' : 
+                          'bg-error'
+                        }`}
+                        style={{ width: `${metric.value}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Activity Score (Expandable) */}
+                <div className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="font-medium">Activity Score</span>
+                    <div className="flex items-center">
+                      <TrendingUp className="mr-1 h-3.5 w-3.5 text-success" />
+                      <span className="text-xs text-success">+7</span>
+                    </div>
+                  </div>
+                  <div className="mb-1 flex items-center justify-between text-xs">
+                    <span className="text-text-light">Score</span>
+                    <span className="font-medium">85/100</span>
+                  </div>
+                  <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-[hsl(var(--color-surface-2))]">
+                    <div className="h-full bg-success" style={{ width: '85%' }}></div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium">Today's Activities</h4>
+                    {activityData.map((activity, index) => (
+                      <div key={index} className="flex items-center justify-between rounded-lg bg-[hsl(var(--color-card))] p-2 text-xs">
+                        <span>{activity.name}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-text-light">{activity.duration}</span>
+                          <span>{activity.calories} cal</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Movement Score */}
+                <div className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="font-medium">Movement Score</span>
+                    <div className="flex items-center">
+                      <TrendingUp className="mr-1 h-3.5 w-3.5 text-success" />
+                      <span className="text-xs text-success">+5</span>
+                    </div>
+                  </div>
+                  <div className="mb-1 flex items-center justify-between text-xs">
+                    <span className="text-text-light">Score</span>
+                    <span className="font-medium">78/100</span>
+                  </div>
+                  <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-[hsl(var(--color-surface-2))]">
+                    <div className="h-full bg-primary" style={{ width: '78%' }}></div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-lg bg-[hsl(var(--color-card))] p-2 text-xs">
+                      <div className="text-text-light">Active Calories</div>
+                      <div className="font-medium">{movementData.activeCalories} cal</div>
+                    </div>
+                    <div className="rounded-lg bg-[hsl(var(--color-card))] p-2 text-xs">
+                      <div className="text-text-light">Total Calories</div>
+                      <div className="font-medium">{movementData.totalCalories} cal</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Additional Metrics */}
+                <div className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3">
+                  <h4 className="mb-3 text-xs font-medium">Additional Metrics</h4>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="rounded-lg bg-[hsl(var(--color-card))] p-2 text-xs">
+                      <div className="text-text-light">Stand Hours</div>
+                      <div className="font-medium">{movementData.standHours}/12</div>
+                    </div>
+                    <div className="rounded-lg bg-[hsl(var(--color-card))] p-2 text-xs">
+                      <div className="text-text-light">Daily Steps</div>
+                      <div className="font-medium">{movementData.steps}</div>
+                    </div>
+                    <div className="rounded-lg bg-[hsl(var(--color-card))] p-2 text-xs">
+                      <div className="text-text-light">Non-Exercise</div>
+                      <div className="font-medium">{movementData.nonExerciseActivity}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Last Updated */}
+                <div className="text-center text-xs text-text-light">
+                  Last updated: {new Date().toLocaleString()}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
+
+export default BWScoreCard;
