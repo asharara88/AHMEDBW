@@ -138,12 +138,14 @@ export default function HealthCoach() {
               className={`rounded-full p-1 ${preferSpeech ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'}`}
               title={preferSpeech ? "Turn off voice" : "Turn on voice"}
               onClick={() => setPreferSpeech(!preferSpeech)}
+              aria-pressed={preferSpeech}
             >
               {preferSpeech ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
             </button>
             <button 
               className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
               title="About Health Coach"
+              aria-label="About Health Coach"
             >
               <Info className="h-4 w-4" />
             </button>
@@ -256,7 +258,11 @@ export default function HealthCoach() {
               />
             </div>
             <div className="max-w-[75%] rounded-lg bg-[hsl(var(--color-card-hover))] p-4">
-              <Loader className="h-5 w-5 animate-spin text-primary" role="status" />
+              <div className="flex space-x-2">
+                <div className="h-2 w-2 animate-bounce rounded-full bg-primary"></div>
+                <div className="h-2 w-2 animate-bounce rounded-full bg-primary" style={{ animationDelay: '0.2s' }}></div>
+                <div className="h-2 w-2 animate-bounce rounded-full bg-primary" style={{ animationDelay: '0.4s' }}></div>
+              </div>
             </div>
           </div>
         )}
@@ -307,6 +313,7 @@ export default function HealthCoach() {
             type="submit"
             disabled={loading || !input.trim()}
             className="flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label="Send message"
           >
             <Send className="h-5 w-5" />
           </button>
