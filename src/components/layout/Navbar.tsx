@@ -135,6 +135,7 @@ const Navbar = () => {
                 <button 
                   onClick={toggleProfileMenu}
                   className="flex h-10 w-10 items-center justify-center rounded-full text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))]"
+                  aria-label="Open profile menu"
                 >
                   <UserCircle className="h-6 w-6" />
                 </button>
@@ -169,6 +170,8 @@ const Navbar = () => {
             <button 
               onClick={toggleMenu} 
               className="flex h-10 w-10 items-center justify-center rounded-full text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] md:hidden"
+              aria-label="Toggle menu"
+              aria-expanded={isMenuOpen}
             >
               {isMenuOpen ? (
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -213,6 +216,7 @@ const Navbar = () => {
                     }`}
                     onClick={toggleMenu}
                   >
+                    <Package className="h-5 w-5" />
                     Supplements
                   </Link>
                   <Link 

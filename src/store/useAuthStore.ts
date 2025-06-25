@@ -197,20 +197,24 @@ export const useAuthStore = create<AuthState>()(
         }
         
         try {
-          await authApi.updateProfile(user.id, profileData);
+          // Ensure email is included in the profile data
+          const profileWithEmail = {
+            ...profileData,
+            email: user.email || profileData.email
+          };
+          
+          await authApi.updateProfile(user.id, profileWithEmail);
           
           // Save to localStorage for future use
           localStorage.setItem('biowell-user-data', JSON.stringify({
-            ...profileData,
-            email: user.email,
+            ...profileWithEmail,
             onboardingCompleted: true
           }));
           
           // Update state
           set({ 
             profile: {
-              ...profileData,
-              email: user.email,
+              ...profileWithEmail,
               onboardingCompleted: true
             }
           });
@@ -248,7 +252,9 @@ export const useAuthStore = create<AuthState>()(
               set({ profile });
               localStorage.setItem('biowell-user-data', JSON.stringify(profile));
             } catch (profileError) {
-              logError('Error loading user profile', profileError);
+              logError('Error loading user profile after onboarding check', profileError);
+              // Don't fail the onboarding check if profile fetch fails
+              // The user is still considered onboarded based on the database check
             }
           }
           

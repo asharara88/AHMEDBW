@@ -141,24 +141,35 @@ export const authApi = {
         .eq('id', userId)
         .maybeSingle(),
       'Failed to fetch user profile'
-    ).then(data => ({
-      firstName: data.first_name || '',
-      lastName: data.last_name || '',
-      email: data.email || '',
-      mobile: data.mobile || '',
-      onboardingCompleted: data.onboarding_completed || false
-    }));
+    ).then(data => {
+      if (!data) {
+        throw new Error('No data returned');
+      }
+      return {
+        firstName: data.first_name || '',
+        lastName: data.last_name || '',
+        email: data.email || '',
+        mobile: data.mobile || '',
+        onboardingCompleted: data.onboarding_completed || false
+      };
+    });
   },
 
   /**
    * Update user profile
    */
   async updateProfile(userId: string, profileData: UserProfile): Promise<void> {
+    // Ensure email is provided
+    if (!profileData.email) {
+      throw new Error('Email is required for profile update');
+    }
+
     await apiClient.request(
       () => supabase
         .from('profiles')
         .upsert({
           id: userId,
+          email: profileData.email,
           first_name: profileData.firstName,
           last_name: profileData.lastName,
           mobile: profileData.mobile,

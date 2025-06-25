@@ -32,6 +32,8 @@ const Layout = ({ children }: LayoutProps) => {
               <button 
                 onClick={() => setShowFullDisclaimer(!showFullDisclaimer)}
                 className="ml-1 font-medium text-primary hover:underline focus:outline-none"
+                aria-expanded={showFullDisclaimer}
+                aria-controls="disclaimer-panel"
               >
                 (learn more)
                 {showFullDisclaimer ? 
@@ -42,7 +44,10 @@ const Layout = ({ children }: LayoutProps) => {
             </p>
             
             {showFullDisclaimer && (
-              <div className="absolute left-0 right-0 top-full z-50 mt-2 rounded-lg border border-[hsl(var(--color-border))] bg-background p-6 text-left shadow-lg">
+              <div 
+                id="disclaimer-panel"
+                className="absolute left-0 right-0 top-full z-50 mt-2 rounded-lg border border-[hsl(var(--color-border))] bg-background p-6 text-left shadow-lg"
+              >
                 <p className="mb-3">
                   Biowell is a digital wellness and health optimization platform. The information, insights, and supplement recommendations provided by Biowell are intended for general wellness support and educational purposes only.
                 </p>
