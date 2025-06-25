@@ -6,6 +6,8 @@ interface SuggestedQuestionsProps {
 }
 
 const SuggestedQuestions = ({ questions, onSelect }: SuggestedQuestionsProps) => {
+  if (questions.length === 0) return null;
+  
   return (
     <div className="mt-4">
       <p className="mb-2 text-sm font-medium text-text-light">Suggested responses:</p>

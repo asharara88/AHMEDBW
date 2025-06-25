@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, User, Loader, CheckCircle, ArrowRight } from 'lucide-react';
+import { Send, User, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { logError } from '../../utils/logger';
 import { useAutoScroll } from '../../hooks/useAutoScroll';
 import { OnboardingFormData } from '../../api/onboardingApi';
+import SuggestedQuestions from './SuggestedQuestions';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -69,21 +70,23 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
     }, typingDelay);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+  const handleSubmit = async (e: React.FormEvent | string) => {
+    e?.preventDefault?.();
+    if (!input.trim() && typeof e !== 'string') return;
+    
+    const messageContent = typeof e === 'string' ? e : input;
     
     // Add user message
     const userMessage: Message = {
       role: 'user',
-      content: input,
+      content: messageContent,
       timestamp: new Date()
     };
     
     setMessages(prev => [...prev, userMessage]);
     
     // Process based on current step
-    processUserInput(input);
+    processUserInput(messageContent);
     
     // Clear input
     setInput('');
@@ -156,7 +159,11 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
           // Complete onboarding after a delay
           setTimeout(() => {
             if (onComplete) {
-              onComplete(onboardingData);
+              onComplete({
+                ...onboardingData,
+                supplementHabits: supplements,
+                email: user?.email || ''
+              });
             }
           }, 2000);
           break;
@@ -287,24 +294,10 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
 
         {/* Suggested responses */}
         {!loading && currentStep !== 'complete' && (
-          <div className="mb-4">
-            <div className="flex flex-wrap gap-2">
-              {suggestedResponses().map((suggestion, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    setInput(suggestion);
-                    setTimeout(() => {
-                      handleSubmit(new Event('submit') as any);
-                    }, 100);
-                  }}
-                  className="rounded-full bg-primary/10 px-3 py-1.5 text-xs text-primary transition-colors hover:bg-primary/20"
-                >
-                  {suggestion}
-                </button>
-              ))}
-            </div>
-          </div>
+          <SuggestedQuestions 
+            questions={suggestedResponses()} 
+            onSelect={(question) => handleSubmit(question)}
+          />
         )}
 
         <div ref={messagesEndRef} />
@@ -319,11 +312,13 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
             placeholder="Type your response..."
             className="flex-1 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             disabled={loading || currentStep === 'complete'}
+            aria-label="Your response"
           />
           <button
             type="submit"
             disabled={loading || !input.trim() || currentStep === 'complete'}
             className="flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label="Send message"
           >
             <Send className="h-5 w-5" />
           </button>

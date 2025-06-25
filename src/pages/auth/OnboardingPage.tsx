@@ -5,7 +5,7 @@ import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuthStore } from '../../store';
 import OnboardingForm from '../../components/onboarding/OnboardingForm';
 import ConversationalOnboarding from '../../components/onboarding/ConversationalOnboarding';
-import { AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, MessageSquare, ClipboardList } from 'lucide-react';
 import Logo from '../../components/common/Logo';
 import { logError } from '../../utils/logger';
 import { onboardingApi, OnboardingFormData } from '../../api/onboardingApi';
@@ -52,16 +52,22 @@ const OnboardingPage = () => {
     setError(null);
     
     try {
+      // Ensure email is included
+      const completeFormData = {
+        ...formData,
+        email: user.email || ''
+      };
+      
       // Use the onboardingApi to handle all the steps
-      await onboardingApi.completeOnboarding(user, formData);
+      await onboardingApi.completeOnboarding(user, completeFormData);
       
       // Update auth context with profile data
       await updateProfile({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: user.email || '',
-        mobile: formData.mobile,
-        healthGoals: formData.healthGoals,
+        firstName: completeFormData.firstName,
+        lastName: completeFormData.lastName,
+        email: completeFormData.email,
+        mobile: completeFormData.mobile,
+        healthGoals: completeFormData.healthGoals,
         onboardingCompleted: true
       });
       
@@ -91,25 +97,29 @@ const OnboardingPage = () => {
             Let's personalize your health journey
           </p>
           
-          <div className="mt-4 flex justify-center gap-4">
+          <div className="mt-6 flex justify-center gap-4">
             <button
               onClick={() => setUseConversational(true)}
-              className={`px-4 py-2 text-sm rounded-lg transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition-colors ${
                 useConversational 
                   ? 'bg-primary text-white' 
                   : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
               }`}
+              aria-pressed={useConversational}
             >
+              <MessageSquare className="h-4 w-4" />
               Chat Style
             </button>
             <button
               onClick={() => setUseConversational(false)}
-              className={`px-4 py-2 text-sm rounded-lg transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition-colors ${
                 !useConversational 
                   ? 'bg-primary text-white' 
                   : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
               }`}
+              aria-pressed={!useConversational}
             >
+              <ClipboardList className="h-4 w-4" />
               Form Style
             </button>
           </div>
@@ -135,6 +145,14 @@ const OnboardingPage = () => {
             <p className="mb-4 text-text-light">
               Your profile has been successfully set up. Redirecting you to your dashboard...
             </p>
+            <div className="h-1 w-full overflow-hidden rounded-full bg-[hsl(var(--color-surface-1))]">
+              <motion.div 
+                className="h-full bg-success"
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 2 }}
+              />
+            </div>
           </motion.div>
         ) : (
           <div className="rounded-xl bg-[hsl(var(--color-card))] shadow-lg dark:shadow-lg dark:shadow-black/10">

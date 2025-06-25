@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, AlertCircle, ArrowRight, Shield } from 'lucide-react';
+import { CheckCircle, AlertCircle, ArrowRight, Shield, User, Calendar, Activity, Brain } from 'lucide-react';
 import { OnboardingFormData } from '../../api/onboardingApi';
 import OnboardingProgress from './OnboardingProgress';
 
@@ -199,6 +199,15 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
     'Longevity and healthy aging'
   ];
 
+  const renderStepIcon = (step: number) => {
+    switch(step) {
+      case 0: return <User className="h-6 w-6 text-primary" />;
+      case 1: return <Calendar className="h-6 w-6 text-primary" />;
+      case 2: return <Activity className="h-6 w-6 text-primary" />;
+      default: return <Brain className="h-6 w-6 text-primary" />;
+    }
+  };
+
   return (
     <div className="mx-auto max-w-md">
       <OnboardingProgress 
@@ -215,6 +224,20 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
         >
+          <div className="mb-6 flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              {renderStepIcon(currentStep)}
+            </div>
+            <div>
+              <h2 className="text-xl font-bold">{stepNames[currentStep]}</h2>
+              <p className="text-sm text-text-light">
+                {currentStep === 0 && "Let's get to know you better"}
+                {currentStep === 1 && "Tell us about your health background"}
+                {currentStep === 2 && "What are you looking to achieve?"}
+              </p>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {currentStep === 0 && (
               <>
@@ -231,9 +254,13 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
                       value={formData.firstName}
                       onChange={handleChange}
                       placeholder="John"
+                      aria-required="true"
+                      aria-invalid={!!errors.firstName}
+                      aria-describedby={errors.firstName ? "firstName-error" : undefined}
                     />
                     {errors.firstName && (
                       <motion.p
+                        id="firstName-error"
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="mt-1 flex items-center gap-1 text-xs text-error"
@@ -256,9 +283,13 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
                       value={formData.lastName}
                       onChange={handleChange}
                       placeholder="Doe"
+                      aria-required="true"
+                      aria-invalid={!!errors.lastName}
+                      aria-describedby={errors.lastName ? "lastName-error" : undefined}
                     />
                     {errors.lastName && (
                       <motion.p
+                        id="lastName-error"
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="mt-1 flex items-center gap-1 text-xs text-error"
@@ -282,9 +313,12 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
                     value={formData.mobile}
                     onChange={handleChange}
                     placeholder="+971 (50) 000 0000"
+                    aria-invalid={!!errors.mobile}
+                    aria-describedby={errors.mobile ? "mobile-error" : undefined}
                   />
                   {errors.mobile && (
                     <motion.p
+                      id="mobile-error"
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       className="mt-1 flex items-center gap-1 text-xs text-error"
@@ -293,6 +327,13 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
                       {errors.mobile}
                     </motion.p>
                   )}
+                </div>
+
+                <div className="flex items-start gap-2 rounded-lg bg-[hsl(var(--color-card-hover))] p-4 mt-4">
+                  <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                  <p className="text-xs text-text-light">
+                    Your information is secure and will only be used to personalize your experience. We never share your data with third parties.
+                  </p>
                 </div>
 
                 <div className="pt-4">
@@ -326,9 +367,12 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
                       placeholder="30"
                       min="18"
                       max="120"
+                      aria-invalid={!!errors.age}
+                      aria-describedby={errors.age ? "age-error" : undefined}
                     />
                     {errors.age && (
                       <motion.p
+                        id="age-error"
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="mt-1 flex items-center gap-1 text-xs text-error"
@@ -349,6 +393,8 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
                       className={`input ${errors.gender ? 'border-error' : ''}`}
                       value={formData.gender}
                       onChange={handleChange}
+                      aria-invalid={!!errors.gender}
+                      aria-describedby={errors.gender ? "gender-error" : undefined}
                     >
                       <option value="">Select gender</option>
                       <option value="male">Male</option>
@@ -357,6 +403,7 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
                     </select>
                     {errors.gender && (
                       <motion.p
+                        id="gender-error"
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="mt-1 flex items-center gap-1 text-xs text-error"
@@ -434,9 +481,10 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
                   <label className="label">
                     Health Goals <span className="text-error">*</span>
                   </label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <p className="text-sm text-text-light mb-3">Select all that apply to you</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {healthGoalOptions.map((goal) => (
-                      <label key={goal} className={`flex items-center gap-2 rounded-lg border p-2 text-sm transition-colors ${
+                      <label key={goal} className={`flex items-center gap-2 rounded-lg border p-3 text-sm transition-colors ${
                         formData.healthGoals!.includes(goal) 
                           ? 'border-primary bg-primary/5 text-primary' 
                           : 'border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] hover:bg-[hsl(var(--color-card-hover))]'
@@ -509,8 +557,8 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
                   </div>
                 </div>
 
-                <div className="flex items-start gap-2 rounded-lg bg-[hsl(var(--color-card))] p-4">
-                  <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-text-light" />
+                <div className="flex items-start gap-2 rounded-lg bg-[hsl(var(--color-card-hover))] p-4 mt-4">
+                  <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
                   <p className="text-xs text-text-light">
                     Your health information is private and secure. We use this data to personalize your experience and provide better recommendations.
                   </p>
