@@ -8,7 +8,7 @@ function getCorsHeaders(origin: string | null) {
     "Access-Control-Allow-Origin": origin ?? "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers":
-      "Content-Type, Authorization, apikey, x-api-key, accept-profile, x-client-info",
+      "Content-Type, Authorization, apikey, x-api-key, accept-profile, x-client-info, x-openai-key",
     "Access-Control-Max-Age": "86400",
     "Access-Control-Allow-Credentials": "true",
     "Vary": "Origin",
@@ -48,36 +48,63 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Extract OpenAI API key from environment variables
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    // Try to get OpenAI API key from different sources in priority order:
+    // 1. Environment variable (set on Supabase)
+    // 2. Request header (sent from frontend)
+    // 3. Request parameters
+    let OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    
     if (!OPENAI_API_KEY) {
-      throw new Error("Missing OpenAI API key");
+      // Try to get from request header
+      OPENAI_API_KEY = req.headers.get("x-openai-key");
+      
+      // If still not found, check URL parameters
+      if (!OPENAI_API_KEY) {
+        const url = new URL(req.url);
+        OPENAI_API_KEY = url.searchParams.get("apiKey");
+      }
+    }
+    
+    if (!OPENAI_API_KEY) {
+      console.error("Missing OpenAI API key. Available env vars:", Object.keys(Deno.env.toObject()));
+      throw new Error("Missing OpenAI API key. Please set the OPENAI_API_KEY secret in your Supabase project using: supabase secrets set OPENAI_API_KEY=your-key");
+    }
+
+    // Validate API key format
+    if (!OPENAI_API_KEY.startsWith('sk-')) {
+      console.error("Invalid OpenAI API key format. Key should start with 'sk-'");
+      throw new Error("Invalid OpenAI API key format. Please check your API key.");
     }
 
     // Get request data
-    const { messages, userId, context } = await req.json();
+    const { messages, context, options = {} } = await req.json();
 
-    // Create Supabase client
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") as string;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") as string;
-    
-    if (!supabaseUrl || !supabaseKey) {
-      throw new Error("Supabase configuration is missing");
+    if (!messages || !Array.isArray(messages)) {
+      throw new Error("Invalid request: messages array is required");
     }
-    
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get user data if userId is provided
+    // Create Supabase client if we need user data
     let userData = null;
-    if (userId) {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
+    if (context && context.userId) {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL");
+      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      
+      if (supabaseUrl && supabaseKey) {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        try {
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", context.userId)
+            .maybeSingle();
 
-      if (!error) {
-        userData = data;
+          if (!error) {
+            userData = data;
+          }
+        } catch (e) {
+          console.error("Error fetching user data:", e);
+        }
       }
     }
 
@@ -99,59 +126,114 @@ Deno.serve(async (req) => {
             },
           ]
         : []),
+      // Add general context if provided
+      ...(context ? [{ role: "system", content: `Context: ${JSON.stringify(context)}` }] : []),
       ...messages,
     ];
 
-    // Call OpenAI API
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4",
-        messages: formattedMessages,
-        temperature: 0.7,
-        max_tokens: 1000,
-      }),
-    });
+    console.log("Making request to OpenAI API...");
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || "OpenAI API call failed");
-    }
+    // Call OpenAI API with timeout and better error handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-    // Return OpenAI response
-    const data = await response.json();
-    
-    // Store the chat history if we have a valid user ID
-    if (userId) {
-      try {
-        await supabase.from("chat_history").insert({
-          user_id: userId,
-          message: messages[messages.length - 1].content,
-          response: data.choices?.[0]?.message?.content || ""
+    try {
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: options.model || "gpt-4",
+          messages: formattedMessages,
+          temperature: options.temperature !== undefined ? options.temperature : 0.7,
+          max_tokens: options.max_tokens || 1000,
+          response_format: options.response_format,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = { error: { message: errorText } };
+        }
+        
+        console.error("OpenAI API error:", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
         });
-      } catch (error) {
-        console.error("Failed to store chat history:", error);
+
+        // Provide more specific error messages
+        if (response.status === 401) {
+          throw new Error("Invalid OpenAI API key. Please check your API key configuration.");
+        } else if (response.status === 429) {
+          throw new Error("OpenAI API rate limit exceeded. Please try again later.");
+        } else if (response.status === 402) {
+          throw new Error("OpenAI API quota exceeded. Please check your billing and usage limits.");
+        } else {
+          throw new Error(errorData.error?.message || `OpenAI API call failed with status ${response.status}`);
+        }
       }
+
+      // Return OpenAI response
+      const data = await response.json();
+      console.log("OpenAI API request successful");
+      
+      return new Response(JSON.stringify(data), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      
+      if (fetchError.name === 'AbortError') {
+        throw new Error("Request timeout: OpenAI API took too long to respond");
+      }
+      
+      throw fetchError;
     }
 
-    return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
   } catch (error) {
+    console.error("Function error:", error);
+    
+    // Determine error type and provide helpful message
+    let errorMessage = "An unexpected error occurred";
+    let statusCode = 500;
+    
+    if (error.message.includes("API key")) {
+      errorMessage = error.message;
+      statusCode = 401;
+    } else if (error.message.includes("rate limit") || error.message.includes("quota")) {
+      errorMessage = error.message;
+      statusCode = 429;
+    } else if (error.message.includes("timeout")) {
+      errorMessage = error.message;
+      statusCode = 408;
+    } else if (error.message.includes("Invalid request")) {
+      errorMessage = error.message;
+      statusCode = 400;
+    } else {
+      errorMessage = error.message || "An unexpected error occurred";
+    }
+    
     return new Response(
       JSON.stringify({ 
         error: {
-          message: error.message || "Internal server error",
-          type: error.name,
-          status: 500
+          message: errorMessage,
+          type: error.name || "UnknownError",
+          status: statusCode
         }
       }),
       {
-        status: 500,
+        status: statusCode,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );

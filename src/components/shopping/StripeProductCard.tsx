@@ -2,7 +2,23 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { AlertCircle, CheckCircle, CreditCard, Loader } from 'lucide-react';
-import { products } from '../../stripe-config';
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+}
+
+// Basic product info used by the demo checkout flow
+const products: Record<string, Product> = {
+  subscription: {
+    id: 'subscription',
+    name: 'Biowell Subscription',
+    description:
+      'Subscribe to Biowell for personalized health coaching and supplement recommendations',
+    price: 199,
+  },
+};
 
 interface ProductCardProps {
   productId: string;

@@ -1,52 +1,19 @@
-# A string used as a secret key for generating JWT tokens
-jwt_secret = "XqOcXPCuH4mK2ZxXp2iR3jYJEI2m3X4SME9LwRarwp7jm/abAzAfz7ngeWcaqawgWO9d9VUQHFiH5k5l8P8UpQ=="
-project_id = "leznzqfezoofngumpiqf"
+[project]
+name = "biowell"
+id = "your-project-id"
 
 [api]
-enabled = true
 port = 54321
-schemas = ["public", "storage", "graphql_public"]
-extra_search_path = ["public", "extensions"]
+schemas = ["public"]
+extra_search_path = ["extensions"]
 max_rows = 1000
 
 [db]
-port = 5432
-shadow_port = 54320
-major_version = 15
-
-[db.pooler]
-enabled = false
-port = 54329
-pool_mode = "transaction"
-default_pool_size = 15
-max_client_conn = 100
-
-[realtime]
-enabled = true
+port = 54322
 
 [studio]
-enabled = true
 port = 54323
-api_url = "http://localhost"
 
-# Enable PWA Edge Functions
 [functions]
-enabled = true
 port = 54324
-
-[storage]
-enabled = true
-
-[auth]
-enabled = true
-
-[analytics]
-enabled = false
-port = 54327
-
-[db.seed]
-
-[functions.chat-assistant]
-verify_jwt = true
-[functions.onboarding-status]
 verify_jwt = true

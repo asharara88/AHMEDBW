@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, Info, User, Volume2, VolumeX, Settings, Headphones } from 'lucide-react';
+import { Send, Loader, User, Volume2, VolumeX, Info } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { logError } from '../../utils/logger';
@@ -32,7 +32,6 @@ export default function HealthCoach() {
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   
   const { user, isDemo } = useAuth();
@@ -52,7 +51,8 @@ export default function HealthCoach() {
     updateVoiceSettings
   } = useChatStore();
 
-  useAutoScroll(messagesEndRef, [messages]);
+  // Use the updated useAutoScroll hook with the onlyScrollDown parameter set to true
+  useAutoScroll(messagesEndRef, [messages], { behavior: 'smooth' }, true);
 
   useEffect(() => {
     // Select 5 random questions on component mount
@@ -115,18 +115,6 @@ export default function HealthCoach() {
     };
   }, []);
 
-  const toggleSpeech = () => {
-    setPreferSpeech(!preferSpeech);
-  };
-  
-  const stopAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setIsPlaying(false);
-    }
-  };
-
   return (
     <div className="flex h-full flex-col rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] shadow-lg">
       <div className="border-b border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] p-3">
@@ -134,7 +122,7 @@ export default function HealthCoach() {
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
               <img 
-                src="https://jvqweleqjkrgldeflnfr.supabase.co/storage/v1/object/sign/heroes/STACKDASH.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzFhYTRlZDEyLWU0N2QtNDcyNi05ZmI0LWQ3MWM5MGFlOTYyZSJ9.eyJ1cmwiOiJoZXJvZXMvU1RBQ0tEQVNILnN2ZyIsImlhdCI6MTc0NzAxNTM3MSwiZXhwIjoxNzc4NTUxMzcxfQ.fumrYJiZDGZ36gbwlOVcWHsqs5uFiYRBAhtaT_tnQlM" 
+                src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
                 alt="Health Coach" 
                 className="h-5 w-5"
                 loading="eager"
@@ -147,43 +135,31 @@ export default function HealthCoach() {
           </div>
           <div className="flex items-center gap-2">
             <button 
-              className={`rounded-full p-1 ${preferSpeech ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
+              className={`rounded-full p-1 ${preferSpeech ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'}`}
               title={preferSpeech ? "Turn off voice" : "Turn on voice"}
-              onClick={toggleSpeech}
+              onClick={() => setPreferSpeech(!preferSpeech)}
+              aria-pressed={preferSpeech}
             >
               {preferSpeech ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
             </button>
             <button 
-              className={`rounded-full p-1 ${showVoiceSettings ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text'}`}
-              title={preferSpeech ? "Turn off voice" : "Turn on voice"}
-              onClick={() => setShowVoiceSettings(!showVoiceSettings)}
-            >
-              <Settings className="h-4 w-4" />
-            </button>
-            <button 
-              className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
+              className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
               title="About Health Coach"
+              aria-label="About Health Coach"
             >
               <Info className="h-4 w-4" />
             </button>
-            <ChatSettingsButton className="absolute right-2 top-2" />
+            <ChatSettingsButton 
+              className="absolute right-2 top-2"
+              showVoiceSettings={preferSpeech}
+              onVoiceToggle={() => setPreferSpeech(!preferSpeech)}
+              selectedVoice={selectedVoice}
+              onVoiceSelect={setSelectedVoice}
+              voiceSettings={voiceSettings}
+              onVoiceSettingsUpdate={updateVoiceSettings}
+            />
           </div>
         </div>
-        
-        {/* Voice Settings Panel */}
-        <AnimatePresence mode="wait">
-          {showVoiceSettings && (
-            <VoicePreferences
-              preferSpeech={preferSpeech}
-              onToggleSpeech={toggleSpeech}
-              selectedVoice={selectedVoice}
-              onSelectVoice={setSelectedVoice}
-              voiceSettings={voiceSettings}
-              onUpdateVoiceSettings={updateVoiceSettings}
-              className="mt-2"
-            />
-          )}
-        </AnimatePresence>
       </div>
       
       <div className="flex-1 overflow-y-auto p-4 overscroll-contain">
@@ -193,7 +169,7 @@ export default function HealthCoach() {
           <div className="flex h-full flex-col items-center justify-center text-center">
             <div className="mb-4 rounded-full bg-primary/10 p-4">
               <img 
-                src="https://jvqweleqjkrgldeflnfr.supabase.co/storage/v1/object/sign/heroes/STACKDASH.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzFhYTRlZDEyLWU0N2QtNDcyNi05ZmI0LWQ3MWM5MGFlOTYyZSJ9.eyJ1cmwiOiJoZXJvZXMvU1RBQ0tEQVNILnN2ZyIsImlhdCI6MTc0NzAxNTM3MSwiZXhwIjoxNzc4NTUxMzcxfQ.fumrYJiZDGZ36gbwlOVcWHsqs5uFiYRBAhtaT_tnQlM" 
+                src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
                 alt="Health Coach" 
                 className="h-8 w-8 text-primary"
                 loading="lazy"
@@ -227,7 +203,7 @@ export default function HealthCoach() {
               {message.role === 'assistant' && (
                 <div className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <img 
-                    src="https://jvqweleqjkrgldeflnfr.supabase.co/storage/v1/object/sign/heroes/STACKDASH.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzFhYTRlZDEyLWU0N2QtNDcyNi05ZmI0LWQ3MWM5MGFlOTYyZSJ9.eyJ1cmwiOiJoZXJvZXMvU1RBQ0tEQVNILnN2ZyIsImlhdCI6MTc0NzAxNTM3MSwiZXhwIjoxNzc4NTUxMzcxfQ.fumrYJiZDGZ36gbwlOVcWHsqs5uFiYRBAhtaT_tnQlM" 
+                    src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
                     alt="Health Coach" 
                     className="h-4 w-4"
                     loading="lazy"
@@ -253,7 +229,7 @@ export default function HealthCoach() {
                 )}
                 {message.role === 'assistant' && preferSpeech && (
                   <div className="mt-2 flex items-center gap-2 text-xs text-text-light">
-                    <Headphones className="h-3 w-3" />
+                    <Volume2 className="h-3 w-3" />
                     <span>Voice response available</span>
                   </div>
                 )}
@@ -275,14 +251,18 @@ export default function HealthCoach() {
           <div className="flex justify-start">
             <div className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
               <img 
-                src="https://jvqweleqjkrgldeflnfr.supabase.co/storage/v1/object/sign/heroes/STACKDASH.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzFhYTRlZDEyLWU0N2QtNDcyNi05ZmI0LWQ3MWM5MGFlOTYyZSJ9.eyJ1cmwiOiJoZXJvZXMvU1RBQ0tEQVNILnN2ZyIsImlhdCI6MTc0NzAxNTM3MSwiZXhwIjoxNzc4NTUxMzcxfQ.fumrYJiZDGZ36gbwlOVcWHsqs5uFiYRBAhtaT_tnQlM" 
+                src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
                 alt="Health Coach" 
                 className="h-4 w-4"
                 loading="lazy"
               />
             </div>
             <div className="max-w-[75%] rounded-lg bg-[hsl(var(--color-card-hover))] p-4">
-              <Loader className="h-5 w-5 animate-spin text-primary" role="status" />
+              <div className="flex space-x-2">
+                <div className="h-2 w-2 animate-bounce rounded-full bg-primary"></div>
+                <div className="h-2 w-2 animate-bounce rounded-full bg-primary" style={{ animationDelay: '0.2s' }}></div>
+                <div className="h-2 w-2 animate-bounce rounded-full bg-primary" style={{ animationDelay: '0.4s' }}></div>
+              </div>
             </div>
           </div>
         )}
@@ -333,6 +313,7 @@ export default function HealthCoach() {
             type="submit"
             disabled={loading || !input.trim()}
             className="flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label="Send message"
           >
             <Send className="h-5 w-5" />
           </button>

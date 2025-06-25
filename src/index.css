@@ -83,6 +83,7 @@
 
   html, body {
     @apply overflow-x-hidden max-w-full box-border;
+    scroll-behavior: smooth;
   }
 
   body {
@@ -100,6 +101,27 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight text-text;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    line-height: 1.2;
+  }
+  
+  h1 {
+    @apply text-3xl md:text-4xl;
+  }
+  
+  h2 {
+    @apply text-2xl md:text-3xl;
+  }
+  
+  h3 {
+    @apply text-xl md:text-2xl;
+  }
+  
+  h4 {
+    @apply text-lg md:text-xl;
+  }
+  
+  p {
+    @apply leading-relaxed;
   }
   
   img {
@@ -121,6 +143,11 @@
     input, select, textarea {
       font-size: 16px !important;
     }
+  }
+  
+  /* Focus styles for accessibility */
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2;
   }
 }
 
@@ -195,6 +222,16 @@
 
   .card-hover {
     @apply hover:border-primary/50 hover:bg-[hsl(var(--color-card-hover))];
+  }
+  
+  /* Container with responsive padding */
+  .container-padded {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* Section spacing */
+  .section-spacing {
+    @apply py-12 md:py-16 lg:py-20;
   }
   
   /* Mobile-specific styles */

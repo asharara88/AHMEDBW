@@ -1,26 +1,27 @@
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSupabase } from '../../contexts/SupabaseContext';
-import { useAuthStore } from '../../store';
-import { Send, User, Loader, CheckCircle, AlertCircle } from 'lucide-react';
-import { useAutoScroll } from '../../hooks/useAutoScroll';
-import { openaiApi } from '../../api/openaiApi';
+import { Send, User, Loader, CheckCircle, ArrowRight } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 import { logError } from '../../utils/logger';
-import { onboardingApi, OnboardingFormData } from '../../api/onboardingApi';
+import { useAutoScroll } from '../../hooks/useAutoScroll';
+import { OnboardingFormData } from '../../api/onboardingApi';
 
 interface Message {
-  role: 'system' | 'user';
+  role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
 }
 
-const ConversationalOnboarding = () => {
+interface ConversationalOnboardingProps {
+  onComplete?: (formData: OnboardingFormData) => void;
+}
+
+const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentStep, setCurrentStep] = useState<'greeting' | 'name' | 'gender' | 'mainGoal' | 'healthGoals' | 'supplementHabits' | 'complete'>('greeting');
+  const [currentStep, setCurrentStep] = useState<'greeting' | 'name' | 'gender' | 'mainGoal' | 'healthGoals' | 'supplements' | 'complete'>('greeting');
   const [onboardingData, setOnboardingData] = useState<OnboardingFormData>({
     firstName: '',
     lastName: '',
@@ -28,92 +29,51 @@ const ConversationalOnboarding = () => {
     mobile: '',
     gender: '',
     healthGoals: [],
-    supplementHabits: [],
     mainGoal: '',
   });
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { supabase } = useSupabase();
-  const { user, updateProfile } = useAuthStore();
-  const navigate = useNavigate();
-
-  // Use the auto-scroll hook
-  useAutoScroll(messagesEndRef, [messages]);
+  const { user } = useAuth();
+  
+  // Use the auto-scroll hook with the onlyScrollDown parameter set to true
+  useAutoScroll(messagesEndRef, [messages], { behavior: 'smooth' }, true);
 
   // Initial greeting message
   useEffect(() => {
-    const initializeChat = async () => {
-      setLoading(true);
-      try {
-        const initialResponse = await openaiApi.processOnboarding([]);
-        
-        const initialMessage: Message = {
-          role: 'system',
-          content: initialResponse,
-          timestamp: new Date()
-        };
-        
-        setMessages([initialMessage]);
-        setCurrentStep('name');
-      } catch (err) {
-        logError('Error initializing onboarding chat', err);
-        setError('Failed to start onboarding. Please try refreshing the page.');
-      } finally {
-        setLoading(false);
-      }
-    };
+    const hour = new Date().getHours();
+    let greeting = "Hello there! ";
     
-    initializeChat();
+    if (hour < 12) greeting = "Good morning! ";
+    else if (hour < 18) greeting = "Good afternoon! ";
+    else greeting = "Good evening! ";
+    
+    addBotMessage(`${greeting}I'm your Biowell health coach. I'm here to help you optimize your health journey. What's your name?`);
+    setCurrentStep('name');
   }, []);
 
-  // Check if onboarding is already completed
-  useEffect(() => {
-    const checkOnboardingStatus = async () => {
-      if (!user) {
-        console.log('No user found, skipping onboarding status check');
-        return;
-      }
-      
-      try {
-        setLoading(true);
-        setError(null);
-        
-        console.log('Checking onboarding status for user:', user.id);
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('onboarding_completed, first_name, last_name')
-          .eq('id', user.id)
-          .maybeSingle();
-        
-        if (error) {
-          console.error('Supabase query error:', error);
-          setError('Failed to check onboarding status. Please try refreshing the page.');
-          return;
-        }
-        
-        console.log('Onboarding status data:', data);
-        
-        // If onboarding is already completed, redirect to dashboard
-        if (data?.onboarding_completed && data?.first_name && data?.last_name) {
-          console.log('Onboarding already completed, redirecting to dashboard');
-          navigate('/dashboard');
-        }
-      } catch (err) {
-        console.error('Error checking onboarding status:', err);
-        setError('Failed to check onboarding status. Please try refreshing the page.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const addBotMessage = (content: string) => {
+    // Simulate typing
+    setLoading(true);
     
-    checkOnboardingStatus();
-  }, [user, navigate, supabase]);
+    // Calculate typing delay based on message length (50-100ms per word)
+    const words = content.split(' ').length;
+    const typingDelay = Math.min(Math.max(words * 75, 500), 2000);
+    
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content,
+        timestamp: new Date()
+      }]);
+      setLoading(false);
+    }, typingDelay);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
     
-    // Add user message to chat
+    // Add user message
     const userMessage: Message = {
       role: 'user',
       content: input,
@@ -121,121 +81,110 @@ const ConversationalOnboarding = () => {
     };
     
     setMessages(prev => [...prev, userMessage]);
+    
+    // Process based on current step
+    processUserInput(input);
+    
+    // Clear input
     setInput('');
-    
-    // Process user input
-    await processUserInput(input);
   };
 
-  const processUserInput = async (userInput: string) => {
-    setLoading(true);
-    setError(null);
-    
+  const processUserInput = (userInput: string) => {
     try {
-      // Format messages for OpenAI
-      const formattedMessages = messages.map(msg => ({
-        role: msg.role === 'system' ? 'assistant' : 'user',
-        content: msg.content
-      }));
-      
-      // Add the new user message
-      formattedMessages.push({
-        role: 'user',
-        content: userInput
-      });
-      
-      // Get response from OpenAI
-      const response = await openaiApi.processOnboarding(formattedMessages);
-      
-      // Add system response
-      const systemMessage: Message = {
-        role: 'system',
-        content: response,
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, systemMessage]);
-      
-      // Extract data and update onboarding progress
-      await updateOnboardingProgress(formattedMessages);
-      
-    } catch (err: any) {
-      logError('Error processing user input', err);
-      setError('Something went wrong. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateOnboardingProgress = async (conversationHistory: any[]) => {
-    try {
-      // Extract structured data from the conversation
-      const extractedData = await openaiApi.extractOnboardingData(conversationHistory);
-      
-      // Update onboarding data state
-      setOnboardingData(prev => ({
-        ...prev,
-        ...extractedData
-      }));
-      
-      // Determine current step based on extracted data
-      if (extractedData.firstName && extractedData.lastName && !currentStep.match(/^(gender|mainGoal|healthGoals|supplementHabits|complete)$/)) {
-        setCurrentStep('gender');
-      } else if (extractedData.gender && !currentStep.match(/^(mainGoal|healthGoals|supplementHabits|complete)$/)) {
-        setCurrentStep('mainGoal');
-      } else if (extractedData.mainGoal && !currentStep.match(/^(healthGoals|supplementHabits|complete)$/)) {
-        setCurrentStep('healthGoals');
-      } else if (extractedData.healthGoals?.length > 0 && !currentStep.match(/^(supplementHabits|complete)$/)) {
-        setCurrentStep('supplementHabits');
-      } else if (extractedData.supplementHabits?.length > 0 && currentStep !== 'complete') {
-        // All data collected, save to database
-        await saveOnboardingData({
-          ...onboardingData,
-          ...extractedData
-        });
+      switch(currentStep) {
+        case 'name': {
+          // Extract name
+          const nameParts = userInput.trim().split(' ');
+          const firstName = nameParts[0];
+          const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+          
+          setOnboardingData(prev => ({ ...prev, firstName, lastName }));
+          setCurrentStep('gender');
+          
+          // Next question
+          addBotMessage(`Nice to meet you, ${firstName}! To help personalize your experience, could you tell me your gender?`);
+          break;
+        }
+          
+        case 'gender':
+          // Process gender
+          let gender = userInput.toLowerCase();
+          if (gender.includes('male')) gender = 'male';
+          else if (gender.includes('female')) gender = 'female';
+          else gender = 'not_specified';
+          
+          setOnboardingData(prev => ({ ...prev, gender }));
+          setCurrentStep('mainGoal');
+          
+          addBotMessage(`Thanks! What's your primary health goal right now? For example: improve sleep, increase energy, reduce stress, etc.`);
+          break;
+          
+        case 'mainGoal':
+          setOnboardingData(prev => ({ ...prev, mainGoal: userInput }));
+          setCurrentStep('healthGoals');
+          
+          addBotMessage(`Great goal! What specific health areas would you like to focus on? You can list multiple areas like sleep, energy, stress, fitness, etc.`);
+          break;
+          
+        case 'healthGoals':
+          // Extract health goals
+          const healthGoals = userInput
+            .split(/[,;]/)
+            .map(goal => goal.trim())
+            .filter(goal => goal.length > 0);
+          
+          setOnboardingData(prev => ({ ...prev, healthGoals }));
+          setCurrentStep('supplements');
+          
+          addBotMessage(`Got it. Are you currently taking any supplements? If yes, please list them.`);
+          break;
+          
+        case 'supplements': {
+          // Extract supplements
+          const supplements = userInput
+            .split(/[,;]/)
+            .map(supp => supp.trim())
+            .filter(supp => supp.length > 0);
+          
+          setOnboardingData(prev => ({ ...prev, supplementHabits: supplements }));
+          setCurrentStep('complete');
+          
+          // Final message
+          const firstName = onboardingData.firstName || 'there';
+          addBotMessage(`Thank you, ${firstName}! Based on your responses, I've created a personalized health plan for you. Let's get started on your journey to better health!`);
+          
+          // Complete onboarding after a delay
+          setTimeout(() => {
+            if (onComplete) {
+              onComplete(onboardingData);
+            }
+          }, 2000);
+          break;
+        }
+          
+        default:
+          break;
       }
     } catch (err) {
-      logError('Error updating onboarding progress', err);
+      logError('Error processing user input', err);
+      setError('Something went wrong processing your response. Please try again.');
     }
   };
 
-  const saveOnboardingData = async (data: OnboardingFormData) => {
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-    
-    try {
-      // Use the onboardingApi to handle all the steps
-      await onboardingApi.completeOnboarding(user, data);
-      
-      // Update auth context with profile data
-      await updateProfile({
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: user.email || '',
-        mobile: data.mobile,
-        healthGoals: data.healthGoals,
-        onboardingCompleted: true
-      });
-      
-      // Add completion message
-      const completionMessage: Message = {
-        role: 'system',
-        content: "Perfect! Your profile is now set up, and I'm ready to help you achieve your health goals. Let's get started with your health journey!",
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, completionMessage]);
-      
-      setCurrentStep('complete');
-      
-      // Redirect to dashboard after a short delay
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 3000);
-    } catch (err) {
-      logError('Error saving onboarding data', err);
-      throw err;
+  const suggestedResponses = () => {
+    switch(currentStep) {
+      case 'name':
+        return ['John Smith', 'Jane Doe', 'Alex Johnson'];
+      case 'gender':
+        return ['Male', 'Female', 'Prefer not to say'];
+      case 'mainGoal':
+        return ['Improve sleep', 'Increase energy', 'Reduce stress', 'Build muscle'];
+      case 'healthGoals':
+        return ['Sleep, Energy, Stress', 'Fitness, Nutrition', 'Cognitive, Focus', 'Weight, Metabolism'];
+      case 'supplements':
+        return ['None currently', 'Multivitamin, Fish Oil', 'Protein, Creatine', 'Vitamin D, Magnesium'];
+      default:
+        return [];
     }
   };
 
@@ -245,7 +194,7 @@ const ConversationalOnboarding = () => {
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
             <img 
-              src="https://jvqweleqjkrgldeflnfr.supabase.co/storage/v1/object/sign/heroes/STACKDASH.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzFhYTRlZDEyLWU0N2QtNDcyNi05ZmI0LWQ3MWM5MGFlOTYyZSJ9.eyJ1cmwiOiJoZXJvZXMvU1RBQ0tEQVNILnN2ZyIsImlhdCI6MTc0NzAxNTM3MSwiZXhwIjoxNzc4NTUxMzcxfQ.fumrYJiZDGZ36gbwlOVcWHsqs5uFiYRBAhtaT_tnQlM" 
+              src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
               alt="Health Coach" 
               className="h-5 w-5"
               loading="eager"
@@ -261,7 +210,7 @@ const ConversationalOnboarding = () => {
       <div className="flex-1 overflow-y-auto p-4 overscroll-contain">
         {error && (
           <div className="mb-4 flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error">
-            <AlertCircle className="h-5 w-5" />
+            <CheckCircle className="h-5 w-5" />
             <p>{error}</p>
           </div>
         )}
@@ -271,10 +220,10 @@ const ConversationalOnboarding = () => {
             key={index}
             className={`mb-4 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            {message.role === 'system' && (
+            {message.role === 'assistant' && (
               <div className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <img 
-                  src="https://jvqweleqjkrgldeflnfr.supabase.co/storage/v1/object/sign/heroes/STACKDASH.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzFhYTRlZDEyLWU0N2QtNDcyNi05ZmI0LWQ3MWM5MGFlOTYyZSJ9.eyJ1cmwiOiJoZXJvZXMvU1RBQ0tEQVNILnN2ZyIsImlhdCI6MTc0NzAxNTM3MSwiZXhwIjoxNzc4NTUxMzcxfQ.fumrYJiZDGZ36gbwlOVcWHsqs5uFiYRBAhtaT_tnQlM" 
+                  src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
                   alt="Health Coach" 
                   className="h-4 w-4"
                   loading="lazy"
@@ -289,9 +238,9 @@ const ConversationalOnboarding = () => {
                   : 'bg-[hsl(var(--color-card-hover))] text-text'
               }`}
             >
-              <div dangerouslySetInnerHTML={{ __html: message.content }}></div>
+              <div>{message.content}</div>
               <div className="mt-1 text-xs opacity-70">
-                {message.timestamp.toLocaleTimeString()}
+                {message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
               </div>
             </div>
             
@@ -307,14 +256,18 @@ const ConversationalOnboarding = () => {
           <div className="flex justify-start">
             <div className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
               <img 
-                src="https://jvqweleqjkrgldeflnfr.supabase.co/storage/v1/object/sign/heroes/STACKDASH.svg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzFhYTRlZDEyLWU0N2QtNDcyNi05ZmI0LWQ3MWM5MGFlOTYyZSJ9.eyJ1cmwiOiJoZXJvZXMvU1RBQ0tEQVNILnN2ZyIsImlhdCI6MTc0NzAxNTM3MSwiZXhwIjoxNzc4NTUxMzcxfQ.fumrYJiZDGZ36gbwlOVcWHsqs5uFiYRBAhtaT_tnQlM" 
+                src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
                 alt="Health Coach" 
                 className="h-4 w-4"
                 loading="lazy"
               />
             </div>
             <div className="max-w-[75%] rounded-lg bg-[hsl(var(--color-card-hover))] p-4">
-              <Loader className="h-5 w-5 animate-spin text-primary" role="status" />
+              <div className="flex space-x-2">
+                <div className="h-2 w-2 animate-bounce rounded-full bg-primary"></div>
+                <div className="h-2 w-2 animate-bounce rounded-full bg-primary" style={{ animationDelay: '0.2s' }}></div>
+                <div className="h-2 w-2 animate-bounce rounded-full bg-primary" style={{ animationDelay: '0.4s' }}></div>
+              </div>
             </div>
           </div>
         )}
@@ -327,8 +280,30 @@ const ConversationalOnboarding = () => {
               className="flex flex-col items-center rounded-lg bg-success/10 p-4 text-success"
             >
               <CheckCircle className="mb-2 h-8 w-8" />
-              <p className="text-center">Onboarding complete! Redirecting to your dashboard...</p>
+              <p className="text-center">Profile complete! Redirecting to your dashboard...</p>
             </motion.div>
+          </div>
+        )}
+
+        {/* Suggested responses */}
+        {!loading && currentStep !== 'complete' && (
+          <div className="mb-4">
+            <div className="flex flex-wrap gap-2">
+              {suggestedResponses().map((suggestion, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setInput(suggestion);
+                    setTimeout(() => {
+                      handleSubmit(new Event('submit') as any);
+                    }, 100);
+                  }}
+                  className="rounded-full bg-primary/10 px-3 py-1.5 text-xs text-primary transition-colors hover:bg-primary/20"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 

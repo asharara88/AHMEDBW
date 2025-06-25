@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Package, Pill, AlertCircle, CheckCircle, ChevronDown, ChevronUp, Calendar, Clock, Info } from 'lucide-react';
 import ImageWithFallback from '../common/ImageWithFallback';
+import { Link } from 'react-router-dom';
 
 interface SupplementDashboardProps {
   userId?: string;
@@ -399,6 +400,16 @@ const SupplementDashboard = ({ userId }: SupplementDashboardProps) => {
                   </div>
                 ))}
               </div>
+            </div>
+            
+            <div className="flex justify-center">
+              <Link 
+                to="/supplements"
+                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark"
+              >
+                <Package className="h-4 w-4" />
+                Manage Supplements
+              </Link>
             </div>
           </div>
         )}

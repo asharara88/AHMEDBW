@@ -3,12 +3,14 @@ import { useAuthStore } from '../store';
 import { supabase } from '../lib/supabaseClient';
 import { logError, logInfo } from '../utils/logger';
 import { restoreSession, refreshSessionIfNeeded } from '../lib/sessionManager';
+import { useSession } from '@supabase/auth-helpers-react';
 
 // Create context with the same shape as the auth store
 const AuthContext = createContext<ReturnType<typeof useAuthStore.getState> | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const authStore = useAuthStore();
+  const session = useSession();
   
   useEffect(() => {
     const initializeAuth = async () => {
@@ -22,17 +24,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         
         // Get the current session
-        const session = await restoreSession();
+        const currentSession = await restoreSession();
         
         useAuthStore.setState({ 
-          session,
-          user: session?.user ?? null,
+          session: currentSession,
+          user: currentSession?.user ?? null,
           loading: false
         });
         
         // If session exists but is close to expiry, refresh it
-        if (session) {
-          const expiresAt = session.expires_at;
+        if (currentSession) {
+          const expiresAt = currentSession.expires_at;
           const now = Math.floor(Date.now() / 1000);
           
           // If session expires in less than 5 minutes (300 seconds), refresh it
@@ -45,6 +47,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         authStore.setLoading(false);
       }
     };
+
+    // Update store when session from auth-helpers changes
+    if (session) {
+      useAuthStore.setState({ 
+        session,
+        user: session.user,
+        loading: false
+      });
+    }
 
     if (!authStore.isDemo) {
       initializeAuth();
@@ -87,13 +98,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }, 60000); // Check every minute
 
+    // Cleanup
     return () => {
       if (!authStore.isDemo) {
         authListener.subscription.unsubscribe();
       }
       clearInterval(refreshInterval);
     };
-  }, [authStore.isDemo]);
+  }, [authStore.isDemo, session]);
 
   return (
     <AuthContext.Provider value={authStore}>

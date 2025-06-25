@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Package, Activity, MessageSquare } from 'lucide-react';
+import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Package, Activity } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import Logo from '../common/Logo';
@@ -62,15 +62,9 @@ const Navbar = () => {
                   </Link>
                   <Link 
                     to="/chat" 
-                    className={`nav-link ${isActive('/chat') ? 'nav-link-active' : ''}`}
+                    className={`nav-link ${isActive('/chat') || location.pathname.startsWith('/chat/') ? 'nav-link-active' : ''}`}
                   >
                     Coach
-                  </Link>
-                  <Link 
-                    to="/quick-tip" 
-                    className={`nav-link ${isActive('/quick-tip') ? 'nav-link-active' : ''}`}
-                  >
-                    Quick Tips
                   </Link>
                   <Link 
                     to="/supplements" 
@@ -141,6 +135,7 @@ const Navbar = () => {
                 <button 
                   onClick={toggleProfileMenu}
                   className="flex h-10 w-10 items-center justify-center rounded-full text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))]"
+                  aria-label="Open profile menu"
                 >
                   <UserCircle className="h-6 w-6" />
                 </button>
@@ -175,6 +170,8 @@ const Navbar = () => {
             <button 
               onClick={toggleMenu} 
               className="flex h-10 w-10 items-center justify-center rounded-full text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] md:hidden"
+              aria-label="Toggle menu"
+              aria-expanded={isMenuOpen}
             >
               {isMenuOpen ? (
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -205,21 +202,12 @@ const Navbar = () => {
                   <Link 
                     to="/chat" 
                     className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
-                      isActive('/chat') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
+                      isActive('/chat') || location.pathname.startsWith('/chat/') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
                     }`}
                     onClick={toggleMenu}
                   >
+                    <Activity className="h-5 w-5" />
                     Coach
-                  </Link>
-                  <Link 
-                    to="/quick-tip" 
-                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
-                      isActive('/quick-tip') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
-                    }`}
-                    onClick={toggleMenu}
-                  >
-                    <MessageSquare className="h-5 w-5" />
-                    Quick Tips
                   </Link>
                   <Link 
                     to="/supplements" 
@@ -228,6 +216,7 @@ const Navbar = () => {
                     }`}
                     onClick={toggleMenu}
                   >
+                    <Package className="h-5 w-5" />
                     Supplements
                   </Link>
                   <Link 

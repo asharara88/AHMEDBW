@@ -63,7 +63,7 @@ export const useChatStore = create<ChatState>()(
           
           set({ messages: [...get().messages, userMessage], audioUrl: null });
           
-          // Use OpenAI API directly
+          // Use OpenAI API through our proxy
           const response = await openaiApi.generateResponse(message, { userId });
           
           // Add assistant response to state

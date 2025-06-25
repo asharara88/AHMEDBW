@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, CheckCircle, CreditCard, Loader } from 'lucide-react';
+import { CheckCircle, CreditCard, Loader } from 'lucide-react';
 
 interface CheckoutProps {
   productId: string;

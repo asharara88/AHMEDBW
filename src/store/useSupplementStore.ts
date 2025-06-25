@@ -11,7 +11,7 @@ interface SupplementState {
   error: string | null;
   
   // Actions
-  fetchSupplements: () => Promise<void>;
+  fetchSupplements: () => Promise<Supplement[]>;
   fetchUserSupplements: (userId: string) => Promise<void>;
   fetchStacks: () => Promise<void>;
   toggleSubscription: (userId: string, supplementId: string) => Promise<void>;
@@ -33,10 +33,14 @@ export const useSupplementStore = create<SupplementState>((set, get) => ({
     try {
       const supplements = await supplementApi.getSupplements();
       set({ supplements, loading: false });
+      return supplements;
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to fetch supplements';
       logError('Error fetching supplements', err);
       set({ error: errorMessage, loading: false });
+      
+      // Return empty array on error
+      return [];
     }
   },
   

@@ -31,6 +31,7 @@ const LoginPage = () => {
         }
         
         if (!onboardingCompleted) {
+          // Redirect new users to the onboarding flow
           navigate('/onboarding');
           return;
         }
@@ -86,6 +87,7 @@ const LoginPage = () => {
       }
       
       if (!onboardingCompleted) {
+        // Send the user through onboarding before accessing the app
         navigate('/onboarding');
         return;
       }

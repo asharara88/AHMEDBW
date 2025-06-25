@@ -14,6 +14,7 @@ export interface Supplement {
   availability: boolean;
   price_aed: number;
   image_url: string;
+  benefits?: string[];
 }
 
 export interface SupplementStack {
@@ -25,10 +26,19 @@ export interface SupplementStack {
   total_price: number;
   created_at?: string;
   updated_at?: string;
+  isActive?: boolean;
 }
 
 export interface SupplementForm {
   form_type: string;
   image_url: string;
   used_for: string;
+}
+
+export interface SupplementRecommendation {
+  supplement_id: string;
+  reason: string;
+  priority: number;
+  dosage?: string;
+  timing?: string;
 }

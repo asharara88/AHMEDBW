@@ -1,38 +1,95 @@
-import { motion } from 'framer-motion';
-import { MessageCircle } from 'lucide-react';
-import HealthCoach from '../../components/chat/AIHealthCoach';
+// pages/chat.tsx
+import { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabaseClient';
 
-const ChatPage = () => {
+export default function ChatCoach() {
+  const [messages, setMessages] = useState([] as any[]);
+  const [input, setInput] = useState('');
+
+  const fetchSupplement = async (keyword: string) => {
+    const { data } = await supabase
+      .from('supplements')
+      .select('*')
+      .ilike('goal', `%${keyword.toLowerCase()}%`);
+
+    if (data && data.length > 0) {
+      const s = data[0];
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'coach',
+          text: `Got it! Based on your goal, I suggest ${s.name}. ${s.evidence_summary}.`,
+          link: s.source_link,
+        },
+      ]);
+    } else {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'coach', text: "Hmm, I couldn't find a supplement for that goal yet." },
+      ]);
+    }
+  };
+
+  useEffect(() => {
+    const storedGoal = localStorage.getItem('goal');
+    if (storedGoal && messages.length === 0) {
+      fetchSupplement(storedGoal);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSend = async () => {
+    if (!input.trim()) return;
+
+    setMessages([...messages, { role: 'user', text: input }]);
+    await fetchSupplement(input);
+    setInput('');
+  };
+
   return (
-    <div className="container mx-auto">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mx-auto max-w-4xl"
-      >
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold md:text-3xl">Health Coach</h1>
-          <p className="text-text-light">
-            Chat with your personal coach for evidence-based health advice
-          </p>
-        </div>
-
-        <div className="h-[calc(100vh-16rem)]">
-          <HealthCoach />
-        </div>
-
-        <div className="mt-4 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 text-sm text-text-light">
-          <p className="flex items-center gap-2">
-            <MessageCircle className="h-4 w-4 text-primary" />
+    <div className="p-4 space-y-4">
+      {messages.map((m, i) => (
+        <div
+          key={i}
+          className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+        >
+          <div
+            className={`max-w-xs rounded-lg px-3 py-2 text-sm ${
+              m.role === 'user'
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-200 text-gray-800'
+            }`}
+          >
             <span>
-              Always consult with healthcare professionals before making significant changes to your health regimen.
+              {m.text}{' '}
+              {m.link && (
+                <a
+                  href={m.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline"
+                >
+                  Study ↗
+                </a>
+              )}
             </span>
-          </p>
+          </div>
         </div>
-      </motion.div>
+      ))}
+      <div className="flex gap-2">
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="What's your goal?"
+          className="flex-1 rounded border p-2"
+        />
+        <button
+          onClick={handleSend}
+          className="rounded bg-blue-500 px-4 py-2 text-white"
+        >
+          Send
+        </button>
+      </div>
     </div>
   );
-};
-
-export default ChatPage;
+}

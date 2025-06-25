@@ -1,12 +1,15 @@
-import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { useState, ReactNode } from 'react';
 import Navbar from './Navbar';
 import { useAuth } from '../../contexts/AuthContext';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import FloatingChatButton from '../chat/FloatingChatButton';
 import Footer from './Footer';
 
-const Layout = () => {
+interface LayoutProps {
+  children: ReactNode;
+}
+
+const Layout = ({ children }: LayoutProps) => {
   const { user, loading } = useAuth();
   const [showFullDisclaimer, setShowFullDisclaimer] = useState(false);
   
@@ -29,6 +32,8 @@ const Layout = () => {
               <button 
                 onClick={() => setShowFullDisclaimer(!showFullDisclaimer)}
                 className="ml-1 font-medium text-primary hover:underline focus:outline-none"
+                aria-expanded={showFullDisclaimer}
+                aria-controls="disclaimer-panel"
               >
                 (learn more)
                 {showFullDisclaimer ? 
@@ -39,7 +44,10 @@ const Layout = () => {
             </p>
             
             {showFullDisclaimer && (
-              <div className="absolute left-0 right-0 top-full z-50 mt-2 rounded-lg border border-[hsl(var(--color-border))] bg-background p-6 text-left shadow-lg">
+              <div 
+                id="disclaimer-panel"
+                className="absolute left-0 right-0 top-full z-50 mt-2 rounded-lg border border-[hsl(var(--color-border))] bg-background p-6 text-left shadow-lg"
+              >
                 <p className="mb-3">
                   Biowell is a digital wellness and health optimization platform. The information, insights, and supplement recommendations provided by Biowell are intended for general wellness support and educational purposes only.
                 </p>
@@ -64,7 +72,7 @@ const Layout = () => {
         </div>
       </div>
       <main className="flex-1 px-4 py-6 sm:px-6 md:px-8 overflow-x-hidden max-w-full">
-        <Outlet />
+        {children}
       </main>
       <Footer />
       {user && <FloatingChatButton />}
