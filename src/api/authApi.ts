@@ -133,18 +133,24 @@ export const authApi = {
   /**
    * Get user profile
    */
-  async getUserProfile(userId: string): Promise<UserProfile> {
-    return apiClient.request(
-      () => supabase
+  async getUserProfile(userId: string): Promise<UserProfile | null> {
+    try {
+      const { data, error } = await supabase
         .from('profiles')
         .select('first_name, last_name, email, onboarding_completed, mobile')
         .eq('id', userId)
-        .maybeSingle(),
-      'Failed to fetch user profile'
-    ).then(data => {
-      if (!data) {
-        throw new Error('No data returned');
+        .maybeSingle();
+
+      if (error) {
+        logError('Failed to fetch user profile', error);
+        throw error;
       }
+
+      // If no profile exists, return null instead of throwing an error
+      if (!data) {
+        return null;
+      }
+
       return {
         firstName: data.first_name || '',
         lastName: data.last_name || '',
@@ -152,7 +158,10 @@ export const authApi = {
         mobile: data.mobile || '',
         onboardingCompleted: data.onboarding_completed || false
       };
-    });
+    } catch (error) {
+      logError('Error fetching user profile', error);
+      throw error;
+    }
   },
 
   /**
@@ -199,15 +208,27 @@ export const authApi = {
    * Check if user has completed onboarding
    */
   async checkOnboardingStatus(userId: string): Promise<boolean> {
-    return apiClient.request(
-      () => supabase
+    try {
+      const { data, error } = await supabase
         .from('profiles')
         .select('onboarding_completed, first_name, last_name')
         .eq('id', userId)
-        .maybeSingle(),
-      'Failed to check onboarding status'
-    ).then(data => {
-      return !!(data && (data.onboarding_completed || (data.first_name && data.last_name)));
-    });
+        .maybeSingle();
+
+      if (error) {
+        logError('Failed to check onboarding status', error);
+        throw error;
+      }
+
+      // If no profile exists, onboarding is not completed
+      if (!data) {
+        return false;
+      }
+
+      return !!(data.onboarding_completed || (data.first_name && data.last_name));
+    } catch (error) {
+      logError('Error checking onboarding status', error);
+      throw error;
+    }
   }
 };
