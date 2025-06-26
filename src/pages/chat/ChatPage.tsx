@@ -53,14 +53,10 @@ export default function ChatCoach() {
     const { data } = await supabase
       .from('supplements')
       .select('*')
-<<<<<<< codex/update-chat.tsx-with-supplement-search-and-styling
-      .or(
-        `goal.ilike.%${keyword}%,mechanism.ilike.%${keyword}%,evidence_summary.ilike.%${keyword}%`
-      )
-      .limit(1);
-=======
-      .ilike('goal', `%${keyword.toLowerCase()}%`);
->>>>>>> main
+.or(
+  `goal.ilike.%${keyword}%,mechanism.ilike.%${keyword}%,evidence_summary.ilike.%${keyword}%`
+)
+.limit(1);
 
     if (data && data.length > 0) {
       const s = data[0];
@@ -123,51 +119,20 @@ const ChatPage = () => {
   } = useChatStore();
 
   return (
-<<<<<<< codex/update-chat.tsx-with-supplement-search-and-styling
     <div className="p-4 space-y-4">
       {messages.map((m, i) => (
         <div
-          key={i}
-          className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
-        >
-          <div
-            className={`max-w-xs rounded-lg px-3 py-2 text-sm ${
-              m.role === 'user'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-gray-800'
-            }`}
-          >
-            <span>
-              {m.text}{' '}
-              {m.link && (
-                <a
-                  href={m.link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline"
-                >
-                  Study ↗
-                </a>
-              )}
-            </span>
-          </div>
-=======
-    <div className="container mx-auto px-4 py-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold">Health Coach</h1>
-          <p className="text-text-light">
-            Chat with your AI health coach for personalized guidance and recommendations
-          </p>
->>>>>>> main
-        </div>
- main
-
-        <Tabs defaultValue="chat" onValueChange={setActiveTab} className="w-full">
+<div className="container mx-auto px-4 py-6">
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+  >
+    <div className="mb-6">
+      <h1 className="text-2xl font-bold">Health Coach</h1>
+      <p className="text-text-light">
+        Chat with your AI health coach for personalized guidance and recommendations
+      </p>
           <div className="mb-6 flex items-center justify-between">
             <TabsList>
               <TabsTrigger value="chat" className="flex items-center gap-2">
@@ -250,10 +215,7 @@ const ChatPage = () => {
           </div>
         </div>
       ))}
-<<<<<<< codex/update-chat.tsx-with-supplement-search-and-styling
 =======
-      {audioUrl && preferVoice && (
-        <AudioPlayer src={audioUrl} className="max-w-xs" />
       )}
       <div className="flex items-center gap-2">
         <input
@@ -268,6 +230,8 @@ const ChatPage = () => {
       </div>
 >>>>>>> main
       <div className="flex gap-2">
+          onChange={(e) => setInput(e.target.value)}
+      <div className="flex gap-2">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -275,9 +239,6 @@ const ChatPage = () => {
           className="flex-1 rounded border p-2"
         />
         <button
-          onClick={handleSend}
-          className="rounded bg-blue-500 px-4 py-2 text-white"
-        >
           Send
         </button>
       </div>
