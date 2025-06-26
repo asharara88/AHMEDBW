@@ -1,4 +1,3 @@
- codex/refine-coach-function-with-text-and-voice-chat
 // pages/chat.tsx
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabaseClient';
