@@ -32,14 +32,22 @@ export const userApi = {
    * Get quiz responses
    */
   async getQuizResponses(userId: string): Promise<QuizResponse | null> {
-    return apiClient.request(
-      () => supabase
+    try {
+      const { data, error } = await supabase
         .from('quiz_responses')
         .select('*')
         .eq('user_id', userId)
-        .maybeSingle(),
-      'Failed to fetch quiz responses'
-    );
+        .maybeSingle();
+      
+      if (error) {
+        throw error;
+      }
+      
+      return data;
+    } catch (err) {
+      console.error('Failed to fetch quiz responses:', err);
+      return null;
+    }
   },
 
   /**
@@ -122,13 +130,21 @@ export const userApi = {
    * Get user preferences
    */
   async getPreferences(userId: string): Promise<any> {
-    return apiClient.request(
-      () => supabase
+    try {
+      const { data, error } = await supabase
         .from('user_preferences')
         .select('*')
         .eq('user_id', userId)
-        .maybeSingle(),
-      'Failed to fetch preferences'
-    );
+        .maybeSingle();
+      
+      if (error) {
+        throw error;
+      }
+      
+      return data;
+    } catch (err) {
+      console.error('Failed to fetch preferences:', err);
+      return null;
+    }
   }
 };
