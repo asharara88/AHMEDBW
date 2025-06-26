@@ -180,6 +180,7 @@ export const authApi = {
           id: userId,
           first_name: profileData.firstName,
           last_name: profileData.lastName,
+          email: profileData.email || '',
           mobile: profileData.mobile,
           onboarding_completed: true,
           updated_at: new Date().toISOString(),

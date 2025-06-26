@@ -200,8 +200,13 @@ export const useAuthStore = create<AuthState>()(
           // Ensure email is included in the profile data
           const profileWithEmail = {
             ...profileData,
-            email: user.email || profileData.email
+            email: user.email || profileData.email || ''
           };
+          
+          // Validate that we have an email
+          if (!profileWithEmail.email) {
+            throw new Error('Email is required for profile creation');
+          }
           
           await authApi.updateProfile(user.id, profileWithEmail);
           
