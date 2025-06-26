@@ -13,6 +13,7 @@ import ChatSettingsButton from './ChatSettingsButton';
 import AudioVisualizer from './AudioVisualizer';
 import AudioPlayer from './AudioPlayer';
 import SuggestedQuestions from '../onboarding/SuggestedQuestions';
+import VoiceInput from './VoiceInput';
 
 const suggestedQuestions = [
   "What's my current health status?",
@@ -175,6 +176,13 @@ export default function HealthCoach() {
       startRecording();
     }
   };
+  
+  // Handle voice input transcription
+  const handleVoiceTranscription = (text: string) => {
+    setInput(text);
+    // Optionally auto-submit
+    // handleSubmit(text);
+  };
 
   return (
     <div className="flex h-full flex-col rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] shadow-lg">
@@ -238,7 +246,7 @@ export default function HealthCoach() {
             </div>
             <h3 className="mb-2 text-lg font-medium">Welcome to your Health Coach</h3>
             <p className="mb-6 text-text-light">
-              Ask me anything about your health and wellness goals.
+              Ask me anything about your personal wellness.
             </p>
             
             {showSuggestions && (
@@ -376,23 +384,14 @@ export default function HealthCoach() {
             placeholder="Ask me anything about your health..."
             className="flex-1 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             disabled={loading}
+            aria-label="Your message"
           />
           
-          {/* Voice input button */}
-          <button
-            type="button"
-            onClick={toggleRecording}
+          {/* Voice input component */}
+          <VoiceInput 
+            onTranscription={handleVoiceTranscription}
             disabled={loading}
-            className={`flex items-center justify-center rounded-lg ${
-              isRecording 
-                ? 'bg-error text-white' 
-                : 'bg-[hsl(var(--color-surface-1))] text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
-            } px-3 transition-colors disabled:cursor-not-allowed disabled:opacity-50`}
-            aria-label={isRecording ? "Stop recording" : "Start voice recording"}
-            aria-pressed={isRecording}
-          >
-            {isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
-          </button>
+          />
           
           <button
             type="submit"

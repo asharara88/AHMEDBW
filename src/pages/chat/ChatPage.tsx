@@ -2,12 +2,22 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/Tabs';
 import AIHealthCoach from '../../components/chat/AIHealthCoach';
-import { MessageCircle, Zap, History, Settings } from 'lucide-react';
+import { MessageCircle, Zap, History, Settings, Volume2, VolumeX } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useChatStore } from '../../store';
+import VoicePreferences from '../components/chat/VoicePreferences';
 
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat');
   const { user } = useAuth();
+  const { 
+    preferSpeech, 
+    setPreferSpeech, 
+    selectedVoice, 
+    setSelectedVoice,
+    voiceSettings,
+    updateVoiceSettings
+  } = useChatStore();
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -121,21 +131,28 @@ const ChatPage = () => {
                           type="checkbox" 
                           id="enable-voice" 
                           className="h-4 w-4 rounded border-[hsl(var(--color-border))] text-primary focus:ring-primary"
-                          checked={useChatStore().preferSpeech}
-                          onChange={() => useChatStore().setPreferSpeech(!useChatStore().preferSpeech)}
+                          checked={preferSpeech}
+                          onChange={() => setPreferSpeech(!preferSpeech)}
                         />
                         Enable voice responses
                       </label>
+                      <div className="flex items-center gap-2">
+                        {preferSpeech ? (
+                          <Volume2 className="h-4 w-4 text-primary" />
+                        ) : (
+                          <VolumeX className="h-4 w-4 text-text-light" />
+                        )}
+                      </div>
                     </div>
                     
-                    {useChatStore().preferSpeech && (
+                    {preferSpeech && (
                       <VoicePreferences
-                        preferSpeech={useChatStore().preferSpeech}
-                        onToggleSpeech={() => useChatStore().setPreferSpeech(!useChatStore().preferSpeech)}
-                        selectedVoice={useChatStore().selectedVoice}
-                        onSelectVoice={useChatStore().setSelectedVoice}
-                        voiceSettings={useChatStore().voiceSettings}
-                        onUpdateVoiceSettings={useChatStore().updateVoiceSettings}
+                        preferSpeech={preferSpeech}
+                        onToggleSpeech={() => setPreferSpeech(!preferSpeech)}
+                        selectedVoice={selectedVoice}
+                        onSelectVoice={setSelectedVoice}
+                        voiceSettings={voiceSettings}
+                        onUpdateVoiceSettings={updateVoiceSettings}
                       />
                     )}
                   </div>
@@ -180,9 +197,5 @@ const ChatPage = () => {
     </div>
   );
 };
-
-// Import the necessary components
-import { useChatStore } from '../../store';
-import VoicePreferences from '../../components/chat/VoicePreferences';
 
 export default ChatPage;
