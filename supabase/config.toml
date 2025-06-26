@@ -29,3 +29,7 @@ verify_jwt = false
 
 [functions.onboarding-status]
 verify_jwt = false
+
+[functions.recommendations]
+verify_jwt = false
+
