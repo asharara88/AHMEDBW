@@ -354,6 +354,13 @@ export default function HealthCoach() {
         </div>
       )}
 
+      {/* Voice recording error message */}
+      {recordingError && (
+        <div className="border-t border-[hsl(var(--color-border))] bg-error/10 px-4 py-2 text-xs text-error">
+          {recordingError}
+        </div>
+      )}
+
       {/* Audio controls when playing */}
       {audioUrl && preferSpeech && (
         <div className="border-t border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] p-2 space-y-2">
@@ -368,15 +375,8 @@ export default function HealthCoach() {
         </div>
       )}
 
-      {/* Voice recording error message */}
-      {recordingError && (
-        <div className="border-t border-[hsl(var(--color-border))] bg-error/10 px-4 py-2 text-xs text-error">
-          {recordingError}
-        </div>
-      )}
-
       <div className="border-t border-[hsl(var(--color-border))] p-4">
-        <form onSubmit={handleSubmit} className="flex gap-2">
+        <form onSubmit={handleSubmit} className="flex gap-2 relative">
           <input
             type="text"
             value={input}
@@ -388,10 +388,12 @@ export default function HealthCoach() {
           />
           
           {/* Voice input component */}
-          <VoiceInput 
-            onTranscription={handleVoiceTranscription}
-            disabled={loading}
-          />
+          <div className="relative">
+            <VoiceInput 
+              onTranscription={handleVoiceTranscription}
+              disabled={loading}
+            />
+          </div>
           
           <button
             type="submit"
