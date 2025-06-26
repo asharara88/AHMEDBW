@@ -53,14 +53,14 @@ export default function ChatCoach() {
     const { data } = await supabase
       .from('supplements')
       .select('*')
-<<<<<<< codex/update-chat.tsx-with-supplement-search-and-styling
+ codex/update-chat.tsx-with-supplement-search-and-styling
       .or(
         `goal.ilike.%${keyword}%,mechanism.ilike.%${keyword}%,evidence_summary.ilike.%${keyword}%`
       )
       .limit(1);
-=======
+
       .ilike('goal', `%${keyword.toLowerCase()}%`);
->>>>>>> main
+ main
 
     if (data && data.length > 0) {
       const s = data[0];
@@ -108,7 +108,11 @@ import AIHealthCoach from '../../components/chat/AIHealthCoach';
 import { MessageCircle, Zap, History, Settings, Volume2, VolumeX } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useChatStore } from '../../store';
+ codex/fix-import-path-in-chatpage.tsx
+import VoicePreferences from '../../components/chat/VoicePreferences';
+
 import VoicePreferences from "../../components/chat/VoicePreferences";
+ main
 
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat');
@@ -123,7 +127,7 @@ const ChatPage = () => {
   } = useChatStore();
 
   return (
-<<<<<<< codex/update-chat.tsx-with-supplement-search-and-styling
+ codex/update-chat.tsx-with-supplement-search-and-styling
     <div className="p-4 space-y-4">
       {messages.map((m, i) => (
         <div
@@ -151,7 +155,7 @@ const ChatPage = () => {
               )}
             </span>
           </div>
-=======
+
     <div className="container mx-auto px-4 py-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -163,7 +167,7 @@ const ChatPage = () => {
           <p className="text-text-light">
             Chat with your AI health coach for personalized guidance and recommendations
           </p>
->>>>>>> main
+ main
         </div>
  main
 
@@ -250,8 +254,8 @@ const ChatPage = () => {
           </div>
         </div>
       ))}
-<<<<<<< codex/update-chat.tsx-with-supplement-search-and-styling
-=======
+ codex/update-chat.tsx-with-supplement-search-and-styling
+
       {audioUrl && preferVoice && (
         <AudioPlayer src={audioUrl} className="max-w-xs" />
       )}
@@ -266,7 +270,7 @@ const ChatPage = () => {
           Voice reply
         </label>
       </div>
->>>>>>> main
+ main
       <div className="flex gap-2">
         <input
           value={input}
@@ -281,8 +285,8 @@ const ChatPage = () => {
           Send
         </button>
       </div>
-<<<<<<< codex/update-chat.tsx-with-supplement-search-and-styling
-=======
+ codex/update-chat.tsx-with-supplement-search-and-styling
+
 
             </div>
           </TabsContent>
@@ -368,7 +372,7 @@ const ChatPage = () => {
         </Tabs>
       </motion.div>
  main
->>>>>>> main
+ main
     </div>
   );
 };
