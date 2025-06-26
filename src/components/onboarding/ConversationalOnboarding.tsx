@@ -36,7 +36,7 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   
-  // Use the auto-scroll hook with the onlyScrollDown parameter set to true
+  // Use the auto-scroll hook with onlyScrollDown set to true
   useAutoScroll(messagesEndRef, [messages], { behavior: 'smooth' }, true);
 
   // Initial greeting message - only add once when component mounts
@@ -76,7 +76,7 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
     e?.preventDefault?.();
     const messageContent = typeof e === 'string' ? e : input;
     
-    if (!messageContent.trim() && typeof e !== 'string') return;
+    if (!messageContent.trim()) return;
     
     // Add user message
     const userMessage: Message = {
