@@ -3,8 +3,12 @@ import { persist } from 'zustand/middleware';
 import { Supplement } from '../types/supplements';
 
 export interface CartItem {
-  supplement: Supplement;
+  id: string;
+  name: string;
+  price: number;
   quantity: number;
+  image: string;
+  description: string;
 }
 
 interface CartState {
@@ -27,15 +31,22 @@ export const useCartStore = create<CartState>()(
       
       addItem: (supplement) => {
         set((state) => {
-          const existingItem = state.items.find(item => item.supplement.id === supplement.id);
+          const existingItem = state.items.find(item => item.id === supplement.id);
           
           const newItems = existingItem
             ? state.items.map(item => 
-                item.supplement.id === supplement.id 
+                item.id === supplement.id 
                   ? { ...item, quantity: item.quantity + 1 } 
                   : item
               )
-            : [...state.items, { supplement, quantity: 1 }];
+            : [...state.items, { 
+                id: supplement.id,
+                name: supplement.name,
+                price: supplement.price_aed || supplement.price || 0,
+                quantity: 1,
+                image: supplement.form_image_url || supplement.image_url || '',
+                description: supplement.description || ''
+              }];
           
           return { 
             items: newItems,
@@ -46,7 +57,7 @@ export const useCartStore = create<CartState>()(
       
       removeItem: (supplementId) => {
         set((state) => {
-          const newItems = state.items.filter(item => item.supplement.id !== supplementId);
+          const newItems = state.items.filter(item => item.id !== supplementId);
           
           return { 
             items: newItems,
@@ -63,7 +74,7 @@ export const useCartStore = create<CartState>()(
         
         set((state) => {
           const newItems = state.items.map(item => 
-            item.supplement.id === supplementId 
+            item.id === supplementId 
               ? { ...item, quantity } 
               : item
           );
@@ -81,7 +92,7 @@ export const useCartStore = create<CartState>()(
       
       calculateTotal: () => {
         return get().items.reduce(
-          (total, item) => total + (item.supplement.price_aed * item.quantity), 
+          (total, item) => total + (item.price * item.quantity), 
           0
         );
       }
@@ -95,7 +106,7 @@ export const useCartStore = create<CartState>()(
 // Helper function to calculate total
 const calculateTotal = (items: CartItem[]): number => {
   return items.reduce(
-    (total, item) => total + (item.supplement.price_aed * item.quantity), 
+    (total, item) => total + (item.price * item.quantity), 
     0
   );
 };

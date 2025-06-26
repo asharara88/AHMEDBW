@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { ShoppingCart } from 'lucide-react';
-import { useCart } from './CartProvider';
-import ShoppingCartComponent from '../supplements/ShoppingCart';
+import { useCartStore } from '../../store/useCartStore';
+import ShoppingCart from '../supplements/ShoppingCart';
 import CartButton from './CartButton';
 
 const CartWidget = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const { items } = useCart();
+  const { items } = useCartStore();
   const itemCount = items.reduce((count, item) => count + item.quantity, 0);
 
   return (
     <>
       <CartButton onClick={() => setIsCartOpen(true)} />
       
-      <ShoppingCartComponent
+      <ShoppingCart
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
       />
@@ -23,6 +23,7 @@ const CartWidget = () => {
         <button
           onClick={() => setIsCartOpen(true)}
           className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-lg"
+          aria-label={`Shopping cart with ${itemCount} items`}
         >
           <ShoppingCart className="h-6 w-6" />
           {itemCount > 0 && (
