@@ -102,8 +102,8 @@ export const apiClient = {
         } as ApiError;
       }
       
-      const supabaseUrl = import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
-      const anonKey = import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
       
       if (!supabaseUrl || !anonKey) {
         throw {

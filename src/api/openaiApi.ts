@@ -20,7 +20,7 @@ export const openaiApi = {
       }
       
       // Always include the anon key
-      headers['apikey'] = import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      headers['apikey'] = import.meta.env.VITE_SUPABASE_ANON_KEY;
       
       // Optional: Add OpenAI API key if available in frontend env
       const frontendApiKey = import.meta.env.VITE_OPENAI_API_KEY;
@@ -28,13 +28,13 @@ export const openaiApi = {
         headers['x-openai-key'] = frontendApiKey;
       }
       
-      const supabaseUrl = import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       
       if (!supabaseUrl) {
         throw new Error('Missing Supabase URL configuration');
       }
 
-      if (!import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
         throw new Error('Missing Supabase anon key configuration');
       }
       

@@ -6,7 +6,29 @@
  * @param error Optional error object or additional details
  */
 export function logError(message: string, error?: any): void {
-  console.error(`[ERROR] ${message}:`, error);
+  if (error) {
+    // Handle different types of error objects
+    if (error instanceof Error) {
+      console.error(`[ERROR] ${message}:`, {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+    } else if (typeof error === 'object') {
+      // For objects like Supabase errors, try to extract useful information
+      console.error(`[ERROR] ${message}:`, {
+        error: error,
+        message: error.message || 'No message',
+        code: error.code || 'No code',
+        details: error.details || 'No details',
+        hint: error.hint || 'No hint'
+      });
+    } else {
+      console.error(`[ERROR] ${message}:`, error);
+    }
+  } else {
+    console.error(`[ERROR] ${message}`);
+  }
   
   // In a production environment, you could send errors to a monitoring service
   // Example: sendToErrorMonitoring(message, error);
