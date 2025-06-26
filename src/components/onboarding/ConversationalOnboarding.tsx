@@ -49,7 +49,7 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
       else if (hour < 18) greeting = "Good afternoon! ";
       else greeting = "Good evening! ";
       
-      addBotMessage(`${greeting}I'm your Biowell health coach. I'm here to help you optimize your health journey. What's your name?`);
+      addBotMessage(`${greeting}I'm your Biowell health coach. Ask me anything about your personal wellness.`);
       setCurrentStep('name');
     }
   }, []);
