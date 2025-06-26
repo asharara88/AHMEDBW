@@ -1,4 +1,4 @@
-import { apiClient, ErrorType, ApiError } from './apiClient';
+import { ErrorType, ApiError } from './apiClient';
 import { supabase } from '../lib/supabaseClient';
 import { logError, logInfo } from '../utils/logger';
 import type { User, Session } from '@supabase/supabase-js';
@@ -43,8 +43,7 @@ export const authApi = {
         email,
         password,
         options: {
-          captchaToken,
-          redirectTo: window.location.origin + '/dashboard'
+          captchaToken: captchaToken || undefined
         }
       });
 
@@ -88,7 +87,7 @@ export const authApi = {
         email,
         password,
         options: {
-          captchaToken,
+          captchaToken: captchaToken || undefined,
           emailRedirectTo: window.location.origin + '/dashboard',
           data: {
             email: email
@@ -134,28 +133,48 @@ export const authApi = {
    * Get user profile
    */
   async getUserProfile(userId: string): Promise<UserProfile> {
-    return apiClient.request(
-      () => supabase
+    try {
+      const { data, error } = await supabase
         .from('profiles')
         .select('first_name, last_name, email, onboarding_completed, mobile')
         .eq('id', userId)
-        .maybeSingle(),
-      'Failed to fetch user profile'
-    ).then(data => ({
-      firstName: data.first_name || '',
-      lastName: data.last_name || '',
-      email: data.email || '',
-      mobile: data.mobile || '',
-      onboardingCompleted: data.onboarding_completed || false
-    }));
+        .maybeSingle();
+      
+      if (error) {
+        logError('Failed to fetch user profile', error);
+        throw error;
+      }
+      
+      // If no profile exists, return default values
+      if (!data) {
+        return {
+          firstName: '',
+          lastName: '',
+          email: '',
+          mobile: '',
+          onboardingCompleted: false
+        };
+      }
+      
+      return {
+        firstName: data.first_name || '',
+        lastName: data.last_name || '',
+        email: data.email || '',
+        mobile: data.mobile || '',
+        onboardingCompleted: data.onboarding_completed || false
+      };
+    } catch (err) {
+      logError('Unexpected error fetching user profile', err);
+      throw err;
+    }
   },
 
   /**
    * Update user profile
    */
   async updateProfile(userId: string, profileData: UserProfile): Promise<void> {
-    await apiClient.request(
-      () => supabase
+    try {
+      const { error } = await supabase
         .from('profiles')
         .upsert({
           id: userId,
@@ -164,24 +183,30 @@ export const authApi = {
           mobile: profileData.mobile,
           onboarding_completed: true,
           updated_at: new Date().toISOString(),
-        })
-        .select('id'),  // Add this line to ensure data is returned
-      'Failed to update profile'
-    );
-    
-    // Update user metadata
-    try {
-      await supabase.auth.updateUser({
-        data: { 
-          first_name: profileData.firstName,
-          last_name: profileData.lastName,
-          mobile: profileData.mobile,
-          onboarding_completed: true
-        }
-      });
-    } catch (error) {
-      logError('Error updating user metadata', error);
-      // Continue even if metadata update fails
+        });
+      
+      if (error) {
+        logError('Failed to update profile', error);
+        throw error;
+      }
+      
+      // Update user metadata
+      try {
+        await supabase.auth.updateUser({
+          data: { 
+            first_name: profileData.firstName,
+            last_name: profileData.lastName,
+            mobile: profileData.mobile,
+            onboarding_completed: true
+          }
+        });
+      } catch (error) {
+        logError('Error updating user metadata', error);
+        // Continue even if metadata update fails
+      }
+    } catch (err) {
+      logError('Unexpected error updating profile', err);
+      throw err;
     }
   },
 
@@ -189,15 +214,27 @@ export const authApi = {
    * Check if user has completed onboarding
    */
   async checkOnboardingStatus(userId: string): Promise<boolean> {
-    return apiClient.request(
-      () => supabase
+    try {
+      const { data, error } = await supabase
         .from('profiles')
         .select('onboarding_completed, first_name, last_name')
         .eq('id', userId)
-        .maybeSingle(),
-      'Failed to check onboarding status'
-    ).then(data => {
-      return !!(data && (data.onboarding_completed || (data.first_name && data.last_name)));
-    });
+        .maybeSingle();
+      
+      if (error) {
+        logError('Failed to check onboarding status', error);
+        return false;
+      }
+      
+      // If no profile exists (data is null), user hasn't completed onboarding
+      if (!data) {
+        return false;
+      }
+      
+      return !!(data.onboarding_completed || (data.first_name && data.last_name));
+    } catch (err) {
+      logError('Unexpected error checking onboarding status', err);
+      return false;
+    }
   }
 };
