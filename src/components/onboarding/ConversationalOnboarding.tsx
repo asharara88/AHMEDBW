@@ -72,9 +72,9 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
 
   const handleSubmit = async (e: React.FormEvent | string) => {
     e?.preventDefault?.();
-    if (!input.trim() && typeof e !== 'string') return;
-    
     const messageContent = typeof e === 'string' ? e : input;
+    
+    if (!messageContent.trim() && typeof e !== 'string') return;
     
     // Add user message
     const userMessage: Message = {
@@ -284,9 +284,9 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="flex flex-col items-center rounded-lg bg-success/10 p-4 text-success"
+              className="rounded-xl bg-success/10 p-4 text-center text-success"
             >
-              <CheckCircle className="mb-2 h-8 w-8" />
+              <CheckCircle className="mx-auto mb-2 h-8 w-8" />
               <p className="text-center">Profile complete! Redirecting to your dashboard...</p>
             </motion.div>
           </div>
