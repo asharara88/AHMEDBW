@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, User, Volume2, VolumeX, Info } from 'lucide-react';
+import { Send, Loader, User, Volume2, VolumeX, Info, Mic, MicOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { logError } from '../../utils/logger';
@@ -12,6 +12,8 @@ import VoicePreferences from './VoicePreferences';
 import ChatSettingsButton from './ChatSettingsButton';
 import AudioVisualizer from './AudioVisualizer';
 import AudioPlayer from './AudioPlayer';
+import SuggestedQuestions from '../onboarding/SuggestedQuestions';
+import VoiceInput from './VoiceInput';
 
 const suggestedQuestions = [
   "What's my current health status?",
@@ -33,6 +35,10 @@ export default function HealthCoach() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingError, setRecordingError] = useState<string | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
   
   const { user, isDemo } = useAuth();
   const { currentTheme } = useTheme();
@@ -115,6 +121,69 @@ export default function HealthCoach() {
     };
   }, []);
 
+  // Voice recording functionality
+  const startRecording = async () => {
+    try {
+      setRecordingError(null);
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        
+        // Here you would typically send the audio to a speech-to-text service
+        // For now, we'll just simulate a response after a delay
+        setTimeout(() => {
+          const simulatedText = "How can I improve my sleep quality?";
+          setInput(simulatedText);
+          
+          // Optional: Auto-submit after voice recognition
+          // handleSubmit(simulatedText);
+        }, 1000);
+        
+        // Clean up
+        stream.getTracks().forEach(track => track.stop());
+        setIsRecording(false);
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.error('Error starting recording:', err);
+      setRecordingError('Microphone access denied. Please check your browser permissions.');
+      setIsRecording(false);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+    }
+  };
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+  
+  // Handle voice input transcription
+  const handleVoiceTranscription = (text: string) => {
+    setInput(text);
+    // Optionally auto-submit
+    // handleSubmit(text);
+  };
+
   return (
     <div className="flex h-full flex-col rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] shadow-lg">
       <div className="border-b border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] p-3">
@@ -177,7 +246,7 @@ export default function HealthCoach() {
             </div>
             <h3 className="mb-2 text-lg font-medium">Welcome to your Health Coach</h3>
             <p className="mb-6 text-text-light">
-              Ask me anything about your health and wellness goals.
+              Ask me anything about your personal wellness.
             </p>
             
             {showSuggestions && (
@@ -299,6 +368,13 @@ export default function HealthCoach() {
         </div>
       )}
 
+      {/* Voice recording error message */}
+      {recordingError && (
+        <div className="border-t border-[hsl(var(--color-border))] bg-error/10 px-4 py-2 text-xs text-error">
+          {recordingError}
+        </div>
+      )}
+
       <div className="border-t border-[hsl(var(--color-border))] p-4">
         <form onSubmit={handleSubmit} className="flex gap-2">
           <input
@@ -308,7 +384,15 @@ export default function HealthCoach() {
             placeholder="Ask me anything about your health..."
             className="flex-1 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             disabled={loading}
+            aria-label="Your message"
           />
+          
+          {/* Voice input component */}
+          <VoiceInput 
+            onTranscription={handleVoiceTranscription}
+            disabled={loading}
+          />
+          
           <button
             type="submit"
             disabled={loading || !input.trim()}
