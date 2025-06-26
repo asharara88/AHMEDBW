@@ -164,7 +164,8 @@ export const authApi = {
           mobile: profileData.mobile,
           onboarding_completed: true,
           updated_at: new Date().toISOString(),
-        }),
+        })
+        .select('id'),  // Add this line to ensure data is returned
       'Failed to update profile'
     );
     

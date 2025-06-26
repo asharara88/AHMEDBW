@@ -42,6 +42,7 @@ const HealthDashboard = () => {
                   ? 'bg-primary text-white'
                   : 'text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
               }`}
+              aria-pressed={timeRange === 'day'}
             >
               <Clock className="h-3.5 w-3.5" />
               Day
@@ -53,6 +54,7 @@ const HealthDashboard = () => {
                   ? 'bg-primary text-white'
                   : 'text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
               }`}
+              aria-pressed={timeRange === 'week'}
             >
               <Activity className="h-3.5 w-3.5" />
               Week
@@ -64,6 +66,7 @@ const HealthDashboard = () => {
                   ? 'bg-primary text-white'
                   : 'text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
               }`}
+              aria-pressed={timeRange === 'month'}
             >
               <Calendar className="h-3.5 w-3.5" />
               Month

@@ -27,7 +27,7 @@ const Logo = ({ className = '', variant = 'default' }: LogoProps) => {
                      'text-black dark:text-white';
 
   return (
-    <Link to="/" className={`flex items-center ${className}`}>
+    <Link to="/" className={`flex items-center ${className}`} aria-label="Biowell Home">
       <div className={colorClass}>
         <img 
           src={logoUrl} 

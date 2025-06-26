@@ -1,15 +1,16 @@
 import { supabase } from '../lib/supabaseClient';
-import { logError } from '../utils/logger';
+import { logError, logInfo } from '../utils/logger';
 import { User } from '@supabase/supabase-js';
 
 export interface OnboardingFormData {
   firstName: string;
   lastName: string;
+  email?: string;
   mobile?: string;
-  age?: number;
+  age?: number | string;
   gender?: string;
   healthGoals?: string[];
-  sleepHours?: number;
+  sleepHours?: number | string;
   exerciseFrequency?: string;
   dietPreference?: string;
   stressLevel?: string;
@@ -26,7 +27,7 @@ export const onboardingApi = {
       .from('profiles')
       .upsert({
         id: user.id,
-        email: user.email,
+        email: user.email || data.email || '',
         first_name: data.firstName,
         last_name: data.lastName,
         mobile: data.mobile,
@@ -35,7 +36,12 @@ export const onboardingApi = {
         updated_at: new Date().toISOString()
       });
 
-    if (error) throw error;
+    if (error) {
+      logError('Error saving profile', error);
+      throw error;
+    }
+    
+    logInfo('Profile saved successfully');
   },
 
   /**
@@ -59,7 +65,12 @@ export const onboardingApi = {
             updated_at: new Date().toISOString()
           });
         
-        if (error) throw error;
+        if (error) {
+          logError('Error saving quiz responses', error);
+          throw error;
+        }
+        
+        logInfo('Quiz responses saved successfully');
       }
     } catch (err) {
       logError('Error saving quiz responses', err);
@@ -79,11 +90,18 @@ export const onboardingApi = {
           last_name: data.lastName,
           mobile: data.mobile,
           age: data.age,
-          gender: data.gender
+          gender: data.gender,
+          health_goals: data.healthGoals,
+          main_goal: data.mainGoal
         }
       });
       
-      if (error) throw error;
+      if (error) {
+        logError('Error updating user metadata', error);
+        throw error;
+      }
+      
+      logInfo('User metadata updated successfully');
     } catch (err) {
       logError('Error updating user metadata', err);
       // Don't rethrow - allow this to fail without blocking the main flow
@@ -94,34 +112,52 @@ export const onboardingApi = {
    * Complete the entire onboarding process with Promise.allSettled
    */
   async completeOnboarding(user: User, data: OnboardingFormData): Promise<void> {
+    // Ensure email is included
+    const completeData = {
+      ...data,
+      email: user.email || data.email || ''
+    };
+    
     // Use Promise.allSettled to allow failures in quiz/meta without blocking main onboarding
     const results = await Promise.allSettled([
-      this.saveProfile(user, data),
-      this.saveQuizResponses(user, data),
-      this.updateUserMetadata(user, data)
+      this.saveProfile(user, completeData),
+      this.saveQuizResponses(user, completeData),
+      this.updateUserMetadata(user, completeData)
     ]);
     
     // Check for errors in the main profile update (first promise)
     if (results[0].status === 'rejected') {
+      logError('Failed to save profile', results[0].reason);
       throw results[0].reason;
+    }
+    
+    // Log any other failures but don't block completion
+    if (results[1].status === 'rejected') {
+      logError('Failed to save quiz responses', results[1].reason);
+    }
+    
+    if (results[2].status === 'rejected') {
+      logError('Failed to update user metadata', results[2].reason);
     }
     
     // Save to localStorage for future use
     localStorage.setItem('biowell-user-data', JSON.stringify({
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: user.email,
-      mobile: data.mobile,
-      age: data.age,
-      gender: data.gender,
-      healthGoals: data.healthGoals,
-      sleepHours: data.sleepHours,
-      exerciseFrequency: data.exerciseFrequency,
-      dietPreference: data.dietPreference,
-      stressLevel: data.stressLevel,
-      mainGoal: data.mainGoal,
-      supplementHabits: data.supplementHabits,
+      firstName: completeData.firstName,
+      lastName: completeData.lastName,
+      email: completeData.email,
+      mobile: completeData.mobile,
+      age: completeData.age,
+      gender: completeData.gender,
+      healthGoals: completeData.healthGoals,
+      sleepHours: completeData.sleepHours,
+      exerciseFrequency: completeData.exerciseFrequency,
+      dietPreference: completeData.dietPreference,
+      stressLevel: completeData.stressLevel,
+      mainGoal: completeData.mainGoal,
+      supplementHabits: completeData.supplementHabits,
       onboardingCompleted: true
     }));
+    
+    logInfo('Onboarding completed successfully');
   }
 };
