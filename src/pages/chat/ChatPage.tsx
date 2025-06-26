@@ -1,10 +1,52 @@
 // pages/chat.tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabaseClient';
+import { elevenlabsApi } from '../../api/elevenlabsApi';
+import AudioPlayer from '../../components/chat/AudioPlayer';
 
 export default function ChatCoach() {
   const [messages, setMessages] = useState([] as any[]);
   const [input, setInput] = useState('');
+  const [preferVoice, setPreferVoice] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const playVoice = async (text: string) => {
+    if (!elevenlabsApi.isConfigured()) return;
+
+    try {
+      const blob = await elevenlabsApi.textToSpeech(text);
+      const url = URL.createObjectURL(blob);
+
+      // Clean up previous audio
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      setAudioUrl(url);
+
+      await audio.play();
+    } catch (err) {
+      console.error('Voice playback failed:', err);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+    };
+  }, [audioUrl]);
 
   const fetchSupplement = async (keyword: string) => {
     const { data } = await supabase
@@ -14,19 +56,29 @@ export default function ChatCoach() {
 
     if (data && data.length > 0) {
       const s = data[0];
+      const coachText = `Got it! Based on your goal, I suggest ${s.name}. ${s.evidence_summary}.`;
       setMessages((prev) => [
         ...prev,
         {
           role: 'coach',
-          text: `Got it! Based on your goal, I suggest ${s.name}. ${s.evidence_summary}.`,
+          text: coachText,
           link: s.source_link,
         },
       ]);
+
+      if (preferVoice) {
+        playVoice(coachText);
+      }
     } else {
+      const coachText = "Hmm, I couldn't find a supplement for that goal yet.";
       setMessages((prev) => [
         ...prev,
-        { role: 'coach', text: "Hmm, I couldn't find a supplement for that goal yet." },
+        { role: 'coach', text: coachText },
       ]);
+
+      if (preferVoice) {
+        playVoice(coachText);
+      }
     }
   };
 
@@ -76,6 +128,20 @@ export default function ChatCoach() {
           </div>
         </div>
       ))}
+      {audioUrl && preferVoice && (
+        <AudioPlayer src={audioUrl} className="max-w-xs" />
+      )}
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          id="voice-toggle"
+          checked={preferVoice}
+          onChange={(e) => setPreferVoice(e.target.checked)}
+        />
+        <label htmlFor="voice-toggle" className="text-sm">
+          Voice reply
+        </label>
+      </div>
       <div className="flex gap-2">
         <input
           value={input}
