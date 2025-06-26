@@ -54,8 +54,25 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
     try {
       setLoading(true);
       
-      // In a real app, fetch from database
-      // For demo, use hardcoded stacks
+      // In a real app, fetch data from Supabase
+      if (!isDemo) {
+        const { data, error } = await supabase
+          .from('supplement_stacks')
+          .select('*')
+          .limit(10);
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          setStacks(data.map(stack => ({
+            ...stack,
+            isActive: false
+          })));
+          return;
+        }
+      }
+      
+      // Generate demo data if no real data exists or in demo mode
       setStacks([
         {
           id: 'sleep-stack',
@@ -101,6 +118,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
     
     try {
       setLoading(true);
+      setError(null);
       
       // Calculate total price
       const totalPrice = newStack.supplements.reduce((total, id) => {
@@ -140,6 +158,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
   const handleActivateStack = async (stackId: string) => {
     try {
       setLoading(true);
+      setError(null);
       
       // Update active stack
       setStacks(stacks.map(stack => ({
@@ -175,6 +194,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
   const handleDeleteStack = async (stackId: string) => {
     try {
       setLoading(true);
+      setError(null);
       
       // Remove stack
       setStacks(stacks.filter(stack => stack.id !== stackId));
@@ -374,7 +394,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-medium truncate">{supplement.name}</h4>
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-text-light">AED {supplement.price_aed.toFixed(2)}</span>
+                          <span className="text-xs text-text-light">${supplement.price_aed?.toFixed(2) || supplement.price?.toFixed(2) || "0.00"}</span>
                           <span className={`text-xs ${
                             supplement.evidence_level === 'Green' ? 'text-success' :
                             supplement.evidence_level === 'Yellow' ? 'text-warning' :
@@ -510,6 +530,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
               <button
                 onClick={() => handleDeleteStack(stack.id)}
                 className="rounded-lg border border-[hsl(var(--color-border))] p-2 text-text-light transition-colors hover:bg-error/10 hover:text-error"
+                aria-label="Delete stack"
               >
                 <X className="h-4 w-4" />
               </button>

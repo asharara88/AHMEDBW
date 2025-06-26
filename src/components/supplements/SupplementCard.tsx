@@ -9,40 +9,52 @@ interface SupplementCardProps {
   className?: string;
   showAddToCart?: boolean;
   isRecommended?: boolean;
+  isInStack?: boolean;
+  onAddToStack?: () => void;
+  onRemoveFromStack?: () => void;
+  onViewDetails?: () => void;
 }
 
 const SupplementCard: React.FC<SupplementCardProps> = ({ 
   supplement, 
   className = '',
   showAddToCart = true,
-  isRecommended = false
+  isRecommended = false,
+  isInStack = false,
+  onAddToStack,
+  onRemoveFromStack,
+  onViewDetails
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const { addItem, items } = useCartStore();
 
-  const isInCart = items.some(item => item.id === supplement.id);
+  const isInCart = items.some(item => item.supplement.id === supplement.id);
 
   const handleAddToCart = () => {
-    addItem({
-      id: supplement.id,
-      name: supplement.name,
-      price: supplement.price,
-      quantity: 1,
-      image: supplement.image_url || '',
-      description: supplement.description
-    });
+    addItem(supplement);
   };
 
-  const getFormImage = (formType: string | null) => {
-    const formImages: Record<string, string> = {
-      'capsule': 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=100&h=100&fit=crop',
-      'tablet': 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=100&h=100&fit=crop',
-      'powder': 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=100&h=100&fit=crop',
-      'liquid': 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=100&h=100&fit=crop',
-      'gummy': 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=100&h=100&fit=crop'
-    };
-    return formImages[formType || 'capsule'] || formImages.capsule;
+  const handleToggleStack = () => {
+    if (isInStack && onRemoveFromStack) {
+      onRemoveFromStack();
+    } else if (!isInStack && onAddToStack) {
+      onAddToStack();
+    }
+  };
+
+  const getFormImage = (formType: string | undefined) => {
+    if (supplement.form_image_url) {
+      return supplement.form_image_url;
+    }
+    
+    // Fallback to image_url if form_image_url is not available
+    if (supplement.image_url) {
+      return supplement.image_url;
+    }
+    
+    // Default fallback
+    return "https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg";
   };
 
   return (
@@ -63,15 +75,28 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
         </div>
       )}
 
+      {/* Evidence Level Badge */}
+      {supplement.evidence_level && (
+        <div className="absolute right-3 top-3 z-10 rounded-full px-2 py-1 text-xs font-medium 
+          ${supplement.evidence_level === 'Green' 
+            ? 'bg-success/20 text-success' 
+            : supplement.evidence_level === 'Yellow' 
+              ? 'bg-warning/20 text-warning' 
+              : 'bg-error/20 text-error'
+          }">
+          {supplement.evidence_level}
+        </div>
+      )}
+
       {/* Image */}
       <div className="relative h-48 overflow-hidden bg-gradient-to-br from-primary/5 to-primary/10">
         <img
-          src={supplement.image_url || getFormImage(supplement.form_type)}
+          src={getFormImage(supplement.form_type)}
           alt={supplement.name}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.src = getFormImage(supplement.form_type);
+            target.src = "https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg";
           }}
         />
         
@@ -85,11 +110,16 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
             <button
               onClick={() => setShowDetails(true)}
               className="rounded-full bg-white/20 p-2 text-white backdrop-blur-sm transition-colors hover:bg-white/30"
+              aria-label="View details"
             >
               <Info className="h-4 w-4" />
             </button>
-            <button className="rounded-full bg-white/20 p-2 text-white backdrop-blur-sm transition-colors hover:bg-white/30">
-              <Heart className="h-4 w-4" />
+            <button 
+              className="rounded-full bg-white/20 p-2 text-white backdrop-blur-sm transition-colors hover:bg-white/30"
+              onClick={handleToggleStack}
+              aria-label={isInStack ? "Remove from stack" : "Add to stack"}
+            >
+              <Heart className={`h-4 w-4 ${isInStack ? 'fill-white' : ''}`} />
             </button>
           </div>
         </motion.div>
@@ -101,7 +131,7 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
         <div className="mb-2">
           <h3 className="font-semibold text-text line-clamp-1">{supplement.name}</h3>
           {supplement.form_type && (
-            <p className="text-xs text-text-light capitalize">{supplement.form_type}</p>
+            <p className="text-xs text-text-light capitalize">{supplement.form_type.replace('_', ' ')}</p>
           )}
         </div>
 
@@ -141,7 +171,7 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
         {/* Price and Actions */}
         <div className="flex items-center justify-between">
           <div className="text-lg font-bold text-primary">
-            ${supplement.price.toFixed(2)}
+            ${supplement.price_aed?.toFixed(2) || supplement.price?.toFixed(2) || "0.00"}
           </div>
           
           {showAddToCart && (
@@ -153,6 +183,7 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
                   ? 'bg-success/10 text-success cursor-not-allowed'
                   : 'bg-primary text-white hover:bg-primary-dark'
               }`}
+              aria-label={isInCart ? "Added to cart" : "Add to cart"}
             >
               {isInCart ? (
                 <>
@@ -184,6 +215,7 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
               <button
                 onClick={() => setShowDetails(false)}
                 className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
+                aria-label="Close details"
               >
                 ×
               </button>
@@ -192,7 +224,7 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
             <div className="space-y-4">
               {/* Image */}
               <img
-                src={supplement.image_url || getFormImage(supplement.form_type)}
+                src={getFormImage(supplement.form_type)}
                 alt={supplement.name}
                 className="h-32 w-full rounded-lg object-cover"
               />
@@ -229,7 +261,7 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
                 )}
                 {supplement.form_type && (
                   <div>
-                    <span className="font-medium">Form:</span> {supplement.form_type}
+                    <span className="font-medium">Form:</span> {supplement.form_type.replace('_', ' ')}
                   </div>
                 )}
                 {supplement.goal && (
@@ -269,7 +301,7 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
               {/* Price and Add to Cart */}
               <div className="flex items-center justify-between border-t border-[hsl(var(--color-border))] pt-4">
                 <div className="text-xl font-bold text-primary">
-                  ${supplement.price.toFixed(2)}
+                  ${supplement.price_aed?.toFixed(2) || supplement.price?.toFixed(2) || "0.00"}
                 </div>
                 {showAddToCart && (
                   <button
@@ -280,6 +312,7 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
                         ? 'bg-success/10 text-success cursor-not-allowed'
                         : 'bg-primary text-white hover:bg-primary-dark'
                     }`}
+                    aria-label={isInCart ? "Added to cart" : "Add to cart"}
                   >
                     {isInCart ? (
                       <>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Loader, Check, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Loader, Check, AlertCircle, Brain, Heart, Moon, Activity, Zap, Shield } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supplementApi } from '../../api/supplementApi';
 import ApiErrorDisplay from '../common/ApiErrorDisplay';
@@ -48,16 +49,16 @@ const SupplementRecommender = ({ onRecommendationsReceived }: SupplementRecommen
   };
 
   const suggestions = [
-    "Improve sleep quality",
-    "Increase energy levels",
-    "Reduce stress and anxiety",
-    "Support immune function",
-    "Enhance cognitive performance",
-    "Optimize metabolic health",
-    "Support joint health",
-    "Improve athletic recovery",
-    "Balance hormones naturally",
-    "Support heart health"
+    { text: "Improve sleep quality", icon: <Moon className="h-4 w-4" /> },
+    { text: "Increase energy levels", icon: <Zap className="h-4 w-4" /> },
+    { text: "Reduce stress and anxiety", icon: <Brain className="h-4 w-4" /> },
+    { text: "Support immune function", icon: <Shield className="h-4 w-4" /> },
+    { text: "Enhance cognitive performance", icon: <Brain className="h-4 w-4" /> },
+    { text: "Optimize metabolic health", icon: <Activity className="h-4 w-4" /> },
+    { text: "Support joint health", icon: <Activity className="h-4 w-4" /> },
+    { text: "Improve athletic recovery", icon: <Zap className="h-4 w-4" /> },
+    { text: "Balance hormones naturally", icon: <Heart className="h-4 w-4" /> },
+    { text: "Support heart health", icon: <Heart className="h-4 w-4" /> }
   ];
 
   return (
@@ -75,7 +76,7 @@ const SupplementRecommender = ({ onRecommendationsReceived }: SupplementRecommen
             value={goal}
             onChange={(e) => setGoal(e.target.value)}
             placeholder="e.g., improve sleep quality, increase energy, reduce stress"
-            className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 text-text placeholder:text-text-light"
+            className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             required
           />
         </div>
@@ -83,14 +84,15 @@ const SupplementRecommender = ({ onRecommendationsReceived }: SupplementRecommen
         <div className="mb-4">
           <p className="mb-2 text-sm font-medium">Popular goals:</p>
           <div className="flex flex-wrap gap-2">
-            {suggestions.slice(0, 5).map((suggestion) => (
+            {suggestions.slice(0, 5).map((suggestion, index) => (
               <button
-                key={suggestion}
+                key={index}
                 type="button"
-                onClick={() => handleSuggestionClick(suggestion)}
-                className="rounded-full bg-primary/10 px-3 py-1 text-xs text-primary hover:bg-primary/20"
+                onClick={() => handleSuggestionClick(suggestion.text)}
+                className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs text-primary hover:bg-primary/20"
               >
-                {suggestion}
+                {suggestion.icon}
+                {suggestion.text}
               </button>
             ))}
           </div>
@@ -99,7 +101,7 @@ const SupplementRecommender = ({ onRecommendationsReceived }: SupplementRecommen
         <button
           type="submit"
           disabled={loading || !goal.trim()}
-          className="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 font-medium text-white hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 font-medium text-white hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50 w-full"
         >
           {loading ? (
             <>
@@ -115,7 +117,11 @@ const SupplementRecommender = ({ onRecommendationsReceived }: SupplementRecommen
       {error && <ApiErrorDisplay error={error} className="mb-4" />}
       
       {recommendations && (
-        <div className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-4 overflow-x-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-4 overflow-x-auto mb-6"
+        >
           <div className="flex items-center gap-2 mb-3">
             <Check className="h-5 w-5 text-success" />
             <h3 className="text-lg font-medium">Your Personalized Recommendations</h3>
@@ -123,7 +129,7 @@ const SupplementRecommender = ({ onRecommendationsReceived }: SupplementRecommen
           <div className="prose prose-sm max-w-none dark:prose-invert">
             <ReactMarkdown>{recommendations}</ReactMarkdown>
           </div>
-        </div>
+        </motion.div>
       )}
       
       {recentQueries.length > 0 && (
@@ -131,12 +137,21 @@ const SupplementRecommender = ({ onRecommendationsReceived }: SupplementRecommen
           <button
             onClick={() => setShowHistory(!showHistory)}
             className="flex items-center gap-2 text-sm text-primary hover:underline"
+            aria-expanded={showHistory}
+            aria-controls="recent-queries"
           >
             {showHistory ? 'Hide recent queries' : 'Show recent queries'}
           </button>
           
           {showHistory && (
-            <div className="mt-2 space-y-2">
+            <motion.div
+              id="recent-queries"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mt-2 space-y-2 overflow-hidden"
+            >
               {recentQueries.map((query, index) => (
                 <div 
                   key={index}
@@ -144,7 +159,7 @@ const SupplementRecommender = ({ onRecommendationsReceived }: SupplementRecommen
                 >
                   <button
                     onClick={() => handleSuggestionClick(query.goal)}
-                    className="text-sm hover:text-primary"
+                    className="text-sm hover:text-primary text-left"
                   >
                     {query.goal}
                   </button>
@@ -153,7 +168,7 @@ const SupplementRecommender = ({ onRecommendationsReceived }: SupplementRecommen
                   </span>
                 </div>
               ))}
-            </div>
+            </motion.div>
           )}
         </div>
       )}
