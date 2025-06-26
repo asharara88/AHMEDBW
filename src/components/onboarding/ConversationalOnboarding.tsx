@@ -39,17 +39,19 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
   // Use the auto-scroll hook with the onlyScrollDown parameter set to true
   useAutoScroll(messagesEndRef, [messages], { behavior: 'smooth' }, true);
 
-  // Initial greeting message
+  // Initial greeting message - only add once when component mounts
   useEffect(() => {
-    const hour = new Date().getHours();
-    let greeting = "Hello there! ";
-    
-    if (hour < 12) greeting = "Good morning! ";
-    else if (hour < 18) greeting = "Good afternoon! ";
-    else greeting = "Good evening! ";
-    
-    addBotMessage(`${greeting}I'm your Biowell health coach. I'm here to help you optimize your health journey. What's your name?`);
-    setCurrentStep('name');
+    if (messages.length === 0) {
+      const hour = new Date().getHours();
+      let greeting = "Hello there! ";
+      
+      if (hour < 12) greeting = "Good morning! ";
+      else if (hour < 18) greeting = "Good afternoon! ";
+      else greeting = "Good evening! ";
+      
+      addBotMessage(`${greeting}I'm your Biowell health coach. I'm here to help you optimize your health journey. What's your name?`);
+      setCurrentStep('name');
+    }
   }, []);
 
   const addBotMessage = (content: string) => {
