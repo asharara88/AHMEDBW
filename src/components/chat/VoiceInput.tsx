@@ -14,12 +14,16 @@ const VoiceInput = ({ onTranscription, disabled = false, className = '' }: Voice
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
+  const recordingTimeoutRef = useRef<number | null>(null);
 
   // Clean up on unmount
   useEffect(() => {
     return () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
+      }
+      if (recordingTimeoutRef.current) {
+        clearTimeout(recordingTimeoutRef.current);
       }
     };
   }, []);
@@ -80,11 +84,23 @@ const VoiceInput = ({ onTranscription, disabled = false, className = '' }: Voice
           streamRef.current = null;
         }
         setIsRecording(false);
+        
+        if (recordingTimeoutRef.current) {
+          clearTimeout(recordingTimeoutRef.current);
+          recordingTimeoutRef.current = null;
+        }
       };
 
       // Start recording
       mediaRecorder.start();
       setIsRecording(true);
+      
+      // Auto-stop after 30 seconds
+      recordingTimeoutRef.current = window.setTimeout(() => {
+        if (mediaRecorderRef.current && isRecording) {
+          stopRecording();
+        }
+      }, 30000);
     } catch (err) {
       console.error('Error starting recording:', err);
       setError('Microphone access denied. Please check your browser permissions.');
@@ -115,13 +131,14 @@ const VoiceInput = ({ onTranscription, disabled = false, className = '' }: Voice
         disabled={disabled || isProcessing}
         className={`flex items-center justify-center rounded-lg p-3 transition-colors ${
           isRecording 
-            ? 'bg-error text-white' 
+            ? 'bg-error text-white animate-pulse' 
             : isProcessing
               ? 'bg-[hsl(var(--color-surface-2))] text-text-light'
               : 'bg-[hsl(var(--color-surface-1))] text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
         } disabled:cursor-not-allowed disabled:opacity-50`}
         aria-label={isRecording ? "Stop recording" : "Start voice recording"}
         aria-pressed={isRecording}
+        title={isRecording ? "Stop recording" : "Record voice message"}
       >
         {isProcessing ? (
           <Loader className="h-5 w-5 animate-spin" />
@@ -133,21 +150,26 @@ const VoiceInput = ({ onTranscription, disabled = false, className = '' }: Voice
       </button>
       
       {error && (
-        <div className="mt-2 text-xs text-error">
+        <div className="absolute bottom-full mb-2 right-0 rounded-lg bg-error/10 p-2 text-xs text-error whitespace-nowrap">
           {error}
         </div>
       )}
       
       {isRecording && (
-        <div className="mt-2 flex items-center gap-2">
-          <div className="h-2 w-2 animate-pulse rounded-full bg-error"></div>
-          <span className="text-xs">Recording...</span>
+        <div className="absolute bottom-full mb-2 right-0 rounded-lg bg-[hsl(var(--color-card))] p-2 shadow-md whitespace-nowrap">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 animate-pulse rounded-full bg-error"></div>
+            <span className="text-xs">Recording... (tap to stop)</span>
+          </div>
         </div>
       )}
       
       {isProcessing && (
-        <div className="mt-2 text-xs text-text-light">
-          Processing your voice...
+        <div className="absolute bottom-full mb-2 right-0 rounded-lg bg-[hsl(var(--color-card))] p-2 shadow-md whitespace-nowrap">
+          <div className="flex items-center gap-2">
+            <Loader className="h-3 w-3 animate-spin text-primary" />
+            <span className="text-xs">Processing your voice...</span>
+          </div>
         </div>
       )}
     </div>
