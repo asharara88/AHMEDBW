@@ -17,3 +17,15 @@ port = 54323
 [functions]
 port = 54324
 verify_jwt = true
+
+[functions.openai-proxy]
+verify_jwt = false
+
+[functions.chat-assistant]
+verify_jwt = false
+
+[functions.match-supplement]
+verify_jwt = false
+
+[functions.onboarding-status]
+verify_jwt = false
