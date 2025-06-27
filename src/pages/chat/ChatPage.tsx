@@ -5,7 +5,7 @@ import AIHealthCoach from '../../components/chat/AIHealthCoach';
 import { MessageCircle, Zap, History, Settings, Volume2, VolumeX } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useChatStore } from '../../store';
-import VoicePreferences from "../../components/chat/VoicePreferences";
+import VoicePreferences from '../../components/chat/VoicePreferences';
 
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat');
@@ -33,7 +33,7 @@ const ChatPage = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="chat" onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="mb-6 flex items-center justify-between">
             <TabsList>
               <TabsTrigger value="chat" className="flex items-center gap-2">
