@@ -197,10 +197,10 @@ export const useAuthStore = create<AuthState>()(
         }
         
         try {
-          // Ensure email is included in the profile data
+          // Ensure email is included in the profile data, using only user.email with empty string fallback
           const profileWithEmail = {
             ...profileData,
-            email: user.email || profileData.email || ''
+            email: user.email || ''
           };
           
           // Validate that we have an email
