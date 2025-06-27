@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToggle } from '../../hooks/useToggle';
-import { Plus, X, Edit2, AlertCircle, CheckCircle, Package, Info, Search, Filter, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, X, Check, Save, Package, AlertCircle, Info, Search, Filter, ChevronDown, ChevronUp } from 'lucide-react';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Supplement } from '../../types/supplements';
@@ -499,7 +499,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
                       <span className="truncate max-w-[120px]">{supplement.name}</span>
                     </div>
                     {userSupplements.includes(supplementId) ? (
-                      <Check className="h-4 w-4 text-success" />
+                      <CheckCircle className="h-4 w-4 text-success" />
                     ) : (
                       <AlertCircle className="h-4 w-4 text-warning" />
                     )}
