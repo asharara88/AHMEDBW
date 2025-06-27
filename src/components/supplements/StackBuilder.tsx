@@ -173,11 +173,13 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
       if (!stack) return;
       
       // Subscribe to all supplements in the stack
-      stack.supplements.forEach(supplementId => {
-        if (!userSupplements.includes(supplementId)) {
-          onToggleSubscription(supplementId);
-        }
-      });
+      if (stack.supplements && Array.isArray(stack.supplements)) {
+        stack.supplements.forEach(supplementId => {
+          if (!userSupplements.includes(supplementId)) {
+            onToggleSubscription(supplementId);
+          }
+        });
+      }
       
       setSuccess('Stack activated successfully');
       

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useRecommendationParser } from '../../hooks/useRecommendationParser';
 import { PlusCircle, Check } from 'lucide-react';
