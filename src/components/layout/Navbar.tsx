@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Package, Activity } from 'lucide-react';
+import { UserCircle, Settings, LogOut, Sun, Moon, Laptop } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import Logo from '../common/Logo';
@@ -201,22 +201,20 @@ const Navbar = () => {
                   </Link>
                   <Link 
                     to="/chat" 
-                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
+                    className={`rounded-lg px-4 py-2 text-text-light transition-colors ${
                       isActive('/chat') || location.pathname.startsWith('/chat/') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
                     }`}
                     onClick={toggleMenu}
                   >
-                    <Activity className="h-5 w-5" />
                     Coach
                   </Link>
                   <Link 
                     to="/supplements" 
-                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
+                    className={`rounded-lg px-4 py-2 text-text-light transition-colors ${
                       isActive('/supplements') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
                     }`}
                     onClick={toggleMenu}
                   >
-                    <Package className="h-5 w-5" />
                     Supplements
                   </Link>
                   <Link 

@@ -14,6 +14,7 @@ import AudioVisualizer from './AudioVisualizer';
 import AudioPlayer from './AudioPlayer';
 import SuggestedQuestions from '../onboarding/SuggestedQuestions';
 import VoiceInput from './VoiceInput';
+import { MessageContent } from './MessageContent';
 
 const suggestedQuestions = [
   "What's my current health status?",
@@ -291,7 +292,7 @@ export default function HealthCoach() {
               >
                 {message.role === 'assistant' ? (
                   <div className="prose prose-sm max-w-none dark:prose-invert">
-                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                    <MessageContent content={message.content} />
                   </div>
                 ) : (
                   <div>{message.content}</div>
