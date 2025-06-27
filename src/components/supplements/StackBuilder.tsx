@@ -111,7 +111,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
   
   const handleCreateStack = async () => {
     if (!user) return;
-    if (!newStack.name || !newStack.category || newStack.supplements.length === 0) {
+    if (!newStack.name || !newStack.category || (newStack.supplements || []).length === 0) {
       setError('Please provide a name, category, and select at least one supplement');
       return;
     }
@@ -121,7 +121,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
       setError(null);
       
       // Calculate total price
-      const totalPrice = newStack.supplements.reduce((total, id) => {
+      const totalPrice = (newStack.supplements || []).reduce((total, id) => {
         const supplement = (supplements || []).find(s => s.id === id);
         return total + (supplement?.price_aed || 0);
       }, 0);
@@ -217,15 +217,16 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
   };
   
   const toggleSupplementInNewStack = (supplementId: string) => {
-    if (newStack.supplements.includes(supplementId)) {
+    const currentSupplements = newStack.supplements || [];
+    if (currentSupplements.includes(supplementId)) {
       setNewStack({
         ...newStack,
-        supplements: newStack.supplements.filter(id => id !== supplementId)
+        supplements: currentSupplements.filter(id => id !== supplementId)
       });
     } else {
       setNewStack({
         ...newStack,
-        supplements: [...newStack.supplements, supplementId]
+        supplements: [...currentSupplements, supplementId]
       });
     }
   };
@@ -378,7 +379,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
                     <div
                       key={supplement.id}
                       className={`flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition ${
-                        newStack.supplements.includes(supplement.id)
+                        (newStack.supplements || []).includes(supplement.id)
                           ? 'border-primary bg-primary/5'
                           : 'border-[hsl(var(--color-border))]'
                       }`}
@@ -405,11 +406,11 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
                         </div>
                       </div>
                       <div className={`flex h-5 w-5 items-center justify-center rounded-full ${
-                        newStack.supplements.includes(supplement.id)
+                        (newStack.supplements || []).includes(supplement.id)
                           ? 'bg-primary text-white'
                           : 'bg-[hsl(var(--color-surface-1))] text-text-light'
                       }`}>
-                        {newStack.supplements.includes(supplement.id) ? (
+                        {(newStack.supplements || []).includes(supplement.id) ? (
                           <Check className="h-3 w-3" />
                         ) : (
                           <Plus className="h-3 w-3" />
@@ -429,7 +430,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
               <div className="flex justify-end">
                 <button
                   onClick={handleCreateStack}
-                  disabled={!newStack.name || !newStack.category || newStack.supplements.length === 0 || loading}
+                  disabled={!newStack.name || !newStack.category || (newStack.supplements || []).length === 0 || loading}
                   className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {loading ? (
@@ -476,7 +477,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
             </div>
             
             <div className="mb-6 space-y-2">
-              {stack.supplements.map((supplementId: string) => {
+              {(stack.supplements || []).map((supplementId: string) => {
                 const supplement = (supplements || []).find(s => s.id === supplementId);
                 if (!supplement) return null;
                 
