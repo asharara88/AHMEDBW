@@ -41,3 +41,6 @@ dist-ssr
 # Temporary files
 /tmp
 /tempdeno.lock
+
+# Local Netlify folder
+.netlify
