@@ -34,6 +34,7 @@ export default function HealthCoach() {
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -65,6 +66,11 @@ export default function HealthCoach() {
     // Select 5 random questions on component mount
     const shuffled = [...suggestedQuestions].sort(() => 0.5 - Math.random());
     setSelectedSuggestions(shuffled.slice(0, 5));
+    
+    // Reset scroll position to top when component mounts
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = 0;
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent | string) => {
@@ -171,6 +177,8 @@ export default function HealthCoach() {
   };
 
   const toggleRecording = () => {
+    if (disabled) return;
+    
     if (isRecording) {
       stopRecording();
     } else {
@@ -232,7 +240,10 @@ export default function HealthCoach() {
         </div>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-4 overscroll-contain">
+      <div 
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto p-4 overscroll-contain"
+      >
         {error && <ApiErrorDisplay error={{ type: 'unknown', message: error }} />}
 
         {messages.length === 0 ? (
