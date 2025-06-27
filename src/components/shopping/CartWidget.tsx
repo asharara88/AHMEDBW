@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
-import ShoppingCart from '../supplements/ShoppingCart';
+import ShoppingCartComponent from '../supplements/ShoppingCart';
 import CartButton from './CartButton';
 
 const CartWidget = () => {
@@ -13,7 +13,7 @@ const CartWidget = () => {
     <>
       <CartButton onClick={() => setIsCartOpen(true)} />
       
-      <ShoppingCart
+      <ShoppingCartComponent
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
       />

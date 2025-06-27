@@ -6,12 +6,12 @@ import { useAuthStore, useSupplementStore } from '../../store';
 import { CartProvider } from '../../components/shopping/CartProvider';
 import CartWidget from '../../components/shopping/CartWidget';
 import ShoppingCart from '../../components/shopping/ShoppingCart';
-import SupplementGrid from '../components/supplements/SupplementGrid';
-import SupplementFilters from '../components/supplements/SupplementFilters';
-import SupplementCategories from '../components/supplements/SupplementCategories';
-import SupplementFeatured from '../components/supplements/SupplementFeatured';
-import StackBuilder from '../components/supplements/StackBuilder';
-import SupplementRecommender from '../components/supplements/SupplementRecommender';
+import SupplementGrid from '../../components/supplements/SupplementGrid';
+import SupplementFilters from '../../components/supplements/SupplementFilters';
+import SupplementCategories from '../../components/supplements/SupplementCategories';
+import SupplementFeatured from '../../components/supplements/SupplementFeatured';
+import StackBuilder from '../../components/supplements/StackBuilder';
+import SupplementRecommender from '../../components/supplements/SupplementRecommender';
 
 const SupplementsPage = () => {
   const { user } = useAuthStore();
