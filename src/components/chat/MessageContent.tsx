@@ -81,7 +81,7 @@ export const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
         return <p>{children}</p>;
       }
       
-      // For each recommendation, find mentions and add buttons
+      // For each recommendation, find mentions in this paragraph
       let result = children;
       
       recommendations.forEach(rec => {

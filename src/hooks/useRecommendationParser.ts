@@ -41,7 +41,10 @@ export function useRecommendationParser(message: string) {
       /Try\s+([A-Za-z0-9\s\-]+)/gi,
       
       // Green-tier or yellow-tier indications
-      /([A-Za-z0-9\s\-]+)\s+\((green|yellow)-tier\)/gi
+      /([A-Za-z0-9\s\-]+)\s+\((green|yellow)-tier\)/gi,
+      
+      // Check for simple mentions of commonly recommended supplements
+      /(Magnesium Glycinate|Ashwagandha|Creatine|Vitamin D3|Omega-3|Zinc|L-Theanine)/gi
     ];
     
     // Apply each pattern to extract recommendations

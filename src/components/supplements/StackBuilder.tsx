@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToggle } from '../../hooks/useToggle';
-import { Plus, X, Check, Save, Package, AlertCircle, Info, Search, Filter, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, X, Edit2, AlertCircle, CheckCircle, Package, Info, Search, Filter, ChevronDown, ChevronUp } from 'lucide-react';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Supplement } from '../../types/supplements';
@@ -242,7 +242,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
   const filteredSupplements = (supplements || []).filter(supplement => {
     const matchesSearch = searchQuery === '' || 
       supplement.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      supplement.description.toLowerCase().includes(searchQuery.toLowerCase());
+      supplement.description?.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesCategory = !selectedCategory || 
       (supplement.categories && supplement.categories.includes(selectedCategory));

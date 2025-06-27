@@ -192,7 +192,7 @@ const Navbar = () => {
                 <>
                   <Link 
                     to="/dashboard" 
-                    className={`rounded-lg px-4 py-2 text-text-light transition-colors ${
+                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
                       isActive('/dashboard') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
                     }`}
                     onClick={toggleMenu}
