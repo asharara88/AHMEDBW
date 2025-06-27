@@ -12,6 +12,7 @@ Biowell AI is a digital health platform that connects your wearable devices, del
 - **Onboarding Quiz**: Detailed health assessment to personalize your experience
 - **Wearable Integration**: Connect with Apple Health, Oura Ring, Garmin, and more
 - **Subscription Management**: Subscribe to recommended supplements for monthly delivery
+- **Shopping Cart**: Save supplements in your cart with quantity tracking
 
 > **Disclaimer**: Biowell AI does not provide medical diagnosis or treatment. The AI coach offers general wellness guidance based on the information you share. Always consult a qualified healthcare professional for medical concerns.
 
