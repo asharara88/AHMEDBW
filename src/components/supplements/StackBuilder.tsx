@@ -122,7 +122,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
       
       // Calculate total price
       const totalPrice = newStack.supplements.reduce((total, id) => {
-        const supplement = supplements.find(s => s.id === id);
+        const supplement = (supplements || []).find(s => s.id === id);
         return total + (supplement?.price_aed || 0);
       }, 0);
       
@@ -230,13 +230,13 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
     }
   };
 
-  // Get unique categories from supplements
+  // Get unique categories from supplements with safe array handling
   const categories = Array.from(
-    new Set(supplements.map(s => s.categories || []).flat())
+    new Set((supplements || []).flatMap(s => s.categories || []))
   ).sort();
   
-  // Filter supplements for the create stack form
-  const filteredSupplements = supplements.filter(supplement => {
+  // Filter supplements for the create stack form with safe array handling
+  const filteredSupplements = (supplements || []).filter(supplement => {
     const matchesSearch = searchQuery === '' || 
       supplement.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       supplement.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -477,7 +477,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
             
             <div className="mb-6 space-y-2">
               {stack.supplements.map((supplementId: string) => {
-                const supplement = supplements.find(s => s.id === supplementId);
+                const supplement = (supplements || []).find(s => s.id === supplementId);
                 if (!supplement) return null;
                 
                 return (
