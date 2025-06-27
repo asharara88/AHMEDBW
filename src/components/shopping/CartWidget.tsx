@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart as ShoppingCartIcon } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
-import ShoppingCart from '../supplements/ShoppingCart';
+import ShoppingCartComponent from '../supplements/ShoppingCart';
 import CartButton from './CartButton';
 
 const CartWidget = () => {
@@ -13,7 +13,7 @@ const CartWidget = () => {
     <>
       <CartButton onClick={() => setIsCartOpen(true)} />
       
-      <ShoppingCart
+      <ShoppingCartComponent
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
       />
@@ -25,7 +25,7 @@ const CartWidget = () => {
           className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-lg"
           aria-label={`Shopping cart with ${itemCount} items`}
         >
-          <ShoppingCart className="h-6 w-6" />
+          <ShoppingCartIcon className="h-6 w-6" />
           {itemCount > 0 && (
             <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-error text-xs font-bold text-white">
               {itemCount}

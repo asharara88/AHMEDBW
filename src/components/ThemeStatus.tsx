@@ -1,5 +1,5 @@
 import { useTheme } from '../contexts/ThemeContext';
-import { Sun, Moon, Laptop } from 'lucide-react';
+import { Sun, Moon } from 'lucide-react';
 
 interface ThemeStatusProps {
   className?: string;

@@ -3,10 +3,35 @@ import { render, screen } from '../../test/utils';
 import ProtectedRoute from './ProtectedRoute';
 import { useAuthStore } from '../../store';
 
-// Mock the useAuthStore hook
-vi.mock('../../store', () => ({
-  useAuthStore: vi.fn(),
-}));
+// Mock the useAuthStore hook with setState
+vi.mock('../../store', () => {
+  const mockStore = {
+    user: null,
+    session: null,
+    profile: null,
+    isDemo: false,
+    loading: false,
+    error: null,
+    signIn: vi.fn(),
+    signUp: vi.fn(),
+    signOut: vi.fn(),
+    startDemo: vi.fn(),
+    refreshSession: vi.fn(),
+    updateProfile: vi.fn(),
+    checkOnboardingStatus: vi.fn(),
+    setLoading: vi.fn(),
+    setError: vi.fn(),
+  };
+
+  const useAuthStore = Object.assign(vi.fn(() => mockStore), {
+    setState: vi.fn(),
+    getState: vi.fn(() => mockStore),
+  });
+
+  return {
+    useAuthStore,
+  };
+});
 
 // Mock the useLocation hook
 vi.mock('react-router-dom', async () => {

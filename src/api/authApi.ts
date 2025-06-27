@@ -78,7 +78,7 @@ export const authApi = {
   /**
    * Sign up with email and password
    */
-  async signUp(email: string, password: string): Promise<{ data: any; error: any }> {
+  async signUp(email: string, password: string): Promise<{ data: unknown; error: unknown }> {
     try {
       // Generate captcha token
       const captchaToken = await generateCaptchaToken();

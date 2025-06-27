@@ -9,6 +9,14 @@ export interface ChatMessage {
   timestamp?: Date;
 }
 
+interface ChatHistoryEntry {
+  id: string;
+  user_id: string;
+  message: string;
+  response: string;
+  created_at: string;
+}
+
 export const chatApi = {
   /**
    * Send a message to the AI assistant
@@ -53,14 +61,17 @@ export const chatApi = {
   /**
    * Fetch chat history for a user
    */
-  async getChatHistory(userId: string, limit: number = 10): Promise<any[]> {
+  async getChatHistory(userId: string, limit: number = 10): Promise<ChatHistoryEntry[]> {
     return apiClient.request(
-      () => supabase
-        .from('chat_history')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(limit),
+      async () => {
+        const result = await supabase
+          .from('chat_history')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(limit);
+        return result;
+      },
       'Failed to fetch chat history'
     );
   },
@@ -70,13 +81,16 @@ export const chatApi = {
    */
   async saveChatMessage(userId: string, message: string, response: string): Promise<void> {
     await apiClient.request(
-      () => supabase
-        .from('chat_history')
-        .insert({
-          user_id: userId,
-          message,
-          response
-        }),
+      async () => {
+        const result = await supabase
+          .from('chat_history')
+          .insert({
+            user_id: userId,
+            message,
+            response
+          });
+        return result;
+      },
       'Failed to save chat message'
     );
   }

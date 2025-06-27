@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { authApi } from '../api/authApi';
-import { logError, logInfo } from '../utils/logger';
+import { logError } from '../utils/logger';
 import type { User, Session } from '@supabase/supabase-js';
-import { restoreSession, refreshSessionIfNeeded } from '../lib/sessionManager';
+import { refreshSessionIfNeeded } from '../lib/sessionManager';
 
 export interface UserProfile {
   firstName: string;
@@ -104,13 +104,16 @@ export const useAuthStore = create<AuthState>()(
           const { data, error } = await authApi.signUp(email, password);
           
           if (error) {
-            set({ error: error.message, loading: false });
+            set({ error: (error as any)?.message || 'An unexpected error occurred', loading: false });
             return { data: null, error };
           }
           
+          // Type check and cast the data
+          const authData = data as { user: User | null; session: Session | null };
+          
           set({ 
-            user: data.user, 
-            session: data.session,
+            user: authData.user, 
+            session: authData.session,
             loading: false 
           });
           

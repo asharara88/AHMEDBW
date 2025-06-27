@@ -1,23 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuthStore } from '../../store';
-import OnboardingForm from '../../components/onboarding/OnboardingForm';
+import EnhancedOnboardingForm from '../../components/onboarding/EnhancedOnboardingForm';
 import ConversationalOnboarding from '../../components/onboarding/ConversationalOnboarding';
-import { AlertCircle, CheckCircle, MessageSquare, ClipboardList } from 'lucide-react';
+import OnboardingForm from '../../components/onboarding/OnboardingForm';
+import { AlertCircle, CheckCircle, MessageSquare, ClipboardList, Layers } from 'lucide-react';
 import Logo from '../../components/common/Logo';
 import { logError } from '../../utils/logger';
 import { onboardingApi, OnboardingFormData } from '../../api/onboardingApi';
+import { useUserProfileStore } from '../../store/useUserProfileStore';
 
 const OnboardingPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [useConversational, setUseConversational] = useState(true);
+  const [onboardingType, setOnboardingType] = useState<'conversational' | 'form' | 'enhanced'>('enhanced');
   
-  const { supabase } = useSupabase();
   const { user, checkOnboardingStatus, updateProfile } = useAuthStore();
+  const { completeOnboarding } = useUserProfileStore();
   const navigate = useNavigate();
   
   // Check if user is logged in and has already completed onboarding
@@ -42,7 +43,7 @@ const OnboardingPage = () => {
     checkUserStatus();
   }, [user, navigate, checkOnboardingStatus]);
   
-  const handleOnboardingComplete = async (formData: OnboardingFormData) => {
+  const handleOnboardingComplete = async (formData?: OnboardingFormData) => {
     if (!user) {
       setError('You must be logged in to complete onboarding');
       return;
@@ -52,24 +53,27 @@ const OnboardingPage = () => {
     setError(null);
     
     try {
-      // Ensure email is included
-      const completeFormData = {
-        ...formData,
-        email: user.email || ''
-      };
-      
-      // Use the onboardingApi to handle all the steps
-      await onboardingApi.completeOnboarding(user, completeFormData);
-      
-      // Update auth context with profile data
-      await updateProfile({
-        firstName: completeFormData.firstName,
-        lastName: completeFormData.lastName,
-        email: completeFormData.email,
-        mobile: completeFormData.mobile,
-        healthGoals: completeFormData.healthGoals,
-        onboardingCompleted: true
-      });
+      if (onboardingType === 'enhanced') {
+        // Enhanced form handles its own completion through the user profile store
+        await completeOnboarding({});
+      } else if (formData) {
+        // Legacy form handling
+        const completeFormData = {
+          ...formData,
+          email: user.email || ''
+        };
+        
+        await onboardingApi.completeOnboarding(user, completeFormData);
+        
+        await updateProfile({
+          firstName: completeFormData.firstName,
+          lastName: completeFormData.lastName,
+          email: completeFormData.email,
+          mobile: completeFormData.mobile,
+          healthGoals: completeFormData.healthGoals,
+          onboardingCompleted: true
+        });
+      }
       
       setSuccess(true);
       
@@ -97,30 +101,42 @@ const OnboardingPage = () => {
             Let's personalize your health journey
           </p>
           
-          <div className="mt-6 flex justify-center gap-4">
+          <div className="mt-6 flex justify-center gap-2">
             <button
-              onClick={() => setUseConversational(true)}
-              className={`flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition-colors ${
-                useConversational 
+              onClick={() => setOnboardingType('conversational')}
+              className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${
+                onboardingType === 'conversational'
                   ? 'bg-primary text-white' 
                   : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
               }`}
-              aria-pressed={useConversational}
+              aria-pressed={onboardingType === 'conversational'}
             >
               <MessageSquare className="h-4 w-4" />
-              Chat Style
+              Chat
             </button>
             <button
-              onClick={() => setUseConversational(false)}
-              className={`flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition-colors ${
-                !useConversational 
+              onClick={() => setOnboardingType('form')}
+              className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${
+                onboardingType === 'form'
                   ? 'bg-primary text-white' 
                   : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
               }`}
-              aria-pressed={!useConversational}
+              aria-pressed={onboardingType === 'form'}
             >
               <ClipboardList className="h-4 w-4" />
-              Form Style
+              Form
+            </button>
+            <button
+              onClick={() => setOnboardingType('enhanced')}
+              className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${
+                onboardingType === 'enhanced'
+                  ? 'bg-primary text-white' 
+                  : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
+              }`}
+              aria-pressed={onboardingType === 'enhanced'}
+            >
+              <Layers className="h-4 w-4" />
+              Guided
             </button>
           </div>
         </div>
@@ -156,9 +172,13 @@ const OnboardingPage = () => {
           </motion.div>
         ) : (
           <div className="rounded-xl bg-[hsl(var(--color-card))] shadow-lg dark:shadow-lg dark:shadow-black/10">
-            {useConversational ? (
+            {onboardingType === 'conversational' ? (
               <div className="h-[600px]">
                 <ConversationalOnboarding onComplete={handleOnboardingComplete} />
+              </div>
+            ) : onboardingType === 'enhanced' ? (
+              <div className="p-8">
+                <EnhancedOnboardingForm onComplete={handleOnboardingComplete} isLoading={loading} />
               </div>
             ) : (
               <div className="p-8">

@@ -96,8 +96,9 @@ export const elevenlabsApi = {
           
           // Try to get from database cache if user is authenticated
           try {
-            if (userId) {
-              const cachedBlob = await audioCacheApi.getAudio(await userId, chunkCacheKey);
+            const resolvedUserId = await userId;
+            if (resolvedUserId) {
+              const cachedBlob = await audioCacheApi.getAudio(resolvedUserId, chunkCacheKey);
               if (cachedBlob) {
                 audioCache.set(chunkCacheKey, { blob: cachedBlob, timestamp: now });
                 audioBlobs.push(cachedBlob);
@@ -136,11 +137,11 @@ export const elevenlabsApi = {
           // Cache the chunk
           audioCache.set(chunkCacheKey, { blob, timestamp: now });
           audioBlobs.push(blob);
-          
           // Store in database cache if user is authenticated
           try {
-            if (userId) {
-              await audioCacheApi.storeAudio(await userId, chunkCacheKey, blob, 60);
+            const resolvedUserId = await userId;
+            if (resolvedUserId) {
+              await audioCacheApi.storeAudio(resolvedUserId, chunkCacheKey, blob, 60);
             }
           } catch (err) { 
             /* Ignore storage errors */ 
@@ -165,8 +166,9 @@ export const elevenlabsApi = {
       
       // Try to get from database cache if user is authenticated
       try {
-        if (userId) {
-          const cachedBlob = await audioCacheApi.getAudio(await userId, cacheKey);
+        const resolvedUserId = await userId;
+        if (resolvedUserId) {
+          const cachedBlob = await audioCacheApi.getAudio(resolvedUserId, cacheKey);
           if (cachedBlob) {
             audioCache.set(cacheKey, { blob: cachedBlob, timestamp: now });
             return cachedBlob;
@@ -215,20 +217,21 @@ export const elevenlabsApi = {
       
       // Store in database cache if user is authenticated
       try {
-        if (userId) {
-          await audioCacheApi.storeAudio(await userId, cacheKey, blob, 60);
+        const resolvedUserId = await userId;
+        if (resolvedUserId) {
+          await audioCacheApi.storeAudio(resolvedUserId, cacheKey, blob, 60);
         }
       } catch (err) {
         /* Ignore storage errors */
       }
       
       return blob;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('ElevenLabs API error', error);
       
       const apiError: ApiError = {
         type: ErrorType.SERVER,
-        message: error.message || 'Failed to convert text to speech',
+        message: error instanceof Error ? error.message : 'Failed to convert text to speech',
         originalError: error
       };
       

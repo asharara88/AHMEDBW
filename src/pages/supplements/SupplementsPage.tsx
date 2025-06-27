@@ -6,12 +6,12 @@ import { useAuthStore, useSupplementStore } from '../../store';
 import { CartProvider } from '../../components/shopping/CartProvider';
 import CartWidget from '../../components/shopping/CartWidget';
 import ShoppingCart from '../../components/shopping/ShoppingCart';
-import SupplementGrid from '../components/supplements/SupplementGrid';
-import SupplementFilters from '../components/supplements/SupplementFilters';
-import SupplementCategories from '../components/supplements/SupplementCategories';
-import SupplementFeatured from '../components/supplements/SupplementFeatured';
-import StackBuilder from '../components/supplements/StackBuilder';
-import SupplementRecommender from '../components/supplements/SupplementRecommender';
+import SupplementGrid from '../../components/supplements/SupplementGrid';
+import SupplementFilters from '../../components/supplements/SupplementFilters';
+import SupplementCategories from '../../components/supplements/SupplementCategories';
+import SupplementFeatured from '../../components/supplements/SupplementFeatured';
+import StackBuilder from '../../components/supplements/StackBuilder';
+import SupplementRecommender from '../../components/supplements/SupplementRecommender';
 
 const SupplementsPage = () => {
   const { user } = useAuthStore();
@@ -19,7 +19,6 @@ const SupplementsPage = () => {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('browse');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [evidenceFilter, setEvidenceFilter] = useState<'all' | 'green' | 'yellow'>('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -95,7 +94,7 @@ const SupplementsPage = () => {
           </div>
 
           <div className="mb-6 flex items-center justify-between">
-            <Tabs defaultValue="browse" onValueChange={setActiveTab} className="w-full">
+            <Tabs defaultValue="browse" className="w-full">
               <TabsList>
                 <TabsTrigger value="browse" className="flex items-center gap-2">
                   <Package className="h-4 w-4" />
@@ -110,17 +109,18 @@ const SupplementsPage = () => {
                   <span>AI Recommend</span>
                 </TabsTrigger>
               </TabsList>
+              
+              <div className="ml-4">
+                <CartWidget />
+              </div>
             </Tabs>
-            
-            <div className="ml-4">
-              <CartWidget />
-            </div>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-12">
-            {/* Main Content */}
-            <div className="md:col-span-9 overflow-x-hidden max-w-full">
-              <TabsContent value="browse" className="mt-0">
+          <Tabs defaultValue="browse" className="w-full">
+            <div className="grid gap-6 md:grid-cols-12">
+              {/* Main Content */}
+              <div className="md:col-span-9 overflow-x-hidden max-w-full">
+                <TabsContent value="browse" className="mt-0">
                 {/* Featured Supplements */}
                 {recommendedSupplements.length > 0 && (
                   <SupplementFeatured
@@ -210,21 +210,21 @@ const SupplementsPage = () => {
                   userSupplements={userSupplements}
                   onToggleSubscription={(supplementId) => toggleSubscription(user?.id || '', supplementId)}
                 />
-              </TabsContent>
-              
               <TabsContent value="recommend" className="mt-0">
                 <SupplementRecommender />
               </TabsContent>
-            </div>
+              </TabsContent>
+              </div>
 
-            {/* Sidebar */}
-            <div className="md:col-span-3">
-              <ShoppingCart
-                isOpen={isCartOpen}
-                onClose={() => setIsCartOpen(false)}
-              />
+              {/* Sidebar */}
+              <div className="md:col-span-3">
+                <ShoppingCart
+                  isOpen={isCartOpen}
+                  onClose={() => setIsCartOpen(false)}
+                />
+              </div>
             </div>
-          </div>
+          </Tabs>
         </motion.div>
       </div>
     </CartProvider>

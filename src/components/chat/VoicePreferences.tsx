@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Volume2, VolumeX, Settings, Info, Check, Sliders } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { AVAILABLE_VOICES, VOICE_SETTINGS, elevenlabsApi } from '../../api/elevenlabsApi';
 
 interface VoicePreferencesProps {

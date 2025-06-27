@@ -25,7 +25,7 @@ function relativeImportPath(from: string): string {
 const files = walk(SRC_ROOT);
 
 files.forEach((file) => {
-  let content = fs.readFileSync(file, 'utf8');
+  const content = fs.readFileSync(file, 'utf8');
   if (!content.includes('console.error')) return;
 
   let updatedContent = content.replace(/console\.error/g, 'logError');

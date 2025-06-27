@@ -1,6 +1,11 @@
 // openaiApi.ts
 
-export async function createChatCompletion(messages: any) {
+interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
+
+export async function createChatCompletion(messages: ChatMessage[]) {
   try {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -36,15 +41,10 @@ export async function createChatCompletion(messages: any) {
   }
 }
 
-export async function generateResponse(prompt: string, context?: Record<string, any>): Promise<string> {
-  try {
-    const messages = [
-      { role: 'user', content: prompt }
-    ];
+export async function generateResponse(prompt: string): Promise<string> {
+  const messages: ChatMessage[] = [
+    { role: 'user', content: prompt }
+  ];
 
-    const data = await createChatCompletion(messages);
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  return await createChatCompletion(messages);
 }

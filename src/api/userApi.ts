@@ -17,13 +17,14 @@ export const userApi = {
    */
   async saveQuizResponses(userId: string, responses: QuizResponse): Promise<void> {
     await apiClient.request(
-      () => supabase
+      async () => await supabase
         .from('quiz_responses')
         .upsert({
           user_id: userId,
           ...responses,
           updated_at: new Date().toISOString()
-        }),
+        })
+        .select(),
       'Failed to save quiz responses'
     );
   },
@@ -55,7 +56,7 @@ export const userApi = {
    */
   async connectWearable(userId: string, provider: string, accessToken: string, refreshToken?: string): Promise<void> {
     await apiClient.request(
-      () => supabase
+      async () => await supabase
         .from('wearable_connections')
         .upsert({
           user_id: userId,
@@ -63,17 +64,17 @@ export const userApi = {
           access_token: accessToken,
           refresh_token: refreshToken,
           expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
-        }),
+        })
+        .select(),
       'Failed to connect wearable device'
     );
   },
 
   /**
    * Disconnect a wearable device
-   */
   async disconnectWearable(userId: string, provider: string): Promise<void> {
     await apiClient.request(
-      () => supabase
+      async () => await supabase
         .from('wearable_connections')
         .delete()
         .eq('user_id', userId)
@@ -81,33 +82,35 @@ export const userApi = {
       'Failed to disconnect wearable device'
     );
   },
+  },
 
   /**
    * Get connected wearable devices
-   */
   async getConnectedWearables(userId: string): Promise<any[]> {
     return apiClient.request(
-      () => supabase
+      async () => await supabase
         .from('wearable_connections')
         .select('provider, created_at')
         .eq('user_id', userId),
       'Failed to fetch connected wearables'
     );
   },
+  },
 
   /**
    * Save user feedback
-   */
   async saveFeedback(userId: string, feedbackText: string): Promise<void> {
     await apiClient.request(
-      () => supabase
+      async () => await supabase
         .from('user_feedback')
         .insert({
           user_id: userId,
           feedback_text: feedbackText
-        }),
+        })
+        .select(),
       'Failed to save feedback'
     );
+  },
   },
 
   /**
@@ -115,13 +118,14 @@ export const userApi = {
    */
   async updatePreferences(userId: string, preferences: any): Promise<void> {
     await apiClient.request(
-      () => supabase
+      async () => await supabase
         .from('user_preferences')
         .upsert({
           user_id: userId,
           ...preferences,
           updated_at: new Date().toISOString()
-        }),
+        })
+        .select(),
       'Failed to update preferences'
     );
   },

@@ -2,12 +2,38 @@
 import { ApiError, ErrorType } from './apiClient';
 import { logError } from '../utils/logger';
 import { supabase } from '../lib/supabaseClient';
+import { openaiRateLimiter, createUserRateLimiter } from '../utils/rateLimiter';
+
+interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
+
+interface ChatCompletionOptions {
+  model?: string;
+  temperature?: number;
+  max_tokens?: number;
+  context?: string;
+  response_format?: { type: string };
+}
 
 export const openaiApi = {
-  async createChatCompletion(messages: any[], options: any = {}) {
+  async createChatCompletion(messages: ChatMessage[], options: ChatCompletionOptions = {}) {
     try {
       // Get the current session for authentication
       const { data: { session } } = await supabase.auth.getSession();
+      
+      // Rate limiting check
+      const userId = session?.user?.id || 'anonymous';
+      const rateLimitKey = createUserRateLimiter(userId, 'openai');
+      
+      if (!openaiRateLimiter.isAllowed(rateLimitKey)) {
+        throw {
+          type: ErrorType.VALIDATION,
+          message: 'Rate limit exceeded. Please wait before making another request.',
+          status: 429
+        } as ApiError;
+      }
       
       // Prepare headers
       const headers: Record<string, string> = {
@@ -22,20 +48,23 @@ export const openaiApi = {
       // Always include the anon key
       headers['apikey'] = import.meta.env.VITE_SUPABASE_ANON_KEY;
       
-      // Optional: Add OpenAI API key if available in frontend env
-      const frontendApiKey = import.meta.env.VITE_OPENAI_API_KEY;
-      if (frontendApiKey) {
-        headers['x-openai-key'] = frontendApiKey;
-      }
+      // SECURITY NOTE: OpenAI API key should be handled in the backend/edge function
+      // Do not expose API keys in the frontend - they should be stored securely in the backend
       
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       
       if (!supabaseUrl) {
-        throw new Error('Missing Supabase URL configuration');
+        console.error('Environment check:', {
+          hasUrl: !!import.meta.env.VITE_SUPABASE_URL,
+          hasKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+          url: import.meta.env.VITE_SUPABASE_URL ? 
+            import.meta.env.VITE_SUPABASE_URL.substring(0, 20) + '...' : 'undefined'
+        });
+        throw new Error('Missing Supabase URL configuration. Please check your .env file and restart the development server.');
       }
 
       if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
-        throw new Error('Missing Supabase anon key configuration');
+        throw new Error('Missing Supabase anon key configuration. Please check your .env file and restart the development server.');
       }
       
       let response;
@@ -142,12 +171,14 @@ export const openaiApi = {
   async generateResponse(prompt: string, context?: Record<string, any>): Promise<string> {
     try {
       // Format messages for the API
-      const messages = [
+      const messages: ChatMessage[] = [
         { role: 'user', content: prompt }
       ];
       
       // Call the createChatCompletion method with context in options
-      const data = await this.createChatCompletion(messages, { context });
+      const data = await this.createChatCompletion(messages, { 
+        context: context ? JSON.stringify(context) : undefined 
+      });
       
       // Extract and return the response
       if (!data || !data.choices || !data.choices[0] || !data.choices[0].message) {

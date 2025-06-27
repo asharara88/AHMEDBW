@@ -1,12 +1,49 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '../../test/utils';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import { CartProvider, useCart } from './CartProvider';
 import { useCartStore } from '../../store';
 
 // Mock the cart store
-vi.mock('../../store', () => ({
-  useCartStore: vi.fn(),
-}));
+vi.mock('../../store', () => {
+  const mockCartStore = {
+    items: [],
+    total: 0,
+    itemCount: 0,
+    addItem: vi.fn(),
+    removeItem: vi.fn(),
+    updateQuantity: vi.fn(),
+    clearCart: vi.fn(),
+  };
+
+  const mockAuthStore = {
+    user: null,
+    session: null,
+    profile: null,
+    isDemo: false,
+    loading: false,
+    error: null,
+    signIn: vi.fn(),
+    signUp: vi.fn(),
+    signOut: vi.fn(),
+    startDemo: vi.fn(),
+    refreshSession: vi.fn(),
+    updateProfile: vi.fn(),
+    checkOnboardingStatus: vi.fn(),
+    setLoading: vi.fn(),
+    setError: vi.fn(),
+  };
+
+  const useAuthStore = Object.assign(vi.fn(() => mockAuthStore), {
+    setState: vi.fn(),
+    getState: vi.fn(() => mockAuthStore),
+  });
+
+  return {
+    useCartStore: vi.fn(() => mockCartStore),
+    useAuthStore,
+  };
+});
 
 // Test component that uses the useCart hook
 const TestComponent = () => {
@@ -24,6 +61,13 @@ const TestComponent = () => {
   );
 };
 
+// Simple test wrapper without conflicting providers
+const TestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <BrowserRouter>
+    {children}
+  </BrowserRouter>
+);
+
 describe('CartProvider', () => {
   beforeEach(() => {
     // Reset the mock implementation before each test
@@ -40,9 +84,11 @@ describe('CartProvider', () => {
   it('should provide cart context to children', () => {
     // Arrange & Act
     render(
-      <CartProvider>
-        <TestComponent />
-      </CartProvider>
+      <TestWrapper>
+        <CartProvider>
+          <TestComponent />
+        </CartProvider>
+      </TestWrapper>
     );
     
     // Assert
@@ -64,9 +110,11 @@ describe('CartProvider', () => {
     
     // Act
     render(
-      <CartProvider>
-        <TestComponent />
-      </CartProvider>
+      <TestWrapper>
+        <CartProvider>
+          <TestComponent />
+        </CartProvider>
+      </TestWrapper>
     );
     
     fireEvent.click(screen.getByText('Add Item'));
@@ -89,9 +137,11 @@ describe('CartProvider', () => {
     
     // Act
     render(
-      <CartProvider>
-        <TestComponent />
-      </CartProvider>
+      <TestWrapper>
+        <CartProvider>
+          <TestComponent />
+        </CartProvider>
+      </TestWrapper>
     );
     
     fireEvent.click(screen.getByText('Remove Item'));
@@ -114,9 +164,11 @@ describe('CartProvider', () => {
     
     // Act
     render(
-      <CartProvider>
-        <TestComponent />
-      </CartProvider>
+      <TestWrapper>
+        <CartProvider>
+          <TestComponent />
+        </CartProvider>
+      </TestWrapper>
     );
     
     fireEvent.click(screen.getByText('Update Quantity'));
@@ -139,9 +191,11 @@ describe('CartProvider', () => {
     
     // Act
     render(
-      <CartProvider>
-        <TestComponent />
-      </CartProvider>
+      <TestWrapper>
+        <CartProvider>
+          <TestComponent />
+        </CartProvider>
+      </TestWrapper>
     );
     
     fireEvent.click(screen.getByText('Clear Cart'));
@@ -156,7 +210,11 @@ describe('CartProvider', () => {
     
     // Act & Assert
     expect(() => {
-      render(<TestComponent />);
+      render(
+        <TestWrapper>
+          <TestComponent />
+        </TestWrapper>
+      );
     }).toThrow('useCart must be used within a CartProvider');
     
     // Cleanup

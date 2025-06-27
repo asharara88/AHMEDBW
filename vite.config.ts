@@ -13,12 +13,16 @@ export default defineConfig({
     assetsDir: 'assets',
     sourcemap: true,
     minify: true,
+    // Increase the chunk size warning limit temporarily
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
+          // Vendor chunks
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-vendor': ['framer-motion', 'lucide-react', 'chart.js', 'react-chartjs-2'],
-          'supabase': ['@supabase/supabase-js']
+          'ui-vendor': ['framer-motion', 'lucide-react'],
+          'chart-vendor': ['chart.js', 'react-chartjs-2'],
+          'supabase': ['@supabase/supabase-js', '@supabase/auth-helpers-react'],
         }
       }
     }

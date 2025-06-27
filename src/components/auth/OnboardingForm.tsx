@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, AlertCircle, ArrowRight, Shield } from 'lucide-react';
+import { AlertCircle, ArrowRight, Shield } from 'lucide-react';
 import { OnboardingFormData } from '../../api/onboardingApi';
 
 interface ValidationErrors {
@@ -136,11 +136,11 @@ const OnboardingForm = ({ onComplete, isLoading = false }: OnboardingFormProps) 
     if (step === 1) {
       if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
       if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
-      if (!formData.email.trim()) newErrors.email = 'Email is required';
+      if (!formData.email?.trim()) newErrors.email = 'Email is required';
       
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (formData.email.trim() && !emailRegex.test(formData.email)) {
+      if (formData.email?.trim() && !emailRegex.test(formData.email)) {
         newErrors.email = 'Please enter a valid email address';
       }
       

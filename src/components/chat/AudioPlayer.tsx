@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Headphones, Play, Pause, SkipBack, Volume2 } from 'lucide-react';
+import { Headphones, Play, Pause, SkipBack } from 'lucide-react';
 
 interface AudioPlayerProps {
   src: string | null;

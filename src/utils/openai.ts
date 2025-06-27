@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
-import { logError, logWarning, logInfo } from './logger';
+import { logError } from './logger';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';

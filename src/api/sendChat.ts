@@ -16,11 +16,8 @@ export const sendChatMessage = async (messages: any[]) => {
       'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
     };
     
-    // Optional: Add OpenAI API key if available in frontend env
-    const openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY;
-    if (openaiApiKey) {
-      headers['x-openai-key'] = openaiApiKey;
-    }
+    // SECURITY NOTE: OpenAI API key should be handled in the backend/edge function
+    // Do not expose API keys in the frontend - they should be stored securely in the backend
     
     const res = await fetch(
       `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-assistant`,

@@ -14,7 +14,7 @@ export interface ApiError {
   type: ErrorType;
   message: string;
   status?: number;
-  originalError?: any;
+  originalError?: unknown;
 }
 
 // Base API client with error handling
@@ -23,7 +23,7 @@ export const apiClient = {
    * Make a request to the Supabase database
    */
   async request<T>(
-    operation: () => Promise<{ data: T | null; error: any }>,
+    operation: () => Promise<{ data: T | null; error: unknown }>,
     errorMessage: string = 'An error occurred'
   ): Promise<T> {
     try {
@@ -32,15 +32,16 @@ export const apiClient = {
       if (error) {
         // Handle Supabase errors
         const apiError: ApiError = {
-          message: error.message || errorMessage,
+          message: (error as any).message || errorMessage,
           originalError: error,
           type: ErrorType.UNKNOWN
         };
         
         // Determine error type
-        if (error.code === 'PGRST301' || error.code?.includes('auth')) {
+        const code = (error as any).code;
+        if (code === 'PGRST301' || code?.includes('auth')) {
           apiError.type = ErrorType.AUTHENTICATION;
-        } else if (error.code?.includes('PGRST')) {
+        } else if (code?.includes('PGRST')) {
           apiError.type = ErrorType.VALIDATION;
         } else {
           apiError.type = ErrorType.SERVER;
@@ -88,7 +89,7 @@ export const apiClient = {
    */
   async callFunction<T>(
     functionName: string,
-    payload: any,
+    payload: Record<string, unknown>,
     errorMessage: string = 'Function call failed'
   ): Promise<T> {
     try {
