@@ -134,7 +134,7 @@ const Navbar = () => {
               <div className="relative hidden md:block">
                 <button 
                   onClick={toggleProfileMenu}
-                  className="flex h-10 w-10 items-center justify-center rounded-full text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))]"
+                  className="flex h-10 w-10 items-center justify-center rounded-full text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
                   aria-label="Open profile menu"
                 >
                   <UserCircle className="h-6 w-6" />
@@ -192,7 +192,7 @@ const Navbar = () => {
                 <>
                   <Link 
                     to="/dashboard" 
-                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors ${
+                    className={`rounded-lg px-4 py-2 text-text-light transition-colors ${
                       isActive('/dashboard') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
                     }`}
                     onClick={toggleMenu}
@@ -219,10 +219,10 @@ const Navbar = () => {
                   </Link>
                   <Link 
                     to="/profile" 
-                    className="flex items-center gap-2 rounded-lg px-4 py-2 text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
+                    className="rounded-lg px-4 py-2 text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
                     onClick={toggleMenu}
                   >
-                    <Settings className="h-5 w-5" />
+                    <Settings className="h-5 w-5 inline-block mr-2" />
                     Profile Settings
                   </Link>
                   <button 
