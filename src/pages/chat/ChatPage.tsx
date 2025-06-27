@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/Tabs';
 import AIHealthCoach from '../../components/chat/AIHealthCoach';
-import { MessageCircle, Zap, History, Settings, Volume2, VolumeX } from 'lucide-react';
+import { MessageCircle, Zap, Settings, Volume2, VolumeX } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useChatStore } from '../../store';
 import VoicePreferences from '../../components/chat/VoicePreferences';
@@ -44,10 +44,6 @@ const ChatPage = () => {
                 <Zap className="h-4 w-4" />
                 <span>Quick Tips</span>
               </TabsTrigger>
-              <TabsTrigger value="history" className="flex items-center gap-2">
-                <History className="h-4 w-4" />
-                <span>History</span>
-              </TabsTrigger>
               <TabsTrigger value="settings" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 <span>Settings</span>
@@ -88,29 +84,6 @@ const ChatPage = () => {
                   </div>
                 ))}
               </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="history">
-            <div className="rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-6">
-              <h2 className="mb-4 text-xl font-bold">Chat History</h2>
-              <p className="mb-6 text-text-light">
-                Review your previous conversations with your health coach
-              </p>
-              
-              {user ? (
-                <div className="space-y-4">
-                  <p className="text-center text-text-light">
-                    Your chat history will appear here as you have more conversations.
-                  </p>
-                </div>
-              ) : (
-                <div className="rounded-lg bg-[hsl(var(--color-surface-1))] p-4 text-center">
-                  <p className="text-text-light">
-                    Please sign in to view your chat history.
-                  </p>
-                </div>
-              )}
             </div>
           </TabsContent>
           
