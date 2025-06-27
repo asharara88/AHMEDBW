@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToggle } from '../../hooks/useToggle';
 import { Plus, X, Check, Save, Package, AlertCircle, Info, Search, Filter, ChevronDown, ChevronUp } from 'lucide-react';

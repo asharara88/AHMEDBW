@@ -88,7 +88,7 @@ export const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
         if (!rec.supplementId) return;
         
         // Create a regex that matches the supplement name with word boundaries
-        const regex = new RegExp(`\\b${rec.supplementName}\\b`, 'gi');
+        const regex = new RegExp(`\\b${rec.supplementName}\\b`, 'i');
         
         // Check if this supplement is mentioned in this paragraph
         if (regex.test(result)) {
