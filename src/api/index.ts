@@ -9,3 +9,4 @@ export * from './openaiApi';
 export * from './onboardingApi';
 export * from './elevenlabsApi';
 export * from './audioCacheApi';
+export * from './cartApi';
