@@ -29,8 +29,12 @@ const suggestedQuestions = [
   "How can I optimize my recovery?"
 ];
 
-export default function HealthCoach() {
-  const [input, setInput] = useState('');
+interface AIHealthCoachProps {
+  initialQuestion?: string | null;
+}
+
+export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachProps) {
+  const [input, setInput] = useState(initialQuestion || '');
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -43,6 +47,7 @@ export default function HealthCoach() {
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimeoutRef = useRef<number | null>(null);
   const [isFirstRender, setIsFirstRender] = useState(true);
+  const inputRef = useRef<HTMLInputElement>(null);
   
   const { user, isDemo } = useAuth();
   const { currentTheme } = useTheme();
@@ -83,6 +88,15 @@ export default function HealthCoach() {
     }
   }, [isFirstRender]);
   
+  // Handle initial question if provided
+  useEffect(() => {
+    if (initialQuestion && inputRef.current) {
+      setInput(initialQuestion);
+      // Focus the input
+      inputRef.current.focus();
+    }
+  }, [initialQuestion]);
+
   useEffect(() => {
     // Select 5 random questions on component mount
     const shuffled = [...suggestedQuestions].sort(() => 0.5 - Math.random());
@@ -419,6 +433,7 @@ export default function HealthCoach() {
       <div className="border-t border-[hsl(var(--color-border))] p-4">
         <form onSubmit={handleSubmit} className="flex gap-2 relative">
           <input
+            ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}

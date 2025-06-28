@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/Tabs';
 import AIHealthCoach from '../../components/chat/AIHealthCoach';
@@ -9,6 +9,9 @@ import ChatButton from '../../components/chat/ChatButton';
 
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat');
+  const [selectedTip, setSelectedTip] = useState<string | null>(null);
+  const chatInputRef = useRef<HTMLInputElement | null>(null);
+  
   const { 
     preferSpeech, 
     setPreferSpeech, 
@@ -37,6 +40,25 @@ const ChatPage = () => {
     "Nutrition Basics": <Coffee className="h-5 w-5" />,
     "Workout Recovery": <Activity className="h-5 w-5" />,
     "Focus Enhancement": <Brain className="h-5 w-5" />
+  };
+
+  // Generate a question for each quick tip
+  const tipQuestions: Record<string, string> = {
+    "Sleep Optimization": "What are the best strategies to improve my sleep quality?",
+    "Stress Management": "What techniques can help reduce my daily stress levels?",
+    "Energy Boosters": "How can I naturally increase my energy levels throughout the day?",
+    "Nutrition Basics": "What are the fundamentals of healthy eating I should follow?",
+    "Workout Recovery": "How can I optimize my recovery after intense workouts?",
+    "Focus Enhancement": "What methods can help improve my concentration and mental clarity?"
+  };
+
+  // Handle click on a quick tip
+  const handleQuickTipClick = (tipTitle: string) => {
+    const question = tipQuestions[tipTitle];
+    if (question) {
+      setSelectedTip(question);
+      setActiveTab('chat');
+    }
   };
 
   return (
@@ -72,7 +94,7 @@ const ChatPage = () => {
           </div>
 
           <TabsContent value="chat" className="h-[calc(100vh-220px)] min-h-[500px]">
-            <AIHealthCoach />
+            <AIHealthCoach initialQuestion={selectedTip} />
           </TabsContent>
           
           <TabsContent value="quick-tips">
@@ -94,6 +116,7 @@ const ChatPage = () => {
                   <div 
                     key={index}
                     className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-4 hover:border-primary/50 hover:shadow-md transition-all cursor-pointer"
+                    onClick={() => handleQuickTipClick(tip.title)}
                   >
                     <div className="flex items-center gap-3 mb-2">
                       <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
@@ -159,31 +182,73 @@ const ChatPage = () => {
                 <div>
                   <h3 className="mb-3 text-lg font-medium">Chat Preferences</h3>
                   <div className="rounded-lg bg-[hsl(var(--color-surface-1))] p-4 space-y-4">
-                    <div>
-                      <label htmlFor="chat-style" className="mb-2 block text-sm font-medium">Coach Style</label>
-                      <select 
-                        id="chat-style" 
-                        className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-3 py-2 text-sm"
-                      >
-                        <option value="balanced">Balanced</option>
-                        <option value="detailed">Detailed</option>
-                        <option value="concise">Concise</option>
-                      </select>
-                      <p className="mt-1 text-xs text-text-light">
-                        Choose how detailed you want your coach's responses to be
-                      </p>
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="auto-scroll" className="text-sm">Auto-scroll to new messages</label>
+                      <div className="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full">
+                        <input
+                          type="checkbox"
+                          id="auto-scroll"
+                          className="absolute w-0 h-0 opacity-0"
+                          defaultChecked={true}
+                        />
+                        <label
+                          htmlFor="auto-scroll"
+                          className={`block h-6 overflow-hidden rounded-full bg-gray-300 cursor-pointer`}
+                        >
+                          <span
+                            className={`absolute block w-4 h-4 mt-1 ml-1 rounded-full bg-white shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out transform translate-x-0`}
+                          ></span>
+                          <span
+                            className={`block h-full w-full rounded-full bg-primary transform translate-x-full`}
+                          ></span>
+                        </label>
+                      </div>
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <label htmlFor="show-suggestions" className="flex items-center gap-2 text-sm">
-                        <input 
-                          type="checkbox" 
-                          id="show-suggestions" 
-                          className="h-4 w-4 rounded border-[hsl(var(--color-border))] text-primary focus:ring-primary"
+                      <label htmlFor="show-timestamps" className="text-sm">Show message timestamps</label>
+                      <div className="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full">
+                        <input
+                          type="checkbox"
+                          id="show-timestamps"
+                          className="absolute w-0 h-0 opacity-0"
                           defaultChecked={true}
                         />
-                        Show suggested questions
-                      </label>
+                        <label
+                          htmlFor="show-timestamps"
+                          className={`block h-6 overflow-hidden rounded-full bg-gray-300 cursor-pointer`}
+                        >
+                          <span
+                            className={`absolute block w-4 h-4 mt-1 ml-1 rounded-full bg-white shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out transform translate-x-0`}
+                          ></span>
+                          <span
+                            className={`block h-full w-full rounded-full bg-primary transform translate-x-full`}
+                          ></span>
+                        </label>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="show-suggestions" className="text-sm">Show suggested questions</label>
+                      <div className="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full">
+                        <input
+                          type="checkbox"
+                          id="show-suggestions"
+                          className="absolute w-0 h-0 opacity-0"
+                          defaultChecked={true}
+                        />
+                        <label
+                          htmlFor="show-suggestions"
+                          className={`block h-6 overflow-hidden rounded-full bg-gray-300 cursor-pointer`}
+                        >
+                          <span
+                            className={`absolute block w-4 h-4 mt-1 ml-1 rounded-full bg-white shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out transform translate-x-0`}
+                          ></span>
+                          <span
+                            className={`block h-full w-full rounded-full bg-primary transform translate-x-full`}
+                          ></span>
+                        </label>
+                      </div>
                     </div>
                   </div>
                 </div>
