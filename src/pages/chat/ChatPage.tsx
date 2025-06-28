@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/Tabs';
 import AIHealthCoach from '../../components/chat/AIHealthCoach';
-import { MessageCircle, Zap, Settings, Volume2, VolumeX } from 'lucide-react';
+import { MessageCircle, Zap, Settings, Volume2, VolumeX, Moon, Brain, Heart, Activity, Coffee, Shield } from 'lucide-react';
 import { useChatStore } from '../../store';
 import VoicePreferences from '../../components/chat/VoicePreferences';
 import ChatButton from '../../components/chat/ChatButton';
@@ -28,6 +28,16 @@ const ChatPage = () => {
     // This effect ensures the component rerenders when activeTab changes
     console.log(`Active tab changed to: ${activeTab}`);
   }, [activeTab]);
+
+  // Map of tip icons
+  const tipIcons: Record<string, React.ReactNode> = {
+    "Sleep Optimization": <Moon className="h-5 w-5" />,
+    "Stress Management": <Brain className="h-5 w-5" />,
+    "Energy Boosters": <Zap className="h-5 w-5" />,
+    "Nutrition Basics": <Coffee className="h-5 w-5" />,
+    "Workout Recovery": <Activity className="h-5 w-5" />,
+    "Focus Enhancement": <Brain className="h-5 w-5" />
+  };
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -85,8 +95,13 @@ const ChatPage = () => {
                     key={index}
                     className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-4 hover:border-primary/50 hover:shadow-md transition-all cursor-pointer"
                   >
-                    <h3 className="mb-2 font-medium">{tip.title}</h3>
-                    <p className="text-sm text-text-light">{tip.description}</p>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                        {tipIcons[tip.title] || <Shield className="h-5 w-5" />}
+                      </div>
+                      <h3 className="font-medium text-sm leading-tight">{tip.title}</h3>
+                    </div>
+                    <p className="text-sm text-text-light line-clamp-2">{tip.description}</p>
                   </div>
                 ))}
               </div>
