@@ -5,17 +5,23 @@ import AIHealthCoach from '../../components/chat/AIHealthCoach';
 import { MessageCircle, Zap, Settings, Volume2, VolumeX } from 'lucide-react';
 import { useChatStore } from '../../store';
 import VoicePreferences from '../../components/chat/VoicePreferences';
+import ChatButton from '../../components/chat/ChatButton';
 
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat');
-const { 
-  preferSpeech, 
-  setPreferSpeech, 
-  selectedVoice, 
-  setSelectedVoice,
-  voiceSettings,
-  updateVoiceSettings
-} = useChatStore();
+  const { 
+    preferSpeech, 
+    setPreferSpeech, 
+    selectedVoice, 
+    setSelectedVoice,
+    voiceSettings,
+    updateVoiceSettings
+  } = useChatStore();
+
+  // Handle tab value change
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -31,7 +37,7 @@ const {
           </p>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
           <div className="mb-6 flex items-center justify-between">
             <TabsList>
               <TabsTrigger value="chat" className="flex items-center gap-2">
@@ -72,15 +78,15 @@ const {
                   <div 
                     key={index}
                     className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-4 hover:border-primary/50 hover:shadow-md transition-all cursor-pointer"
-                    onClick={() => {
-                      setActiveTab('chat');
-                      // In a real implementation, this would pre-fill the chat with a question about this topic
-                    }}
                   >
                     <h3 className="mb-2 font-medium">{tip.title}</h3>
                     <p className="text-sm text-text-light">{tip.description}</p>
                   </div>
                 ))}
+              </div>
+              
+              <div className="mt-8">
+                <ChatButton />
               </div>
             </div>
           </TabsContent>
