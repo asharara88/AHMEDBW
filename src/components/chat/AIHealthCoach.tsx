@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, User, CheckCircle, Info, Mic, MicOff } from 'lucide-react';
+import { Send, Loader, User, CheckCircle, Info, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { logError } from '../../utils/logger';
