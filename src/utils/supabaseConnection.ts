@@ -26,9 +26,15 @@ export async function checkSupabaseConnection(): Promise<boolean> {
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
       
       if (!supabaseUrl || !supabaseAnonKey) {
+        const missingVars = [];
+        if (!supabaseUrl) missingVars.push('VITE_SUPABASE_URL');
+        if (!supabaseAnonKey) missingVars.push('VITE_SUPABASE_ANON_KEY');
+        
         logError('Supabase environment variables are missing', { 
+          missingVariables: missingVars,
           hasUrl: !!supabaseUrl, 
-          hasAnonKey: !!supabaseAnonKey 
+          hasAnonKey: !!supabaseAnonKey,
+          instruction: 'Create a .env file with your Supabase credentials. See .env.example for the format.'
         });
         return false;
       }
@@ -52,34 +58,92 @@ export async function checkSupabaseConnection(): Promise<boolean> {
     } catch (error) {
       retryCount++;
       
-      // Log with more details about the attempt
-      logError(`Supabase connection attempt ${retryCount} failed`, {
-        error: error instanceof Error ? {
-          message: error.message,
-          name: error.name,
-          details: error.toString()
-        } : String(error),
+      // Enhanced error handling with more specific diagnostics
+      let errorDetails: any = {
+        attempt: retryCount,
         maxAttempts: MAX_RETRY_ATTEMPTS,
-        willRetry: retryCount < MAX_RETRY_ATTEMPTS
-      });
+        willRetry: retryCount < MAX_RETRY_ATTEMPTS,
+        timestamp: new Date().toISOString()
+      };
+
+      if (error instanceof Error) {
+        errorDetails.error = {
+          message: error.message || 'No error message available',
+          name: error.name || 'Unknown error',
+          details: error.toString()
+        };
+
+        // Provide specific guidance based on error type
+        if (error.message.includes('fetch')) {
+          errorDetails.commonCauses = [
+            'Supabase URL is incorrect or project does not exist',
+            'Network connectivity issues',
+            'Supabase project is paused or suspended',
+            'CORS configuration issues'
+          ];
+          errorDetails.troubleshooting = [
+            'Verify your VITE_SUPABASE_URL in the .env file',
+            'Check if your Supabase project is active in the dashboard',
+            'Ensure you have internet connectivity',
+            'Try accessing your Supabase URL directly in a browser'
+          ];
+        } else if (error.message.includes('API key')) {
+          errorDetails.commonCauses = [
+            'VITE_SUPABASE_ANON_KEY is incorrect or expired',
+            'Anonymous key does not match the project'
+          ];
+          errorDetails.troubleshooting = [
+            'Verify your VITE_SUPABASE_ANON_KEY in the .env file',
+            'Get a fresh anonymous key from your Supabase dashboard',
+            'Ensure the key matches your project'
+          ];
+        }
+      } else {
+        errorDetails.error = {
+          message: String(error) || 'Unknown error occurred',
+          type: typeof error
+        };
+      }
+      
+      logError(`Supabase connection attempt ${retryCount} failed`, errorDetails);
       
       if (retryCount < MAX_RETRY_ATTEMPTS) {
         // Wait before retrying with exponential backoff
-        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * Math.pow(2, retryCount - 1)));
+        const delay = RETRY_DELAY * Math.pow(2, retryCount - 1);
+        logInfo(`Retrying Supabase connection in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
   }
 
   // If we've exhausted all retries, show a user-friendly error
   if (!connected) {
-    // Dispatch a custom event that can be caught by an error boundary or notification system
     const connectionErrorEvent = new CustomEvent('supabase-connection-error', {
       detail: {
-        message: 'Unable to connect to the database. Please check your internet connection and try again.',
-        retryCount
+        message: `Unable to connect to Supabase after ${MAX_RETRY_ATTEMPTS} attempts. Please check your configuration and try again.`,
+        retryCount,
+        troubleshooting: [
+          'Verify your .env file exists and contains valid Supabase credentials',
+          'Check that your Supabase project is active',
+          'Ensure you have internet connectivity',
+          'Try restarting your development server'
+        ]
       }
     });
     window.dispatchEvent(connectionErrorEvent);
+    
+    // Also log detailed troubleshooting information
+    logError('All connection attempts failed', {
+      totalAttempts: retryCount,
+      supabaseUrl: import.meta.env.VITE_SUPABASE_URL ? 'configured' : 'missing',
+      supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY ? 'configured' : 'missing',
+      nextSteps: [
+        '1. Check your .env file exists in the project root',
+        '2. Verify VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set',
+        '3. Get credentials from https://supabase.com/dashboard/project/your-project/settings/api',
+        '4. Restart your development server after making changes'
+      ]
+    });
     
     // Continue with the application in a degraded mode
     logInfo('Application continuing in offline/demo mode due to connection failure');
