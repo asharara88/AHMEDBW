@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, User, Volume2, VolumeX, Info, Mic, MicOff } from 'lucide-react';
+import { Send, Loader, User, CheckCircle, Info, Mic, MicOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { logError } from '../../utils/logger';
@@ -159,6 +159,11 @@ export default function HealthCoach() {
         // Clean up
         stream.getTracks().forEach(track => track.stop());
         setIsRecording(false);
+        
+        if (recordingTimeoutRef.current) {
+          clearTimeout(recordingTimeoutRef.current);
+          recordingTimeoutRef.current = null;
+        }
       };
 
       mediaRecorder.start();
