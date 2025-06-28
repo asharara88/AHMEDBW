@@ -69,18 +69,18 @@ npm run dev
 
 ### Running Tests and Lint
 
-Make sure to install dependencies before running any tests or lint checks:
+1. **Install dependencies** (required before running `npm test`):
+   ```bash
+   npm install
+   ```
+2. **Run lint and tests**:
+   ```bash
+   npm run lint
+   npm test
+   ```
 
-```bash
-npm install
-```
-
-Then run:
-
-```bash
-npm run lint
-npm test
-```
+You can also use the convenience script `scripts/setup.sh` to install
+dependencies automatically before running tests locally.
 
 ### Supabase Setup
 
