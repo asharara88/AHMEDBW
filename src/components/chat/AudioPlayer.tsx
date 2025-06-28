@@ -103,7 +103,7 @@ const AudioPlayer = ({ src, onEnded, className = '' }: AudioPlayerProps) => {
           <div className="hidden sm:flex items-center gap-2">
             <div className="relative h-1 w-24 rounded-full bg-[hsl(var(--color-border))]">
               <div 
-                className="absolute h-full rounded-full bg-primary" 
+                className="absolute h-full rounded-full bg-primary transition-all duration-100" 
                 style={{ width: `${(progress / duration) * 100}%` }}
               ></div>
             </div>

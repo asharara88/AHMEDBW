@@ -255,6 +255,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
           className="w-full px-3 py-2 border border-gray-300 rounded-md"
           value={currentStepData.gender || profile?.gender || ''}
           onChange={(e) => handleFieldChange('gender', e.target.value)}
+          aria-label="Gender selection"
         >
           <option value="">Select gender</option>
           <option value="male">Male</option>
@@ -339,6 +340,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
               value: currentStepData.height?.value || profile?.height?.value || 0,
               unit: e.target.value as 'cm' | 'ft'
             })}
+            aria-label="Height unit selection"
           >
             <option value="cm">cm</option>
             <option value="ft">ft</option>

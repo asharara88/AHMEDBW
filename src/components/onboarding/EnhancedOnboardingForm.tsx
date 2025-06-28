@@ -255,6 +255,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
           className="w-full px-3 py-2 border border-gray-300 rounded-md"
           value={currentStepData.gender || profile?.gender || ''}
           onChange={(e) => handleFieldChange('gender', e.target.value)}
+          aria-label="Gender"
         >
           <option value="">Select gender</option>
           <option value="male">Male</option>
@@ -339,6 +340,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
               value: currentStepData.height?.value || profile?.height?.value || 0,
               unit: e.target.value as 'cm' | 'ft'
             })}
+            aria-label="Height unit"
           >
             <option value="cm">cm</option>
             <option value="ft">ft</option>
@@ -360,7 +362,6 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
               value: parseFloat(e.target.value) || 0,
               unit: currentStepData.weight?.unit || profile?.weight?.unit || 'kg'
             })}
-            error={!!validationErrors.weight}
           />
           <select
             className="px-3 py-2 border border-gray-300 rounded-md"
@@ -369,6 +370,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
               value: currentStepData.weight?.value || profile?.weight?.value || 0,
               unit: e.target.value as 'kg' | 'lbs'
             })}
+            aria-label="Weight unit"
           >
             <option value="kg">kg</option>
             <option value="lbs">lbs</option>
@@ -385,6 +387,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
           className="w-full px-3 py-2 border border-gray-300 rounded-md"
           value={currentStepData.activityLevel || profile?.activityLevel || ''}
           onChange={(e) => handleFieldChange('activityLevel', e.target.value)}
+          aria-label="Activity level"
         >
           <option value="">Select activity level</option>
           <option value="sedentary">Sedentary (little/no exercise)</option>
@@ -423,7 +426,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
         
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            className={`bg-blue-600 h-2 rounded-full transition-all duration-300`}
             style={{ width: `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` }}
           />
         </div>

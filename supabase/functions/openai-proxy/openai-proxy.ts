@@ -1,4 +1,4 @@
-/// <reference types="https://deno.land/types/index.d.ts" />
+/// <reference types="https://deno.land/x/deno@v1.28.0/cli/dts/lib.deno.d.ts" />
 
 import OpenAI from "openai";
 
