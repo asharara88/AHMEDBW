@@ -1,8 +1,42 @@
 import { motion } from 'framer-motion';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Moon, Brain, Zap, Coffee, Activity } from 'lucide-react';
 import ChatButton from '../../components/chat/ChatButton';
+import QuickTipCard from '../../components/chat/QuickTipCard';
 
 const QuickTipPage = () => {
+  const quickTips = [
+    { 
+      title: "Sleep Optimization", 
+      description: "Tips for better sleep quality",
+      icon: <Moon className="h-4 w-4" />
+    },
+    { 
+      title: "Stress Management", 
+      description: "Techniques to reduce daily stress",
+      icon: <Brain className="h-4 w-4" />
+    },
+    { 
+      title: "Energy Boosters", 
+      description: "Natural ways to increase energy",
+      icon: <Zap className="h-4 w-4" />
+    },
+    { 
+      title: "Nutrition Basics", 
+      description: "Fundamentals of healthy eating",
+      icon: <Coffee className="h-4 w-4" />
+    },
+    { 
+      title: "Workout Recovery", 
+      description: "Optimize your post-exercise recovery",
+      icon: <Activity className="h-4 w-4" />
+    },
+    { 
+      title: "Focus Enhancement", 
+      description: "Improve concentration and mental clarity",
+      icon: <Brain className="h-4 w-4" />
+    }
+  ];
+
   return (
     <div className="mx-auto max-w-2xl">
       <motion.div
@@ -15,6 +49,17 @@ const QuickTipPage = () => {
           <p className="text-text-light">
             Get personalized health and wellness advice from your AI coach
           </p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 mb-8">
+          {quickTips.map((tip, index) => (
+            <QuickTipCard 
+              key={index}
+              title={tip.title}
+              description={tip.description}
+              icon={tip.icon}
+            />
+          ))}
         </div>
 
         <ChatButton />
