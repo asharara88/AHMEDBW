@@ -193,6 +193,32 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
     }
   };
 
+  const toggleHealthGoal = (goal: string) => {
+    const currentGoals = currentStepData.primaryHealthGoals || profile?.primaryHealthGoals || [];
+    let updatedGoals: string[];
+    
+    if (currentGoals.includes(goal)) {
+      updatedGoals = currentGoals.filter(g => g !== goal);
+    } else {
+      updatedGoals = [...currentGoals, goal];
+    }
+    
+    handleFieldChange('primaryHealthGoals', updatedGoals);
+  };
+
+  const toggleFitnessGoal = (goal: string) => {
+    const currentGoals = currentStepData.fitnessGoals || profile?.fitnessGoals || [];
+    let updatedGoals: string[];
+    
+    if (currentGoals.includes(goal)) {
+      updatedGoals = currentGoals.filter(g => g !== goal);
+    } else {
+      updatedGoals = [...currentGoals, goal];
+    }
+    
+    handleFieldChange('fitnessGoals', updatedGoals);
+  };
+
   const renderPersonalInfoStep = () => (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -267,56 +293,68 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
     </div>
   );
 
-  const renderHealthGoalsStep = () => (
-    <div className="space-y-6">
-      <div>
-        <label className="block text-sm font-medium mb-3">Primary Health Goals</label>
-        <div className="grid grid-cols-2 gap-2">
-          {HEALTH_GOALS_OPTIONS.map((goal) => (
-            <label key={goal} className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={(currentStepData.primaryHealthGoals || profile?.primaryHealthGoals || []).includes(goal)}
-                onChange={(e) => {
-                  const current = currentStepData.primaryHealthGoals || profile?.primaryHealthGoals || [];
-                  const updated = e.target.checked
-                    ? [...current, goal]
-                    : current.filter(g => g !== goal);
-                  handleFieldChange('primaryHealthGoals', updated);
-                }}
-              />
-              <span className="text-sm">{goal}</span>
-            </label>
-          ))}
+  const renderHealthGoalsStep = () => {
+    const selectedPrimaryGoals = currentStepData.primaryHealthGoals || profile?.primaryHealthGoals || [];
+    const selectedFitnessGoals = currentStepData.fitnessGoals || profile?.fitnessGoals || [];
+    
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold mb-3">Primary Health Goals</h3>
+          <p className="text-sm text-gray-500 mb-4">Select all that apply to you. There's no limit to how many you can choose.</p>
+          
+          {validationErrors.primaryHealthGoals && (
+            <p className="text-red-500 text-sm mb-3">{validationErrors.primaryHealthGoals}</p>
+          )}
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {HEALTH_GOALS_OPTIONS.map((goal) => (
+              <button
+                key={goal}
+                type="button"
+                onClick={() => toggleHealthGoal(goal)}
+                className={`flex items-center justify-between p-3 rounded-lg text-sm text-left transition-all ${
+                  selectedPrimaryGoals.includes(goal)
+                    ? 'bg-primary text-white font-medium shadow-md'
+                    : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'
+                }`}
+              >
+                <span>{goal}</span>
+                {selectedPrimaryGoals.includes(goal) && (
+                  <Check className="h-4 w-4 ml-2 flex-shrink-0" />
+                )}
+              </button>
+            ))}
+          </div>
         </div>
-        {validationErrors.primaryHealthGoals && (
-          <p className="text-red-500 text-sm mt-1">{validationErrors.primaryHealthGoals}</p>
-        )}
-      </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-3">Fitness Goals</label>
-        <div className="grid grid-cols-2 gap-2">
-          {FITNESS_GOALS_OPTIONS.map((goal) => (
-            <label key={goal} className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={(currentStepData.fitnessGoals || profile?.fitnessGoals || []).includes(goal)}
-                onChange={(e) => {
-                  const current = currentStepData.fitnessGoals || profile?.fitnessGoals || [];
-                  const updated = e.target.checked
-                    ? [...current, goal]
-                    : current.filter(g => g !== goal);
-                  handleFieldChange('fitnessGoals', updated);
-                }}
-              />
-              <span className="text-sm">{goal}</span>
-            </label>
-          ))}
+        <div>
+          <h3 className="text-lg font-semibold mb-3">Fitness Goals</h3>
+          <p className="text-sm text-gray-500 mb-4">Select your fitness priorities.</p>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {FITNESS_GOALS_OPTIONS.map((goal) => (
+              <button
+                key={goal}
+                type="button"
+                onClick={() => toggleFitnessGoal(goal)}
+                className={`flex items-center justify-between p-3 rounded-lg text-sm text-left transition-all ${
+                  selectedFitnessGoals.includes(goal)
+                    ? 'bg-secondary text-white font-medium shadow-md'
+                    : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'
+                }`}
+              >
+                <span>{goal}</span>
+                {selectedFitnessGoals.includes(goal) && (
+                  <Check className="h-4 w-4 ml-2 flex-shrink-0" />
+                )}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderPhysicalProfileStep = () => (
     <div className="space-y-6">
@@ -426,7 +464,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
         
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            className="bg-primary h-2 rounded-full transition-all duration-300"
             style={{ width: `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` }}
           />
         </div>
@@ -440,10 +478,12 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
             return (
               <div
                 key={step.id}
-                className="flex flex-col items-center text-center"
+                className={`flex flex-col items-center text-center ${
+                  isCurrent ? 'text-primary' : isCompleted ? 'text-success' : 'text-gray-400'
+                }`}
               >
                 <div className={`p-2 rounded-full mb-2 ${
-                  isCurrent ? 'bg-blue-100' : isCompleted ? 'bg-green-100' : 'bg-gray-100'
+                  isCurrent ? 'bg-primary/10' : isCompleted ? 'bg-success/10' : 'bg-gray-100'
                 }`}>
                   {isCompleted ? <Check size={16} /> : <Icon size={16} />}
                 </div>
