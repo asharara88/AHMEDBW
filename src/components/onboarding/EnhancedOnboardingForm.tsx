@@ -426,7 +426,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
         
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
-            className={`bg-blue-600 h-2 rounded-full transition-all duration-300`}
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
             style={{ width: `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` }}
           />
         </div>
@@ -440,16 +440,14 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
             return (
               <div
                 key={step.id}
-                className={`flex flex-col items-center ${
-                  isCurrent ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-gray-400'
-                }`}
+                className="flex flex-col items-center text-center"
               >
                 <div className={`p-2 rounded-full mb-2 ${
                   isCurrent ? 'bg-blue-100' : isCompleted ? 'bg-green-100' : 'bg-gray-100'
                 }`}>
                   {isCompleted ? <Check size={16} /> : <Icon size={16} />}
                 </div>
-                <span className="text-xs text-center">{step.title}</span>
+                <span className="text-xs text-center max-w-14 overflow-hidden text-ellipsis">{step.title}</span>
               </div>
             );
           })}

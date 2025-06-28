@@ -41,6 +41,7 @@ export default function HealthCoach() {
   const [recordingError, setRecordingError] = useState<string | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimeoutRef = useRef<number | null>(null);
   
   const { user, isDemo } = useAuth();
   const { currentTheme } = useTheme();
@@ -168,6 +169,13 @@ export default function HealthCoach() {
 
       mediaRecorder.start();
       setIsRecording(true);
+      
+      // Auto-stop after 30 seconds
+      recordingTimeoutRef.current = window.setTimeout(() => {
+        if (mediaRecorderRef.current && isRecording) {
+          stopRecording();
+        }
+      }, 30000);
     } catch (err) {
       console.error('Error starting recording:', err);
       setRecordingError('Microphone access denied. Please check your browser permissions.');
@@ -182,8 +190,6 @@ export default function HealthCoach() {
   };
 
   const toggleRecording = () => {
-    if (disabled) return;
-    
     if (isRecording) {
       stopRecording();
     } else {
@@ -261,7 +267,7 @@ export default function HealthCoach() {
                 loading="lazy"
               />
             </div>
-            <h3 className="mb-2 text-lg font-medium">Welcome to your Health Coach</h3>
+            <h3 className="mb-2 text-lg font-semibold">Welcome to your Health Coach</h3>
             <p className="mb-6 text-text-light">
               Ask me anything about your personal wellness.
             </p>
