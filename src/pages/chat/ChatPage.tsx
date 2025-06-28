@@ -9,7 +9,7 @@ import VoicePreferences from '../../components/chat/VoicePreferences';
 
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat');
-  const { user } = useAuth();
+;
   const { 
     preferSpeech, 
     setPreferSpeech, 
