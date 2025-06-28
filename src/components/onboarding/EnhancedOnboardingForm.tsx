@@ -464,8 +464,9 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
         
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
-            className="bg-primary h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` }}
+            className={`bg-primary h-2 rounded-full transition-all duration-300`}
+            data-progress={`${(currentStep.id / ONBOARDING_STEPS.length) * 100}%`}
+            style={{'--progress-width': `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%`} as React.CSSProperties & {'--progress-width': string}}
           />
         </div>
 

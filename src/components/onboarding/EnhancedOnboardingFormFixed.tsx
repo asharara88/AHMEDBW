@@ -388,6 +388,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
           className="w-full px-3 py-2 border border-gray-300 rounded-md"
           value={currentStepData.activityLevel || profile?.activityLevel || ''}
           onChange={(e) => handleFieldChange('activityLevel', e.target.value)}
+          aria-label="Activity level selection"
         >
           <option value="">Select activity level</option>
           <option value="sedentary">Sedentary (little/no exercise)</option>
