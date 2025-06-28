@@ -3,21 +3,19 @@ import { motion } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/Tabs';
 import AIHealthCoach from '../../components/chat/AIHealthCoach';
 import { MessageCircle, Zap, Settings, Volume2, VolumeX } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
 import { useChatStore } from '../../store';
 import VoicePreferences from '../../components/chat/VoicePreferences';
 
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat');
-;
-  const { 
-    preferSpeech, 
-    setPreferSpeech, 
-    selectedVoice, 
-    setSelectedVoice,
-    voiceSettings,
-    updateVoiceSettings
-  } = useChatStore();
+const { 
+  preferSpeech, 
+  setPreferSpeech, 
+  selectedVoice, 
+  setSelectedVoice,
+  voiceSettings,
+  updateVoiceSettings
+} = useChatStore();
 
   return (
     <div className="container mx-auto px-4 py-6">

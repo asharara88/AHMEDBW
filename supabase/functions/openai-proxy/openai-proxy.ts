@@ -1,3 +1,5 @@
+/// <reference types="https://deno.land/types/index.d.ts" />
+
 import OpenAI from "openai";
 
 const apiKey = Deno.env.get("OPENAI_API_KEY");
