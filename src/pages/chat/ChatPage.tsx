@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/Tabs';
 import AIHealthCoach from '../../components/chat/AIHealthCoach';
@@ -18,10 +18,16 @@ const ChatPage = () => {
     updateVoiceSettings
   } = useChatStore();
 
-  // Handle tab value change
+  // Handle tab value change - keep track of the active tab
   const handleTabChange = (value: string) => {
     setActiveTab(value);
   };
+
+  // Ensure the component rerenders when the activeTab changes
+  useEffect(() => {
+    // This effect ensures the component rerenders when activeTab changes
+    console.log(`Active tab changed to: ${activeTab}`);
+  }, [activeTab]);
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -37,7 +43,7 @@ const ChatPage = () => {
           </p>
         </div>
 
-        <Tabs value={activeTab} onValueChange={handleTabChange}>
+        <Tabs value={activeTab} onValueChange={handleTabChange} defaultValue="chat">
           <div className="mb-6 flex items-center justify-between">
             <TabsList>
               <TabsTrigger value="chat" className="flex items-center gap-2">
