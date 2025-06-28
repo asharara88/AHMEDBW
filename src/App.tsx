@@ -9,6 +9,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import PricingPage from './pages/PricingPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import ScrollToTop from './components/ScrollToTop';
+import AboutPage from './pages/AboutPage';
 
 // Lazy loaded components for better code splitting
 const OnboardingPage = lazy(() => import('./pages/auth/OnboardingPage'));
@@ -45,6 +46,7 @@ function App() {
           <Route path="stack" element={<StackPage />} />
           <Route path="pricing" element={<PricingPage />} />
           <Route path="how-it-works" element={<HowItWorksPage />} />
+          <Route path="about" element={<AboutPage />} />
           <Route path="test-openai" element={<TestOpenAI />} />
           <Route path="dashboard" element={
             <ProtectedRoute>
