@@ -1,16 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/Tabs';
 import AIHealthCoach from '../../components/chat/AIHealthCoach';
-import { MessageCircle, Zap, Settings, Volume2, VolumeX, Moon, Brain, Activity, Coffee, Shield } from 'lucide-react';
+import { MessageCircle, Zap, Settings, Volume2, VolumeX, Moon, Brain, Heart, Activity, Coffee, Shield } from 'lucide-react';
 import { useChatStore } from '../../store';
 import VoicePreferences from '../../components/chat/VoicePreferences';
 import ChatButton from '../../components/chat/ChatButton';
+import QuickTipCard from './QuickTipCard';
 
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat');
   const [selectedTip, setSelectedTip] = useState<string | null>(null);
   const chatInputRef = useRef<HTMLInputElement | null>(null);
+  const location = useLocation();
   
   const { 
     preferSpeech, 
@@ -26,11 +29,13 @@ const ChatPage = () => {
     setActiveTab(value);
   };
 
-  // Ensure the component rerenders when the activeTab changes
+  // Check if there's an initial question in the location state
   useEffect(() => {
-    // This effect ensures the component rerenders when activeTab changes
-    console.log(`Active tab changed to: ${activeTab}`);
-  }, [activeTab]);
+    if (location.state?.initialQuestion) {
+      setSelectedTip(location.state.initialQuestion);
+      setActiveTab('chat');
+    }
+  }, [location]);
 
   // Map of tip icons
   const tipIcons: Record<string, React.ReactNode> = {
@@ -42,24 +47,39 @@ const ChatPage = () => {
     "Focus Enhancement": <Brain className="h-5 w-5" />
   };
 
-  // Generate a question for each quick tip
-  const tipQuestions: Record<string, string> = {
-    "Sleep Optimization": "What are the best strategies to improve my sleep quality?",
-    "Stress Management": "What techniques can help reduce my daily stress levels?",
-    "Energy Boosters": "How can I naturally increase my energy levels throughout the day?",
-    "Nutrition Basics": "What are the fundamentals of healthy eating I should follow?",
-    "Workout Recovery": "How can I optimize my recovery after intense workouts?",
-    "Focus Enhancement": "What methods can help improve my concentration and mental clarity?"
-  };
-
-  // Handle click on a quick tip
-  const handleQuickTipClick = (tipTitle: string) => {
-    const question = tipQuestions[tipTitle];
-    if (question) {
-      setSelectedTip(question);
-      setActiveTab('chat');
+  // Quick tip definitions
+  const quickTips = [
+    { 
+      title: "Sleep Optimization", 
+      description: "Tips for better sleep quality",
+      icon: <Moon className="h-4 w-4" />
+    },
+    { 
+      title: "Stress Management", 
+      description: "Techniques to reduce daily stress",
+      icon: <Brain className="h-4 w-4" />
+    },
+    { 
+      title: "Energy Boosters", 
+      description: "Natural ways to increase energy",
+      icon: <Zap className="h-4 w-4" />
+    },
+    { 
+      title: "Nutrition Basics", 
+      description: "Fundamentals of healthy eating",
+      icon: <Coffee className="h-4 w-4" />
+    },
+    { 
+      title: "Workout Recovery", 
+      description: "Optimize your post-exercise recovery",
+      icon: <Activity className="h-4 w-4" />
+    },
+    { 
+      title: "Focus Enhancement", 
+      description: "Improve concentration and mental clarity",
+      icon: <Brain className="h-4 w-4" />
     }
-  };
+  ];
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -105,27 +125,13 @@ const ChatPage = () => {
               </p>
               
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {[
-                  { title: "Sleep Optimization", description: "Tips for better sleep quality" },
-                  { title: "Stress Management", description: "Techniques to reduce daily stress" },
-                  { title: "Energy Boosters", description: "Natural ways to increase energy" },
-                  { title: "Nutrition Basics", description: "Fundamentals of healthy eating" },
-                  { title: "Workout Recovery", description: "Optimize your post-exercise recovery" },
-                  { title: "Focus Enhancement", description: "Improve concentration and mental clarity" }
-                ].map((tip, index) => (
-                  <div 
+                {quickTips.map((tip, index) => (
+                  <QuickTipCard
                     key={index}
-                    className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-4 hover:border-primary/50 hover:shadow-md transition-all cursor-pointer"
-                    onClick={() => handleQuickTipClick(tip.title)}
-                  >
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                        {tipIcons[tip.title] || <Shield className="h-5 w-5" />}
-                      </div>
-                      <h3 className="font-medium text-sm leading-tight">{tip.title}</h3>
-                    </div>
-                    <p className="text-sm text-text-light line-clamp-2">{tip.description}</p>
-                  </div>
+                    title={tip.title}
+                    description={tip.description}
+                    icon={tip.icon}
+                  />
                 ))}
               </div>
               
@@ -193,13 +199,13 @@ const ChatPage = () => {
                         />
                         <label
                           htmlFor="auto-scroll"
-                          className={`block h-6 overflow-hidden rounded-full bg-gray-300 cursor-pointer`}
+                          className="block h-6 overflow-hidden rounded-full bg-gray-300 cursor-pointer"
                         >
                           <span
-                            className={`absolute block w-4 h-4 mt-1 ml-1 rounded-full bg-white shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out transform translate-x-0`}
+                            className="absolute block w-4 h-4 mt-1 ml-1 rounded-full bg-white shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out transform translate-x-0"
                           ></span>
                           <span
-                            className={`block h-full w-full rounded-full bg-primary transform translate-x-full`}
+                            className="block h-full w-full rounded-full bg-primary transform translate-x-full"
                           ></span>
                         </label>
                       </div>
@@ -216,13 +222,13 @@ const ChatPage = () => {
                         />
                         <label
                           htmlFor="show-timestamps"
-                          className={`block h-6 overflow-hidden rounded-full bg-gray-300 cursor-pointer`}
+                          className="block h-6 overflow-hidden rounded-full bg-gray-300 cursor-pointer"
                         >
                           <span
-                            className={`absolute block w-4 h-4 mt-1 ml-1 rounded-full bg-white shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out transform translate-x-0`}
+                            className="absolute block w-4 h-4 mt-1 ml-1 rounded-full bg-white shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out transform translate-x-0"
                           ></span>
                           <span
-                            className={`block h-full w-full rounded-full bg-primary transform translate-x-full`}
+                            className="block h-full w-full rounded-full bg-primary transform translate-x-full"
                           ></span>
                         </label>
                       </div>
@@ -239,13 +245,13 @@ const ChatPage = () => {
                         />
                         <label
                           htmlFor="show-suggestions"
-                          className={`block h-6 overflow-hidden rounded-full bg-gray-300 cursor-pointer`}
+                          className="block h-6 overflow-hidden rounded-full bg-gray-300 cursor-pointer"
                         >
                           <span
-                            className={`absolute block w-4 h-4 mt-1 ml-1 rounded-full bg-white shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out transform translate-x-0`}
+                            className="absolute block w-4 h-4 mt-1 ml-1 rounded-full bg-white shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out transform translate-x-0"
                           ></span>
                           <span
-                            className={`block h-full w-full rounded-full bg-primary transform translate-x-full`}
+                            className="block h-full w-full rounded-full bg-primary transform translate-x-full"
                           ></span>
                         </label>
                       </div>

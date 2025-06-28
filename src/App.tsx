@@ -9,6 +9,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import PricingPage from './pages/PricingPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import ScrollToTop from './components/ScrollToTop';
+import AboutPage from './pages/AboutPage';
 
 // Lazy loaded components for better code splitting
 const OnboardingPage = lazy(() => import('./pages/auth/OnboardingPage'));
@@ -23,6 +24,7 @@ const CheckoutSuccessPage = lazy(() => import('./pages/checkout/CheckoutSuccessP
 const CheckoutCancelPage = lazy(() => import('./pages/checkout/CheckoutCancelPage'));
 const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
 const TestOpenAI = lazy(() => import('./pages/TestOpenAI'));
+const ImportSupplementsPage = lazy(() => import('./pages/admin/ImportSupplementsPage'));
 
 // Loading component
 const PageLoader = () => (
@@ -45,7 +47,13 @@ function App() {
           <Route path="stack" element={<StackPage />} />
           <Route path="pricing" element={<PricingPage />} />
           <Route path="how-it-works" element={<HowItWorksPage />} />
+          <Route path="about" element={<AboutPage />} />
           <Route path="test-openai" element={<TestOpenAI />} />
+          <Route path="admin/import-supplements" element={
+            <ProtectedRoute>
+              <ImportSupplementsPage />
+            </ProtectedRoute>
+          } />
           <Route path="dashboard" element={
             <ProtectedRoute>
               <DashboardPage />

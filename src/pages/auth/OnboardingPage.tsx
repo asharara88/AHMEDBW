@@ -103,6 +103,7 @@ const OnboardingPage = () => {
           
           <div className="mt-6 flex justify-center gap-2">
             <button
+              type="button"
               onClick={() => setOnboardingType('conversational')}
               className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${
                 onboardingType === 'conversational'
@@ -115,6 +116,7 @@ const OnboardingPage = () => {
               Chat
             </button>
             <button
+              type="button"
               onClick={() => setOnboardingType('form')}
               className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${
                 onboardingType === 'form'
@@ -127,6 +129,7 @@ const OnboardingPage = () => {
               Form
             </button>
             <button
+              type="button"
               onClick={() => setOnboardingType('enhanced')}
               className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${
                 onboardingType === 'enhanced'

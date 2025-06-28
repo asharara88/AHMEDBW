@@ -19,7 +19,7 @@ const SupplementsPage = () => {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('browse');
+  const [, setActiveTab] = useState('browse');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [evidenceFilter, setEvidenceFilter] = useState<'all' | 'green' | 'yellow'>('all');
   const [currentPage, setCurrentPage] = useState(1);

@@ -67,6 +67,21 @@ JWT_SECRET=your-jwt-secret
 npm run dev
 ```
 
+### Running Tests and Lint
+
+1. **Install dependencies** (required before running `npm test`):
+   ```bash
+   npm install
+   ```
+2. **Run lint and tests**:
+   ```bash
+   npm run lint
+   npm test
+   ```
+
+You can also use the convenience script `scripts/setup.sh` to install
+dependencies automatically before running tests locally.
+
 ### Supabase Setup
 
 1. Create a new Supabase project
@@ -179,6 +194,14 @@ text-to-speech responses. It features indexes on `(user_id, cache_key)` and
 `expires_at` for quick lookups, row level security policies that restrict access
 to authenticated users, and a trigger that automatically removes expired
 entries.
+
+### Shopping Cart
+
+The migration `20250628120000_shopping_cart.sql` introduces a `cart_items`
+table for storing supplements that users add to their cart. Add items via the
+"Add to Cart" button on a supplement, update quantities or remove items from the
+cart page, and proceed to checkout when ready. Row level security ensures each
+user can only manage their own cart items.
 
 ## Project Structure
 

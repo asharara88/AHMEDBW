@@ -29,6 +29,9 @@ const ChatSettings = ({
   onVoiceSettingsUpdate
 }: ChatSettingsProps) => {
   const [activeTab, setActiveTab] = useState<'voice' | 'chat'>(showVoiceSettings ? 'voice' : 'chat');
+  const [autoScroll, setAutoScroll] = useState(true);
+  const [showTimestamps, setShowTimestamps] = useState(true);
+  const [coachStyle, setCoachStyle] = useState<'balanced' | 'detailed' | 'concise'>('balanced');
   
   const { 
     preferSpeech, 
@@ -46,6 +49,43 @@ const ChatSettings = ({
   const actualSetSelectedVoice = onVoiceSelect || storeSetSelectedVoice;
   const actualVoiceSettings = voiceSettings || storeVoiceSettings;
   const actualUpdateVoiceSettings = onVoiceSettingsUpdate || storeUpdateVoiceSettings;
+
+  // Toggle switch component
+  const ToggleSwitch = ({ 
+    id, 
+    label, 
+    checked, 
+    onChange, 
+    disabled = false 
+  }: { 
+    id: string; 
+    label: string; 
+    checked: boolean; 
+    onChange: () => void; 
+    disabled?: boolean 
+  }) => (
+    <div className="flex items-center justify-between">
+      <label htmlFor={id} className="text-sm cursor-pointer">{label}</label>
+      <button 
+        id={id}
+        role="switch"
+        aria-checked={checked}
+        className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors ${
+          checked 
+            ? 'bg-primary' 
+            : 'bg-[hsl(var(--color-surface-2))]'
+        } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+        onClick={!disabled ? onChange : undefined}
+        disabled={disabled}
+      >
+        <span 
+          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform ${
+            checked ? 'translate-x-6' : 'translate-x-1'
+          }`}
+        />
+      </button>
+    </div>
+  );
 
   return (
     <motion.div
@@ -67,122 +107,162 @@ const ChatSettings = ({
         )}
       </div>
           
-          <div className="mb-4 flex border-b border-[hsl(var(--color-border))]">
-            <button
-              onClick={() => setActiveTab('voice')}
-              className={`flex items-center gap-1 px-4 py-2 text-sm transition-colors ${
-                activeTab === 'voice'
-                  ? 'border-b-2 border-primary text-primary'
-                  : 'text-text-light hover:text-text'
-              }`}
-            >
-              <Headphones className="h-4 w-4" />
-              Voice
-            </button>
-            <button
-              onClick={() => setActiveTab('chat')}
-              className={`flex items-center gap-1 px-4 py-2 text-sm transition-colors ${
-                activeTab === 'chat'
-                  ? 'border-b-2 border-primary text-primary'
-                  : 'text-text-light hover:text-text'
-              }`}
-            >
-              <MessageSquare className="h-4 w-4" />
-              Chat
-            </button>
+      <div className="mb-4 flex border-b border-[hsl(var(--color-border))]">
+        <button
+          onClick={() => setActiveTab('voice')}
+          className={`flex items-center gap-1 px-4 py-2 text-sm transition-colors ${
+            activeTab === 'voice'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-text-light hover:text-text'
+          }`}
+        >
+          <Headphones className="h-4 w-4" />
+          Voice
+        </button>
+        <button
+          onClick={() => setActiveTab('chat')}
+          className={`flex items-center gap-1 px-4 py-2 text-sm transition-colors ${
+            activeTab === 'chat'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-text-light hover:text-text'
+          }`}
+        >
+          <MessageSquare className="h-4 w-4" />
+          Chat
+        </button>
+      </div>
+          
+      {activeTab === 'voice' && (
+        <VoicePreferences
+          preferSpeech={actualPreferSpeech}
+          onToggleSpeech={actualToggleSpeech}
+          selectedVoice={actualSelectedVoice}
+          onSelectVoice={actualSetSelectedVoice}
+          voiceSettings={actualVoiceSettings}
+          onUpdateVoiceSettings={actualUpdateVoiceSettings}
+        />
+      )}
+          
+      {activeTab === 'chat' && (
+        <div className="space-y-5">
+          <div>
+            <h4 className="mb-3 text-sm font-medium">Chat Preferences</h4>
+            <div className="space-y-3 rounded-lg bg-[hsl(var(--color-surface-1))] p-4">
+              <ToggleSwitch
+                id="auto-scroll"
+                label="Auto-scroll to new messages"
+                checked={autoScroll}
+                onChange={() => setAutoScroll(!autoScroll)}
+              />
+              
+              <ToggleSwitch
+                id="show-timestamps"
+                label="Show message timestamps"
+                checked={showTimestamps}
+                onChange={() => setShowTimestamps(!showTimestamps)}
+              />
+              
+              <ToggleSwitch
+                id="show-suggestions"
+                label="Show suggested questions"
+                checked={true}
+                onChange={() => {}}
+              />
+            </div>
           </div>
           
-          {activeTab === 'voice' && (
-            <VoicePreferences
-              preferSpeech={actualPreferSpeech}
-              onToggleSpeech={actualToggleSpeech}
-              selectedVoice={actualSelectedVoice}
-              onSelectVoice={actualSetSelectedVoice}
-              voiceSettings={actualVoiceSettings}
-              onUpdateVoiceSettings={actualUpdateVoiceSettings}
-            />
-          )}
-          
-          {activeTab === 'chat' && (
-            <div className="space-y-4">
-              <div>
-                <h4 className="mb-2 text-sm font-medium">Chat Preferences</h4>
-                <div className="space-y-2">
+          <div>
+            <h4 className="mb-3 text-sm font-medium">Coach Style</h4>
+            <div className="space-y-3 rounded-lg bg-[hsl(var(--color-surface-1))] p-4">
+              <div className="space-y-2">
+                <div 
+                  className={`flex cursor-pointer items-center justify-between rounded-lg p-2.5 transition-colors ${
+                    coachStyle === 'balanced' 
+                      ? 'bg-primary/10 text-primary' 
+                      : 'hover:bg-[hsl(var(--color-surface-2))]'
+                  }`}
+                  onClick={() => setCoachStyle('balanced')}
+                >
                   <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="auto-scroll"
-                      checked={true}
-                      className="h-4 w-4 rounded border-[hsl(var(--color-border))] text-primary focus:ring-primary"
-                    />
-                    <label htmlFor="auto-scroll" className="text-sm">
-                      Auto-scroll to new messages
-                    </label>
+                    <Sliders className="h-4 w-4" />
+                    <span className="text-sm">Balanced</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="show-timestamps"
-                      checked={true}
-                      className="h-4 w-4 rounded border-[hsl(var(--color-border))] text-primary focus:ring-primary"
-                    />
-                    <label htmlFor="show-timestamps" className="text-sm">
-                      Show message timestamps
-                    </label>
+                  <div className={`h-4 w-4 rounded-full border ${
+                    coachStyle === 'balanced' 
+                      ? 'border-primary bg-primary' 
+                      : 'border-[hsl(var(--color-border))]'
+                  }`}>
+                    {coachStyle === 'balanced' && (
+                      <span className="flex h-full items-center justify-center">
+                        <span className="block h-2 w-2 rounded-full bg-white"></span>
+                      </span>
+                    )}
                   </div>
                 </div>
-              </div>
-              
-              <div>
-                <h4 className="mb-2 text-sm font-medium">Coach Style</h4>
-                <div className="space-y-2">
+                
+                <div 
+                  className={`flex cursor-pointer items-center justify-between rounded-lg p-2.5 transition-colors ${
+                    coachStyle === 'detailed' 
+                      ? 'bg-primary/10 text-primary' 
+                      : 'hover:bg-[hsl(var(--color-surface-2))]'
+                  }`}
+                  onClick={() => setCoachStyle('detailed')}
+                >
                   <div className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      id="style-balanced"
-                      name="coach-style"
-                      checked={true}
-                      className="h-4 w-4 text-primary focus:ring-primary"
-                    />
-                    <label htmlFor="style-balanced" className="text-sm">
-                      Balanced
-                    </label>
+                    <Sliders className="h-4 w-4" />
+                    <span className="text-sm">Detailed</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      id="style-detailed"
-                      name="coach-style"
-                      className="h-4 w-4 text-primary focus:ring-primary"
-                    />
-                    <label htmlFor="style-detailed" className="text-sm">
-                      Detailed
-                    </label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      id="style-concise"
-                      name="coach-style"
-                      className="h-4 w-4 text-primary focus:ring-primary"
-                    />
-                    <label htmlFor="style-concise" className="text-sm">
-                      Concise
-                    </label>
+                  <div className={`h-4 w-4 rounded-full border ${
+                    coachStyle === 'detailed' 
+                      ? 'border-primary bg-primary' 
+                      : 'border-[hsl(var(--color-border))]'
+                  }`}>
+                    {coachStyle === 'detailed' && (
+                      <span className="flex h-full items-center justify-center">
+                        <span className="block h-2 w-2 rounded-full bg-white"></span>
+                      </span>
+                    )}
                   </div>
                 </div>
-              </div>
-              
-              <div className="rounded-lg bg-[hsl(var(--color-surface-1))] p-3">
-                <div className="flex items-start gap-2">
-                  <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-                  <p className="text-xs text-text-light">
-                    Your chat history is stored securely and used to provide personalized recommendations.
-                  </p>
+                
+                <div 
+                  className={`flex cursor-pointer items-center justify-between rounded-lg p-2.5 transition-colors ${
+                    coachStyle === 'concise' 
+                      ? 'bg-primary/10 text-primary' 
+                      : 'hover:bg-[hsl(var(--color-surface-2))]'
+                  }`}
+                  onClick={() => setCoachStyle('concise')}
+                >
+                  <div className="flex items-center gap-2">
+                    <Sliders className="h-4 w-4" />
+                    <span className="text-sm">Concise</span>
+                  </div>
+                  <div className={`h-4 w-4 rounded-full border ${
+                    coachStyle === 'concise' 
+                      ? 'border-primary bg-primary' 
+                      : 'border-[hsl(var(--color-border))]'
+                  }`}>
+                    {coachStyle === 'concise' && (
+                      <span className="flex h-full items-center justify-center">
+                        <span className="block h-2 w-2 rounded-full bg-white"></span>
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          )}
+          </div>
+          
+          <div className="rounded-lg bg-[hsl(var(--color-surface-1))] p-3">
+            <div className="flex items-start gap-2">
+              <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+              <p className="text-xs text-text-light">
+                Your chat history is stored securely and used to provide personalized recommendations. We never share your data with third parties.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };

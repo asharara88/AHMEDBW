@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, User, Volume2, VolumeX, Info, Mic, MicOff } from 'lucide-react';
+import { Send, Loader, User, CheckCircle, Info, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { logError } from '../../utils/logger';
@@ -29,8 +29,12 @@ const suggestedQuestions = [
   "How can I optimize my recovery?"
 ];
 
-export default function HealthCoach() {
-  const [input, setInput] = useState('');
+interface AIHealthCoachProps {
+  initialQuestion?: string | null;
+}
+
+export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachProps) {
+  const [input, setInput] = useState(initialQuestion || '');
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -41,6 +45,9 @@ export default function HealthCoach() {
   const [recordingError, setRecordingError] = useState<string | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimeoutRef = useRef<number | null>(null);
+  const [isFirstRender, setIsFirstRender] = useState(true);
+  const inputRef = useRef<HTMLInputElement>(null);
   
   const { user, isDemo } = useAuth();
   const { currentTheme } = useTheme();
@@ -59,18 +66,41 @@ export default function HealthCoach() {
     updateVoiceSettings
   } = useChatStore();
 
+  // Only use auto-scroll after the first render
+  useEffect(() => {
+    if (isFirstRender) {
+      setIsFirstRender(false);
+    }
+  }, []);
+
   // Use the updated useAutoScroll hook with the onlyScrollDown parameter set to true
-  useAutoScroll(messagesEndRef, [messages], { behavior: 'smooth' }, true);
+  useAutoScroll(
+    messagesEndRef, 
+    [isFirstRender ? null : messages], 
+    { behavior: 'smooth' }, 
+    true
+  );
+
+  // Make sure the chat container starts at the top
+  useEffect(() => {
+    if (chatContainerRef.current && isFirstRender) {
+      chatContainerRef.current.scrollTop = 0;
+    }
+  }, [isFirstRender]);
+  
+  // Handle initial question if provided
+  useEffect(() => {
+    if (initialQuestion && inputRef.current) {
+      setInput(initialQuestion);
+      // Focus the input
+      inputRef.current.focus();
+    }
+  }, [initialQuestion]);
 
   useEffect(() => {
     // Select 5 random questions on component mount
     const shuffled = [...suggestedQuestions].sort(() => 0.5 - Math.random());
     setSelectedSuggestions(shuffled.slice(0, 5));
-    
-    // Reset scroll position to top when component mounts
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = 0;
-    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent | string) => {
@@ -159,10 +189,22 @@ export default function HealthCoach() {
         // Clean up
         stream.getTracks().forEach(track => track.stop());
         setIsRecording(false);
+        
+        if (recordingTimeoutRef.current) {
+          clearTimeout(recordingTimeoutRef.current);
+          recordingTimeoutRef.current = null;
+        }
       };
 
       mediaRecorder.start();
       setIsRecording(true);
+      
+      // Auto-stop after 30 seconds
+      recordingTimeoutRef.current = window.setTimeout(() => {
+        if (mediaRecorderRef.current && isRecording) {
+          stopRecording();
+        }
+      }, 30000);
     } catch (err) {
       console.error('Error starting recording:', err);
       setRecordingError('Microphone access denied. Please check your browser permissions.');
@@ -177,8 +219,6 @@ export default function HealthCoach() {
   };
 
   const toggleRecording = () => {
-    if (disabled) return;
-    
     if (isRecording) {
       stopRecording();
     } else {
@@ -243,6 +283,7 @@ export default function HealthCoach() {
       <div 
         ref={chatContainerRef}
         className="flex-1 overflow-y-auto p-4 overscroll-contain"
+        style={{ display: 'flex', flexDirection: 'column' }}
       >
         {error && <ApiErrorDisplay error={{ type: 'unknown', message: error }} />}
 
@@ -256,7 +297,7 @@ export default function HealthCoach() {
                 loading="lazy"
               />
             </div>
-            <h3 className="mb-2 text-lg font-medium">Welcome to your Health Coach</h3>
+            <h3 className="mb-2 text-lg font-semibold">Welcome to your Health Coach</h3>
             <p className="mb-6 text-text-light">
               Ask me anything about your personal wellness.
             </p>
@@ -276,56 +317,58 @@ export default function HealthCoach() {
             )}
           </div>
         ) : (
-          messages.map((message, index) => (
-            <div
-              key={index}
-              className={`mb-4 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {message.role === 'assistant' && (
-                <div className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <img 
-                    src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
-                    alt="Health Coach" 
-                    className="h-4 w-4"
-                    loading="lazy"
-                  />
-                </div>
-              )}
-              
+          <div className="flex-grow">
+            {messages.map((message, index) => (
               <div
-                className={`max-w-[75%] rounded-lg px-4 py-3 ${
-                  message.role === 'user'
-                    ? 'bg-primary text-white'
-                    : currentTheme === 'dark'
-                    ? 'bg-[hsl(var(--color-card-hover))] text-text'
-                    : 'bg-[hsl(var(--color-surface-1))] text-text'
-                }`}
+                key={index}
+                className={`mb-4 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                {message.role === 'assistant' ? (
-                  <div className="prose prose-sm max-w-none dark:prose-invert">
-                    <MessageContent content={message.content} />
-                  </div>
-                ) : (
-                  <div>{message.content}</div>
-                )}
-                {message.role === 'assistant' && preferSpeech && (
-                  <div className="mt-2 flex items-center gap-2 text-xs text-text-light">
-                    <Volume2 className="h-3 w-3" />
-                    <span>Voice response available</span>
+                {message.role === 'assistant' && (
+                  <div className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <img 
+                      src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
+                      alt="Health Coach" 
+                      className="h-4 w-4"
+                      loading="lazy"
+                    />
                   </div>
                 )}
-                <div className="mt-1 text-xs opacity-70">
-                  {message.timestamp?.toLocaleTimeString()}
+                
+                <div
+                  className={`max-w-[75%] rounded-lg px-4 py-3 ${
+                    message.role === 'user'
+                      ? 'bg-primary text-white'
+                      : currentTheme === 'dark'
+                      ? 'bg-[hsl(var(--color-card-hover))] text-text'
+                      : 'bg-[hsl(var(--color-surface-1))] text-text'
+                  }`}
+                >
+                  {message.role === 'assistant' ? (
+                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                      <MessageContent content={message.content} />
+                    </div>
+                  ) : (
+                    <div>{message.content}</div>
+                  )}
+                  {message.role === 'assistant' && preferSpeech && (
+                    <div className="mt-2 flex items-center gap-2 text-xs text-text-light">
+                      <Volume2 className="h-3 w-3" />
+                      <span>Voice response available</span>
+                    </div>
+                  )}
+                  <div className="mt-1 text-xs opacity-70">
+                    {message.timestamp?.toLocaleTimeString()}
+                  </div>
                 </div>
+                
+                {message.role === 'user' && (
+                  <div className="ml-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[hsl(var(--color-card-hover))] text-text-light">
+                    <User className="h-4 w-4" />
+                  </div>
+                )}
               </div>
-              
-              {message.role === 'user' && (
-                <div className="ml-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[hsl(var(--color-card-hover))] text-text-light">
-                  <User className="h-4 w-4" />
-                </div>
-              )}
-            </div>
-          ))
+            ))}
+          </div>
         )}
 
         {loading && (
@@ -390,6 +433,7 @@ export default function HealthCoach() {
       <div className="border-t border-[hsl(var(--color-border))] p-4">
         <form onSubmit={handleSubmit} className="flex gap-2 relative">
           <input
+            ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
