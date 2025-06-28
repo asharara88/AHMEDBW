@@ -42,6 +42,7 @@ export default function HealthCoach() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimeoutRef = useRef<number | null>(null);
+  const [isFirstRender, setIsFirstRender] = useState(true);
   
   const { user, isDemo } = useAuth();
   const { currentTheme } = useTheme();
@@ -60,18 +61,32 @@ export default function HealthCoach() {
     updateVoiceSettings
   } = useChatStore();
 
-  // Use the updated useAutoScroll hook with the onlyScrollDown parameter set to true
-  useAutoScroll(messagesEndRef, [messages], { behavior: 'smooth' }, true);
+  // Only use auto-scroll after the first render
+  useEffect(() => {
+    if (isFirstRender) {
+      setIsFirstRender(false);
+    }
+  }, []);
 
+  // Use the updated useAutoScroll hook with the onlyScrollDown parameter set to true
+  useAutoScroll(
+    messagesEndRef, 
+    [isFirstRender ? null : messages], 
+    { behavior: 'smooth' }, 
+    true
+  );
+
+  // Make sure the chat container starts at the top
+  useEffect(() => {
+    if (chatContainerRef.current && isFirstRender) {
+      chatContainerRef.current.scrollTop = 0;
+    }
+  }, [isFirstRender]);
+  
   useEffect(() => {
     // Select 5 random questions on component mount
     const shuffled = [...suggestedQuestions].sort(() => 0.5 - Math.random());
     setSelectedSuggestions(shuffled.slice(0, 5));
-    
-    // Reset scroll position to top when component mounts
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = 0;
-    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent | string) => {
@@ -254,6 +269,7 @@ export default function HealthCoach() {
       <div 
         ref={chatContainerRef}
         className="flex-1 overflow-y-auto p-4 overscroll-contain"
+        style={{ display: 'flex', flexDirection: 'column' }}
       >
         {error && <ApiErrorDisplay error={{ type: 'unknown', message: error }} />}
 
@@ -287,56 +303,58 @@ export default function HealthCoach() {
             )}
           </div>
         ) : (
-          messages.map((message, index) => (
-            <div
-              key={index}
-              className={`mb-4 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {message.role === 'assistant' && (
-                <div className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <img 
-                    src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
-                    alt="Health Coach" 
-                    className="h-4 w-4"
-                    loading="lazy"
-                  />
-                </div>
-              )}
-              
+          <div className="flex-grow">
+            {messages.map((message, index) => (
               <div
-                className={`max-w-[75%] rounded-lg px-4 py-3 ${
-                  message.role === 'user'
-                    ? 'bg-primary text-white'
-                    : currentTheme === 'dark'
-                    ? 'bg-[hsl(var(--color-card-hover))] text-text'
-                    : 'bg-[hsl(var(--color-surface-1))] text-text'
-                }`}
+                key={index}
+                className={`mb-4 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                {message.role === 'assistant' ? (
-                  <div className="prose prose-sm max-w-none dark:prose-invert">
-                    <MessageContent content={message.content} />
-                  </div>
-                ) : (
-                  <div>{message.content}</div>
-                )}
-                {message.role === 'assistant' && preferSpeech && (
-                  <div className="mt-2 flex items-center gap-2 text-xs text-text-light">
-                    <Volume2 className="h-3 w-3" />
-                    <span>Voice response available</span>
+                {message.role === 'assistant' && (
+                  <div className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <img 
+                      src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
+                      alt="Health Coach" 
+                      className="h-4 w-4"
+                      loading="lazy"
+                    />
                   </div>
                 )}
-                <div className="mt-1 text-xs opacity-70">
-                  {message.timestamp?.toLocaleTimeString()}
+                
+                <div
+                  className={`max-w-[75%] rounded-lg px-4 py-3 ${
+                    message.role === 'user'
+                      ? 'bg-primary text-white'
+                      : currentTheme === 'dark'
+                      ? 'bg-[hsl(var(--color-card-hover))] text-text'
+                      : 'bg-[hsl(var(--color-surface-1))] text-text'
+                  }`}
+                >
+                  {message.role === 'assistant' ? (
+                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                      <MessageContent content={message.content} />
+                    </div>
+                  ) : (
+                    <div>{message.content}</div>
+                  )}
+                  {message.role === 'assistant' && preferSpeech && (
+                    <div className="mt-2 flex items-center gap-2 text-xs text-text-light">
+                      <Volume2 className="h-3 w-3" />
+                      <span>Voice response available</span>
+                    </div>
+                  )}
+                  <div className="mt-1 text-xs opacity-70">
+                    {message.timestamp?.toLocaleTimeString()}
+                  </div>
                 </div>
+                
+                {message.role === 'user' && (
+                  <div className="ml-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[hsl(var(--color-card-hover))] text-text-light">
+                    <User className="h-4 w-4" />
+                  </div>
+                )}
               </div>
-              
-              {message.role === 'user' && (
-                <div className="ml-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[hsl(var(--color-card-hover))] text-text-light">
-                  <User className="h-4 w-4" />
-                </div>
-              )}
-            </div>
-          ))
+            ))}
+          </div>
         )}
 
         {loading && (

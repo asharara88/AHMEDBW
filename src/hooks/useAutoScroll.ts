@@ -14,6 +14,10 @@ export function useAutoScroll(
   onlyScrollDown: boolean = false
 ): void {
   useEffect(() => {
+    // Skip if the dependency is null (used for initial render skipping)
+    if (dependencies.includes(null)) return;
+    
+    // Skip if no element reference
     if (!ref.current) return;
     
     if (onlyScrollDown) {
