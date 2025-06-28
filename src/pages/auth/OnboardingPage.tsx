@@ -110,7 +110,7 @@ const OnboardingPage = () => {
                   ? 'bg-primary text-white' 
                   : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
               }`}
-              aria-pressed={onboardingType === 'conversational'}
+              aria-pressed={onboardingType === 'conversational' ? 'true' : 'false'}
             >
               <MessageSquare className="h-4 w-4" />
               Chat
@@ -123,7 +123,7 @@ const OnboardingPage = () => {
                   ? 'bg-primary text-white' 
                   : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
               }`}
-              aria-pressed={onboardingType === 'form'}
+              aria-pressed={onboardingType === 'form' ? 'true' : 'false'}
             >
               <ClipboardList className="h-4 w-4" />
               Form
@@ -136,7 +136,7 @@ const OnboardingPage = () => {
                   ? 'bg-primary text-white' 
                   : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
               }`}
-              aria-pressed={onboardingType === 'enhanced'}
+              aria-pressed={onboardingType === 'enhanced' ? 'true' : 'false'}
             >
               <Layers className="h-4 w-4" />
               Guided

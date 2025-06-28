@@ -371,6 +371,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
               value: currentStepData.weight?.value || profile?.weight?.value || 0,
               unit: e.target.value as 'kg' | 'lbs'
             })}
+            aria-label="Weight unit selection"
           >
             <option value="kg">kg</option>
             <option value="lbs">lbs</option>
