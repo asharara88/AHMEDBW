@@ -16,7 +16,8 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "postinstall": "echo 'Skipping problematic native builds'",
-    "predeploy": "node scripts/deploy-validation.js"
+    "predeploy": "node scripts/deploy-validation.js",
+    "import:supplements": "ts-node src/scripts/importSupplements.ts"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.0.16",
