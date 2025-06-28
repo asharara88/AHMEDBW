@@ -195,6 +195,14 @@ text-to-speech responses. It features indexes on `(user_id, cache_key)` and
 to authenticated users, and a trigger that automatically removes expired
 entries.
 
+### Shopping Cart
+
+The migration `20250628120000_shopping_cart.sql` introduces a `cart_items`
+table for storing supplements that users add to their cart. Add items via the
+"Add to Cart" button on a supplement, update quantities or remove items from the
+cart page, and proceed to checkout when ready. Row level security ensures each
+user can only manage their own cart items.
+
 ## Project Structure
 
 ```
