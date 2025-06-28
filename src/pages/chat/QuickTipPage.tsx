@@ -1,54 +1,41 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MessageCircle, Moon, Brain, Zap, Coffee, Activity, Shield } from 'lucide-react';
+import { MessageCircle, Moon, Brain, Zap, Coffee, Activity } from 'lucide-react';
 import ChatButton from '../../components/chat/ChatButton';
 import QuickTipCard from '../../components/chat/QuickTipCard';
 
 const QuickTipPage = () => {
-  const [selectedTip, setSelectedTip] = useState<string | null>(null);
-
   const quickTips = [
     { 
       title: "Sleep Optimization", 
       description: "Tips for better sleep quality",
-      icon: <Moon className="h-5 w-5" />,
-      question: "What are the best strategies to improve my sleep quality?"
+      icon: <Moon className="h-4 w-4" />
     },
     { 
       title: "Stress Management", 
       description: "Techniques to reduce daily stress",
-      icon: <Brain className="h-5 w-5" />,
-      question: "What techniques can help reduce my daily stress levels?"
+      icon: <Brain className="h-4 w-4" />
     },
     { 
       title: "Energy Boosters", 
       description: "Natural ways to increase energy",
-      icon: <Zap className="h-5 w-5" />,
-      question: "How can I naturally increase my energy levels throughout the day?"
+      icon: <Zap className="h-4 w-4" />
     },
     { 
       title: "Nutrition Basics", 
       description: "Fundamentals of healthy eating",
-      icon: <Coffee className="h-5 w-5" />,
-      question: "What are the fundamentals of healthy eating I should follow?"
+      icon: <Coffee className="h-4 w-4" />
     },
     { 
       title: "Workout Recovery", 
       description: "Optimize your post-exercise recovery",
-      icon: <Activity className="h-5 w-5" />,
-      question: "How can I optimize my recovery after intense workouts?"
+      icon: <Activity className="h-4 w-4" />
     },
     { 
       title: "Focus Enhancement", 
       description: "Improve concentration and mental clarity",
-      icon: <Brain className="h-5 w-5" />,
-      question: "What methods can help improve my concentration and mental clarity?"
+      icon: <Brain className="h-4 w-4" />
     }
   ];
-
-  const handleTipClick = (question: string) => {
-    setSelectedTip(question);
-  };
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -64,14 +51,13 @@ const QuickTipPage = () => {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+        <div className="grid gap-4 md:grid-cols-2 mb-8">
           {quickTips.map((tip, index) => (
-            <QuickTipCard
+            <QuickTipCard 
               key={index}
               title={tip.title}
               description={tip.description}
               icon={tip.icon}
-              onClick={() => handleTipClick(tip.question)}
             />
           ))}
         </div>

@@ -1,23 +1,48 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Loader, CheckCircle, AlertCircle, Download, Database, FileText, RefreshCw } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import { importSupplementsFromCsv, uploadSupplementsToSupabase } from '../../utils/importSupplements';
-import type { Supplement } from '../../types/supplements';
+import { useNavigate } from 'react-router-dom';
+import { fetchSupplementsCSV, transformSupplementsForDB, importSupplementsToDB } from '../../utils/importSupplements';
+import { AlertCircle, Check, Download, Upload, RefreshCw } from 'lucide-react';
+import type { SupplementCSV, SupplementForDB } from '../../utils/importSupplements';
+
+const CSV_URL = "https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/supplementsdemo/Supplement%20Demo%20DB/supplements_final_db_ready.csv?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdXBwbGVtZW50c2RlbW8vU3VwcGxlbWVudCBEZW1vIERCL3N1cHBsZW1lbnRzX2ZpbmFsX2RiX3JlYWR5LmNzdiIsImlhdCI6MTc1MTA4ODU4MSwiZXhwIjoxODc3MjMyNTgxfQ.bx0eYp4ONd2ROc2RJbcUTcV05bDS6oRTNyusfgRDRqE";
 
 const ImportSupplementsPage = () => {
-  const [csvUrl, setCsvUrl] = useState('https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/supplementsdemo/Supplement%20Demo%20DB/supplements_final_db_ready.csv?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdXBwbGVtZW50c2RlbW8vU3VwcGxlbWVudCBEZW1vIERCL3N1cHBsZW1lbnRzX2ZpbmFsX2RiX3JlYWR5LmNzdiIsImlhdCI6MTc1MTA4ODU4MSwiZXhwIjoxODc3MjMyNTgxfQ.bx0eYp4ONd2ROc2RJbcUTcV05bDS6oRTNyusfgRDRqE');
-  const [supplements, setSupplements] = useState<Supplement[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [importing, setImporting] = useState(false);
+  const [supplements, setSupplements] = useState<SupplementCSV[]>([]);
+  const [transformedSupplements, setTransformedSupplements] = useState<SupplementForDB[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [currentTab, setCurrentTab] = useState<'raw' | 'transformed'>('raw');
   
-  const { user } = useAuth();
+  const navigate = useNavigate();
   
-  const fetchSupplements = async () => {
-    if (!csvUrl) {
-      setError('Please enter a CSV URL');
+  useEffect(() => {
+    fetchSupplementData();
+  }, []);
+  
+  const fetchSupplementData = async () => {
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+    
+    try {
+      const data = await fetchSupplementsCSV(CSV_URL);
+      setSupplements(data);
+      
+      const transformed = transformSupplementsForDB(data);
+      setTransformedSupplements(transformed);
+      
+      setSuccess(`Successfully loaded ${data.length} supplements from CSV`);
+    } catch (err) {
+      setError(`Error loading supplement data: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleImport = async () => {
+    if (transformedSupplements.length === 0) {
+      setError('No supplements to import');
       return;
     }
     
@@ -26,214 +51,164 @@ const ImportSupplementsPage = () => {
     setSuccess(null);
     
     try {
-      const data = await importSupplementsFromCsv(csvUrl);
-      setSupplements(data);
-      setSuccess(`Successfully fetched ${data.length} supplements from CSV`);
+      const result = await importSupplementsToDB(transformedSupplements);
+      
+      if (result.success) {
+        setSuccess(result.message);
+      } else {
+        setError(result.message);
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch supplements');
+      setError(`Error importing supplements: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setLoading(false);
     }
   };
   
-  const handleImport = async () => {
-    if (supplements.length === 0) {
-      setError('No supplements to import');
-      return;
-    }
-    
-    setImporting(true);
-    setError(null);
-    setSuccess(null);
-    
-    try {
-      await uploadSupplementsToSupabase(supplements);
-      setSuccess(`Successfully imported ${supplements.length} supplements to the database`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to import supplements');
-    } finally {
-      setImporting(false);
-    }
-  };
-  
-  // Fetch supplements on mount
-  useEffect(() => {
-    if (csvUrl) {
-      fetchSupplements();
-    }
-  }, []);
-  
   return (
-    <div className="container mx-auto px-4 py-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold md:text-3xl">Import Supplements</h1>
-          <p className="text-text-light">
-            Import supplement data from a CSV file to populate the database
-          </p>
-        </div>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6">Import Supplements</h1>
+      
+      {/* Action Buttons */}
+      <div className="mb-6 flex gap-4">
+        <button
+          onClick={fetchSupplementData}
+          disabled={loading}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 hover:bg-blue-700 disabled:opacity-50"
+        >
+          {loading ? <RefreshCw className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
+          {loading ? 'Loading...' : 'Refresh Data'}
+        </button>
         
-        <div className="mb-6 rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-6 shadow-md">
-          <h2 className="mb-4 text-xl font-bold">CSV Import</h2>
-          
-          <div className="mb-4">
-            <label htmlFor="csvUrl" className="mb-2 block text-sm font-medium">
-              CSV URL
-            </label>
-            <div className="flex gap-2">
-              <input
-                id="csvUrl"
-                type="text"
-                value={csvUrl}
-                onChange={(e) => setCsvUrl(e.target.value)}
-                className="flex-1 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="Enter CSV URL"
-              />
-              <button
-                onClick={fetchSupplements}
-                disabled={loading || !csvUrl}
-                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-medium text-white hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {loading ? (
-                  <>
-                    <Loader className="h-5 w-5 animate-spin" />
-                    <span>Fetching...</span>
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-5 w-5" />
-                    <span>Fetch CSV</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-          
-          {error && (
-            <div className="mb-4 flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error">
-              <AlertCircle className="h-5 w-5 flex-shrink-0" />
-              <p>{error}</p>
-            </div>
-          )}
-          
-          {success && (
-            <div className="mb-4 flex items-center gap-2 rounded-lg bg-success/10 p-3 text-sm text-success">
-              <CheckCircle className="h-5 w-5 flex-shrink-0" />
-              <p>{success}</p>
-            </div>
-          )}
-          
-          {supplements.length > 0 && (
-            <div className="mb-4 rounded-lg bg-[hsl(var(--color-surface-1))] p-4">
-              <div className="mb-2 flex items-center justify-between">
-                <h3 className="font-medium">Supplement Data Preview</h3>
-                <span className="text-sm text-text-light">{supplements.length} supplements</span>
-              </div>
-              
-              <div className="mb-4 max-h-60 overflow-y-auto rounded-lg border border-[hsl(var(--color-border))]">
-                <table className="w-full border-collapse">
-                  <thead className="bg-[hsl(var(--color-card-hover))]">
-                    <tr>
-                      <th className="border-b border-[hsl(var(--color-border))] p-2 text-left text-sm font-medium">Name</th>
-                      <th className="border-b border-[hsl(var(--color-border))] p-2 text-left text-sm font-medium">Evidence Level</th>
-                      <th className="border-b border-[hsl(var(--color-border))] p-2 text-left text-sm font-medium">Price (AED)</th>
-                      <th className="border-b border-[hsl(var(--color-border))] p-2 text-left text-sm font-medium">Categories</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {supplements.slice(0, 10).map((supplement, index) => (
-                      <tr key={index} className={index % 2 === 0 ? 'bg-[hsl(var(--color-surface-1))]' : 'bg-[hsl(var(--color-card))]'}>
-                        <td className="border-b border-[hsl(var(--color-border))] p-2 text-sm">{supplement.name}</td>
-                        <td className="border-b border-[hsl(var(--color-border))] p-2 text-sm">
-                          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                            supplement.evidence_level === 'Green' 
-                              ? 'bg-success/10 text-success' 
-                              : supplement.evidence_level === 'Yellow'
-                                ? 'bg-warning/10 text-warning'
-                                : 'bg-error/10 text-error'
-                          }`}>
-                            {supplement.evidence_level}
-                          </span>
-                        </td>
-                        <td className="border-b border-[hsl(var(--color-border))] p-2 text-sm">{supplement.price_aed}</td>
-                        <td className="border-b border-[hsl(var(--color-border))] p-2 text-sm">
-                          <div className="flex flex-wrap gap-1">
-                            {supplement.categories?.slice(0, 2).map((category, i) => (
-                              <span key={i} className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
-                                {category}
-                              </span>
-                            ))}
-                            {(supplement.categories?.length || 0) > 2 && (
-                              <span className="rounded-full bg-[hsl(var(--color-surface-2))] px-2 py-0.5 text-xs text-text-light">
-                                +{(supplement.categories?.length || 0) - 2} more
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
+        <button
+          onClick={handleImport}
+          disabled={loading || transformedSupplements.length === 0}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg flex items-center gap-2 hover:bg-green-700 disabled:opacity-50"
+        >
+          {loading ? <RefreshCw className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
+          {loading ? 'Importing...' : 'Import to Database'}
+        </button>
+      </div>
+      
+      {/* Status Messages */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-300 rounded-lg flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
+          <p className="text-red-700">{error}</p>
+        </div>
+      )}
+      
+      {success && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-300 rounded-lg flex items-start gap-3">
+          <Check className="h-5 w-5 text-green-500 mt-0.5" />
+          <p className="text-green-700">{success}</p>
+        </div>
+      )}
+      
+      {/* Tab Navigation */}
+      <div className="mb-6 border-b border-gray-200">
+        <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500">
+          <li className="mr-2">
+            <button
+              onClick={() => setCurrentTab('raw')}
+              className={`inline-flex items-center p-4 border-b-2 rounded-t-lg group ${
+                currentTab === 'raw'
+                  ? 'text-blue-600 border-blue-600'
+                  : 'border-transparent hover:text-gray-600 hover:border-gray-300'
+              }`}
+            >
+              Raw CSV Data
+            </button>
+          </li>
+          <li className="mr-2">
+            <button
+              onClick={() => setCurrentTab('transformed')}
+              className={`inline-flex items-center p-4 border-b-2 rounded-t-lg group ${
+                currentTab === 'transformed'
+                  ? 'text-blue-600 border-blue-600'
+                  : 'border-transparent hover:text-gray-600 hover:border-gray-300'
+              }`}
+            >
+              Transformed Data
+            </button>
+          </li>
+        </ul>
+      </div>
+      
+      {/* Data Display */}
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <RefreshCw className="h-10 w-10 text-blue-500 animate-spin" />
+        </div>
+      ) : (
+        currentTab === 'raw' ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white rounded-lg overflow-hidden shadow-md">
+              <thead className="bg-gray-100">
+                <tr>
+                  {supplements.length > 0 &&
+                    Object.keys(supplements[0]).map((key) => (
+                      <th key={key} className="px-4 py-2 text-left text-gray-600">
+                        {key}
+                      </th>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-              
-              {supplements.length > 10 && (
-                <p className="text-xs text-text-light">
-                  Showing 10 of {supplements.length} supplements
-                </p>
-              )}
-              
-              <div className="flex justify-end">
-                <button
-                  onClick={handleImport}
-                  disabled={importing}
-                  className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-medium text-white hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {importing ? (
-                    <>
-                      <Loader className="h-5 w-5 animate-spin" />
-                      <span>Importing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Database className="h-5 w-5" />
-                      <span>Import to Database</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
-          
-          <div className="flex items-center gap-2 rounded-lg bg-[hsl(var(--color-surface-1))] p-3 text-sm text-text-light">
-            <FileText className="h-5 w-5 text-primary" />
-            <p>
-              The CSV file should contain columns for name, description, categories, evidence_level, price_aed, and other supplement properties.
-            </p>
+                </tr>
+              </thead>
+              <tbody>
+                {supplements.map((supplement, index) => (
+                  <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                    {Object.values(supplement).map((value, valueIndex) => (
+                      <td key={valueIndex} className="px-4 py-2 border-t border-gray-200">
+                        {typeof value === 'string' && value.length > 100
+                          ? `${value.substring(0, 100)}...`
+                          : value}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
-        
-        <div className="flex justify-between">
-          <button
-            onClick={() => window.history.back()}
-            className="flex items-center gap-2 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 font-medium text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
-          >
-            Back
-          </button>
-          
-          <button
-            onClick={fetchSupplements}
-            disabled={loading}
-            className="flex items-center gap-2 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 font-medium text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
-          >
-            <RefreshCw className="h-5 w-5" />
-            <span>Refresh Data</span>
-          </button>
-        </div>
-      </motion.div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white rounded-lg overflow-hidden shadow-md">
+              <thead className="bg-gray-100">
+                <tr>
+                  {transformedSupplements.length > 0 &&
+                    Object.keys(transformedSupplements[0]).map((key) => (
+                      <th key={key} className="px-4 py-2 text-left text-gray-600">
+                        {key}
+                      </th>
+                    ))}
+                </tr>
+              </thead>
+              <tbody>
+                {transformedSupplements.map((supplement, index) => (
+                  <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                    {Object.entries(supplement).map(([key, value], valueIndex) => (
+                      <td key={valueIndex} className="px-4 py-2 border-t border-gray-200">
+                        {Array.isArray(value)
+                          ? value.join(', ')
+                          : typeof value === 'string' && value.length > 100
+                          ? `${value.substring(0, 100)}...`
+                          : String(value)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )
+      )}
+      
+      {/* Count Summary */}
+      <div className="mt-6 bg-blue-50 p-4 rounded-lg">
+        <p className="text-blue-700">
+          {supplements.length} supplements loaded from CSV.{' '}
+          {transformedSupplements.length} transformed for database.
+        </p>
+      </div>
     </div>
   );
 };
