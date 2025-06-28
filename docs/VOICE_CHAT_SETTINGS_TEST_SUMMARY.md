@@ -135,6 +135,12 @@ URL.revokeObjectURL = vi.fn()
 ## Test Execution
 
 ### Running Tests
+Make sure dependencies are installed before running the test command:
+
+```bash
+npm install
+```
+
 ```bash
 npm test -- --run src/test/integration/VoiceChatSettings.test.tsx
 ```

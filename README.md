@@ -67,6 +67,21 @@ JWT_SECRET=your-jwt-secret
 npm run dev
 ```
 
+### Running Tests and Lint
+
+Make sure to install dependencies before running any tests or lint checks:
+
+```bash
+npm install
+```
+
+Then run:
+
+```bash
+npm run lint
+npm test
+```
+
 ### Supabase Setup
 
 1. Create a new Supabase project
