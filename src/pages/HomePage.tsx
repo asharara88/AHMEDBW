@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Activity, Shield, Watch, Brain, MessageCircle, CheckCircle, ArrowRight, Info } from 'lucide-react';
+import { Activity, Shield, Watch, Brain, MessageCircle, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ConnectCard from '../components/home/ConnectCard';
 import { useState, useRef, useEffect } from 'react';
@@ -61,39 +61,6 @@ const HomePage = () => {
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/10 bg-primary/5 px-4 py-2 text-sm text-primary relative">
                 <Shield className="h-4 w-4" />
                 <span>Evidence-based health optimization</span>
-                <button 
-                  ref={buttonRef}
-                  className="ml-1 rounded-full p-1 hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  onClick={toggleTooltip}
-                  aria-label="Learn more about evidence-based approach"
-                  aria-expanded={showTooltip}
-                >
-                  <Info className="h-3.5 w-3.5 text-primary" />
-                </button>
-                
-                {/* Tooltip */}
-                {showTooltip && (
-                  <div 
-                    ref={tooltipRef}
-                    className="absolute left-0 right-0 top-full z-50 mt-2 rounded-lg border border-[hsl(var(--color-border))] bg-background p-6 text-left shadow-lg"
-                  >
-                    <p className="mb-3">
-                      Evidence-based means our recommendations draw directly from validated scientific research and peer-reviewed studies conducted by world-leading experts and top academic institutions.
-                    </p>
-                    <p className="mb-3">
-                      We thoroughly review the latest clinical trials, meta-analyses, and authoritative publications to guarantee accuracy, reliability, and practical effectiveness—empowering you to make confident, informed health decisions.
-                    </p>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowTooltip(false);
-                      }}
-                      className="mt-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark"
-                    >
-                      Close
-                    </button>
-                  </div>
-                )}
               </div>
 
               <h1 className="mb-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white text-center md:text-4xl lg:text-5xl">
