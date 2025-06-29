@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, User, CheckCircle, Info, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { Send, Loader, User, CheckCircle, Moon, Brain, Heart, Activity, Zap, Shield, VolumeX, Volume2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { logError } from '../../utils/logger';
@@ -234,7 +234,7 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
   };
 
   return (
-    <div className="flex h-full flex-col rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] shadow-lg">
+    <div className="flex h-full flex-col rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))]">
       <div className="border-b border-[hsl(var(--color-border))] bg-[hsl(var(--color-card-hover))] p-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -259,13 +259,6 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
               aria-pressed={preferSpeech}
             >
               {preferSpeech ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-            </button>
-            <button 
-              className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
-              title="About Health Coach"
-              aria-label="About Health Coach"
-            >
-              <Info className="h-4 w-4" />
             </button>
             <ChatSettingsButton 
               className="absolute right-2 top-2"
