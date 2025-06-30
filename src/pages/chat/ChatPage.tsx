@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/Tabs';
 import AIHealthCoach from '../../components/chat/AIHealthCoach';
@@ -10,7 +10,6 @@ import ChatButton from '../../components/chat/ChatButton';
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat');
   const [selectedTip, setSelectedTip] = useState<string | null>(null);
-  const chatInputRef = useRef<HTMLInputElement | null>(null);
   
   const { 
     preferSpeech, 

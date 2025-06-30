@@ -1,6 +1,9 @@
-/// <reference types="https://deno.land/types/index.d.ts" />
-
+// @deno-types="https://deno.land/x/openai@v4.24.0/mod.ts"
+// deno-lint-ignore-file no-undef
 import OpenAI from "openai";
+
+// Deno global types are available when running with Deno. 
+// If you see "Cannot find name 'Deno'" in your editor, make sure to use a Deno-compatible editor extension or run with Deno.
 
 const apiKey = Deno.env.get("OPENAI_API_KEY");
 

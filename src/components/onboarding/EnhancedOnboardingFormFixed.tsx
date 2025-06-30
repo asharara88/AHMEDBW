@@ -424,12 +424,12 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
             Step {currentStep.id} of {ONBOARDING_STEPS.length}
           </span>
         </div>
-        
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` }}
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300 onboarding-progress-bar"
+            style={{ ['--progress-width' as any]: `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` }}
           />
+        </div>
         </div>
 
         <div className="flex justify-between mt-4">
@@ -455,7 +455,6 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
             );
           })}
         </div>
-      </div>
 
       {error && (
         <div className="mb-6 flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600">

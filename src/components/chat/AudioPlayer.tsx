@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Headphones, Play, Pause, SkipBack } from 'lucide-react';
+import styles from './AudioPlayer.module.css';
 
 interface AudioPlayerProps {
   src: string | null;
@@ -100,17 +101,15 @@ const AudioPlayer = ({ src, onEnded, className = '' }: AudioPlayerProps) => {
             {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
           </button>
           
-          <div className="hidden sm:flex items-center gap-2">
-            <div className="relative h-1 w-24 rounded-full bg-[hsl(var(--color-border))]">
-              <div 
-                className="absolute h-full rounded-full bg-primary transition-all duration-100" 
-                style={{ width: `${(progress / duration) * 100}%` }}
-              ></div>
-            </div>
-            <span className="text-xs text-text-light">
-              {formatTime(progress)}/{formatTime(duration)}
-            </span>
+          <div className={`hidden sm:flex items-center gap-2 ${styles.progressContainer}`}>
+            <div
+              className={`${styles.progressBar} absolute h-full rounded-full bg-primary transition-all duration-100`}
+              style={{ width: duration > 0 ? `${(progress / duration) * 100}%` : '0%' }}
+            ></div>
           </div>
+          <span className="text-xs text-text-light">
+            {formatTime(progress)}/{formatTime(duration)}
+          </span>
         </div>
       </div>
     </div>
