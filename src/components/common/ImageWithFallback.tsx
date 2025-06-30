@@ -51,7 +51,7 @@ const ImageWithFallback = ({
   return (
     <div className={`relative ${className}`}>
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
           <Loader className="h-5 w-5 animate-spin text-primary" />
         </div>
       )}
@@ -59,7 +59,7 @@ const ImageWithFallback = ({
       {(!hasError || (hasError && !fallbackComponent)) && (
         <img
           src={imgSrc}
-          alt={alt}
+          alt={alt || ""}
           className={`${isLoading ? 'opacity-0' : 'opacity-100'} h-full w-full transition-opacity duration-300`}
           style={{ objectFit }}
           onError={handleError}

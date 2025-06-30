@@ -70,20 +70,20 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
       {/* Recommended Badge */}
       {isRecommended && (
         <div className="absolute left-3 top-3 z-10 rounded-full bg-primary px-2 py-1 text-xs font-medium text-white">
-          <Star className="mr-1 inline h-3 w-3" />
-          Recommended
+          <Star className="mr-1 inline h-3 w-3" aria-hidden="true" />
+          <span>Recommended</span>
         </div>
       )}
 
       {/* Evidence Level Badge */}
       {supplement.evidence_level && (
-        <div className="absolute right-3 top-3 z-10 rounded-full px-2 py-1 text-xs font-medium 
+        <div className={`absolute right-3 top-3 z-10 rounded-full px-2 py-1 text-xs font-medium 
           ${supplement.evidence_level === 'Green' 
             ? 'bg-success/20 text-success' 
             : supplement.evidence_level === 'Yellow' 
               ? 'bg-warning/20 text-warning' 
               : 'bg-error/20 text-error'
-          }">
+          }`}>
           {supplement.evidence_level}
         </div>
       )}
@@ -92,7 +92,7 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
       <div className="relative h-48 overflow-hidden bg-gradient-to-br from-primary/5 to-primary/10">
         <img
           src={getFormImage(supplement.form_type)}
-          alt={supplement.name}
+          alt={`${supplement.name} supplement`}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
@@ -110,16 +110,16 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
             <button
               onClick={() => setShowDetails(true)}
               className="rounded-full bg-white/20 p-2 text-white backdrop-blur-sm transition-colors hover:bg-white/30"
-              aria-label="View details"
+              aria-label={`View details for ${supplement.name}`}
             >
-              <Info className="h-4 w-4" />
+              <Info className="h-4 w-4" aria-hidden="true" />
             </button>
             <button 
               className="rounded-full bg-white/20 p-2 text-white backdrop-blur-sm transition-colors hover:bg-white/30"
               onClick={handleToggleStack}
-              aria-label={isInStack ? "Remove from stack" : "Add to stack"}
+              aria-label={isInStack ? `Remove ${supplement.name} from stack` : `Add ${supplement.name} to stack`}
             >
-              <Heart className={`h-4 w-4 ${isInStack ? 'fill-white' : ''}`} />
+              <Heart className={`h-4 w-4 ${isInStack ? 'fill-white' : ''}`} aria-hidden="true" />
             </button>
           </div>
         </motion.div>
@@ -183,17 +183,17 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
                   ? 'bg-success/10 text-success cursor-not-allowed'
                   : 'bg-primary text-white hover:bg-primary-dark'
               }`}
-              aria-label={isInCart ? "Added to cart" : "Add to cart"}
+              aria-label={isInCart ? `${supplement.name} added to cart` : `Add ${supplement.name} to cart`}
             >
               {isInCart ? (
                 <>
-                  <Check className="h-4 w-4" />
-                  Added
+                  <Check className="h-4 w-4" aria-hidden="true" />
+                  <span>Added</span>
                 </>
               ) : (
                 <>
-                  <ShoppingCart className="h-4 w-4" />
-                  Add
+                  <ShoppingCart className="h-4 w-4" aria-hidden="true" />
+                  <span>Add</span>
                 </>
               )}
             </button>
@@ -203,7 +203,7 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
 
       {/* Details Modal */}
       {showDetails && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby={`${supplement.id}-modal-title`}>
           <motion.div
             className="max-h-[80vh] w-full max-w-md overflow-y-auto rounded-xl bg-[hsl(var(--color-card))] p-6"
             initial={{ opacity: 0, scale: 0.9 }}
@@ -211,10 +211,10 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
             exit={{ opacity: 0, scale: 0.9 }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold">{supplement.name}</h3>
+              <h3 id={`${supplement.id}-modal-title`} className="text-lg font-semibold">{supplement.name}</h3>
               <button
                 onClick={() => setShowDetails(false)}
-                className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
+                className="rounded-full p-2 text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
                 aria-label="Close details"
               >
                 ×
@@ -225,7 +225,7 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
               {/* Image */}
               <img
                 src={getFormImage(supplement.form_type)}
-                alt={supplement.name}
+                alt={`${supplement.name} supplement`}
                 className="h-32 w-full rounded-lg object-cover"
               />
 
@@ -312,17 +312,17 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
                         ? 'bg-success/10 text-success cursor-not-allowed'
                         : 'bg-primary text-white hover:bg-primary-dark'
                     }`}
-                    aria-label={isInCart ? "Added to cart" : "Add to cart"}
+                    aria-label={isInCart ? `${supplement.name} added to cart` : `Add ${supplement.name} to cart`}
                   >
                     {isInCart ? (
                       <>
-                        <Check className="h-4 w-4" />
-                        Added to Cart
+                        <Check className="h-4 w-4" aria-hidden="true" />
+                        <span>Added to Cart</span>
                       </>
                     ) : (
                       <>
-                        <ShoppingCart className="h-4 w-4" />
-                        Add to Cart
+                        <ShoppingCart className="h-4 w-4" aria-hidden="true" />
+                        <span>Add to Cart</span>
                       </>
                     )}
                   </button>

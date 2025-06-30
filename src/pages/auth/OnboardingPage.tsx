@@ -5,7 +5,8 @@ import { useAuthStore } from '../../store';
 import EnhancedOnboardingForm from '../../components/onboarding/EnhancedOnboardingForm';
 import ConversationalOnboarding from '../../components/onboarding/ConversationalOnboarding';
 import OnboardingForm from '../../components/onboarding/OnboardingForm';
-import { AlertCircle, CheckCircle, MessageSquare, ClipboardList, Layers } from 'lucide-react';
+import StreamlinedOnboarding from '../../components/onboarding/StreamlinedOnboarding';
+import { AlertCircle, CheckCircle, MessageSquare, ClipboardList, Layers, Sparkles } from 'lucide-react';
 import Logo from '../../components/common/Logo';
 import { logError } from '../../utils/logger';
 import { onboardingApi, OnboardingFormData } from '../../api/onboardingApi';
@@ -15,7 +16,7 @@ const OnboardingPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [onboardingType, setOnboardingType] = useState<'conversational' | 'form' | 'enhanced'>('enhanced');
+  const [onboardingType, setOnboardingType] = useState<'conversational' | 'form' | 'enhanced' | 'streamlined'>('streamlined');
   
   const { user, checkOnboardingStatus, updateProfile } = useAuthStore();
   const { completeOnboarding } = useUserProfileStore();
@@ -53,7 +54,7 @@ const OnboardingPage = () => {
     setError(null);
     
     try {
-      if (onboardingType === 'enhanced') {
+      if (onboardingType === 'enhanced' || onboardingType === 'streamlined') {
         // Enhanced form handles its own completion through the user profile store
         await completeOnboarding({});
       } else if (formData) {
@@ -112,8 +113,8 @@ const OnboardingPage = () => {
               }`}
               aria-pressed={onboardingType === 'conversational' ? 'true' : 'false'}
             >
-              <MessageSquare className="h-4 w-4" />
-              Chat
+              <MessageSquare className="h-4 w-4" aria-hidden="true" />
+              <span>Chat</span>
             </button>
             <button
               type="button"
@@ -125,8 +126,8 @@ const OnboardingPage = () => {
               }`}
               aria-pressed={onboardingType === 'form' ? 'true' : 'false'}
             >
-              <ClipboardList className="h-4 w-4" />
-              Form
+              <ClipboardList className="h-4 w-4" aria-hidden="true" />
+              <span>Form</span>
             </button>
             <button
               type="button"
@@ -138,15 +139,28 @@ const OnboardingPage = () => {
               }`}
               aria-pressed={onboardingType === 'enhanced' ? 'true' : 'false'}
             >
-              <Layers className="h-4 w-4" />
-              Guided
+              <Layers className="h-4 w-4" aria-hidden="true" />
+              <span>Guided</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setOnboardingType('streamlined')}
+              className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${
+                onboardingType === 'streamlined'
+                  ? 'bg-primary text-white' 
+                  : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
+              }`}
+              aria-pressed={onboardingType === 'streamlined' ? 'true' : 'false'}
+            >
+              <Sparkles className="h-4 w-4" aria-hidden="true" />
+              <span>Simple</span>
             </button>
           </div>
         </div>
         
         {error && (
-          <div className="mb-6 flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error">
-            <AlertCircle className="h-5 w-5" />
+          <div className="mb-6 flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error" role="alert">
+            <AlertCircle className="h-5 w-5" aria-hidden="true" />
             <span>{error}</span>
           </div>
         )}
@@ -158,13 +172,13 @@ const OnboardingPage = () => {
             className="rounded-xl bg-[hsl(var(--color-card))] p-8 text-center shadow-lg dark:shadow-lg dark:shadow-black/10"
           >
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
-              <CheckCircle className="h-8 w-8 text-success" />
+              <CheckCircle className="h-8 w-8 text-success" aria-hidden="true" />
             </div>
             <h2 className="mb-2 text-xl font-bold">Profile Complete!</h2>
             <p className="mb-4 text-text-light">
               Your profile has been successfully set up. Redirecting you to your dashboard...
             </p>
-            <div className="h-1 w-full overflow-hidden rounded-full bg-[hsl(var(--color-surface-1))]">
+            <div className="h-1 w-full overflow-hidden rounded-full bg-[hsl(var(--color-surface-1))]" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={100}>
               <motion.div 
                 className="h-full bg-success"
                 initial={{ width: 0 }}
@@ -183,6 +197,8 @@ const OnboardingPage = () => {
               <div className="p-8">
                 <EnhancedOnboardingForm onComplete={handleOnboardingComplete} isLoading={loading} />
               </div>
+            ) : onboardingType === 'streamlined' ? (
+              <StreamlinedOnboarding onComplete={handleOnboardingComplete} />
             ) : (
               <div className="p-8">
                 <OnboardingForm onComplete={handleOnboardingComplete} isLoading={loading} />
