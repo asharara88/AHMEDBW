@@ -26,7 +26,7 @@ const inputVariants = cva(
 );
 
 export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement>,
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>,
     VariantProps<typeof inputVariants> {
   error?: boolean;
 }
@@ -43,6 +43,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           })
         )}
         ref={ref}
+        aria-invalid={error ? 'true' : undefined}
         {...props}
       />
     );
