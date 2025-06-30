@@ -499,6 +499,14 @@ const StreamlinedOnboarding: React.FC<StreamlinedOnboardingProps> = ({ onComplet
         </div>
       </div>
       
+      {/* Error Display */}
+      {error && (
+        <div className="mb-6 flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error" role="alert">
+          <AlertCircle className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
+          <span>{error}</span>
+        </div>
+      )}
+      
       {/* Content Area */}
       <Card className="p-6">
         <AnimatePresence mode="wait">
