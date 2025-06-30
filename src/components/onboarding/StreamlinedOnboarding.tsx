@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, CheckCircle, Shield, UserCircle, Heart, Brain, Activity, Calendar } from 'lucide-react';
+import { ChevronRight, ChevronLeft, CheckCircle, Shield, UserCircle, Heart, Brain, Activity, Calendar, AlertCircle } from 'lucide-react';
 import { useUserProfileStore } from '../../store/useUserProfileStore';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
