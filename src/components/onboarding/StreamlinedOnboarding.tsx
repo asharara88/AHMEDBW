@@ -1,11 +1,23 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, CheckCircle, Shield, UserCircle, Heart, Brain, Activity, Calendar, AlertCircle } from 'lucide-react';
-import { useUserProfileStore } from '../../store/useUserProfileStore';
+import { 
+  User, 
+  Heart, 
+  Activity, 
+  Moon, 
+  Utensils, 
+  Brain, 
+  Pill, 
+  Settings,
+  ChevronRight,
+  ChevronLeft,
+  Check,
+  AlertCircle
+} from 'lucide-react';
+import { useUserProfileStore, UserProfile } from '../../store/useUserProfileStore';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
-import SuggestedQuestions from './SuggestedQuestions';
 
 interface StreamlinedOnboardingProps {
   onComplete: () => void;
@@ -18,10 +30,15 @@ const StreamlinedOnboarding: React.FC<StreamlinedOnboardingProps> = ({ onComplet
   
   const { 
     profile, 
+    onboardingProgress,
+    saving,
+    error,
     updateProfile,
     completeOnboarding,
-    saving,
-    error
+    setOnboardingStep,
+    markStepCompleted,
+    updateStepProgress,
+    clearError
   } = useUserProfileStore();
   
   // Create local state for form values
@@ -41,14 +58,14 @@ const StreamlinedOnboarding: React.FC<StreamlinedOnboardingProps> = ({ onComplet
     {
       id: 1,
       title: "Welcome",
-      icon: UserCircle,
+      icon: User,
       description: "Let's personalize your Biowell experience",
       required: true
     },
     {
       id: 2,
       title: "Personal Info",
-      icon: UserCircle,
+      icon: User,
       description: "Tell us a bit about yourself",
       required: true
     },
@@ -499,7 +516,7 @@ const StreamlinedOnboarding: React.FC<StreamlinedOnboardingProps> = ({ onComplet
         </div>
       </div>
       
-      {/* Error Display */}
+      {/* Error Message */}
       {error && (
         <div className="mb-6 flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error" role="alert">
           <AlertCircle className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
@@ -605,16 +622,12 @@ const StreamlinedOnboarding: React.FC<StreamlinedOnboardingProps> = ({ onComplet
           </div>
         )}
       </AnimatePresence>
-      
-      {/* Error Message */}
-      {error && (
-        <div className="mt-4 flex items-center gap-2 rounded-lg bg-error/10 p-3 text-sm text-error" role="alert">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
-          <span>{error}</span>
-        </div>
-      )}
     </div>
   );
 };
 
 export default StreamlinedOnboarding;
+
+// Import missing components
+import { Calendar, Shield, CheckCircle } from 'lucide-react';
+import SuggestedQuestions from './SuggestedQuestions';
