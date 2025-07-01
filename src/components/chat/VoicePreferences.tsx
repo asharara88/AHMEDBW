@@ -119,6 +119,7 @@ const VoicePreferences = ({
               ? 'border-b-2 border-primary text-primary'
               : 'text-text-light hover:text-text'
           }`}
+          type="button"
         >
           Voices
         </button>
@@ -129,6 +130,7 @@ const VoicePreferences = ({
               ? 'border-b-2 border-primary text-primary'
               : 'text-text-light hover:text-text'
           }`}
+          type="button"
         >
           Advanced Settings
         </button>
@@ -169,6 +171,7 @@ const VoicePreferences = ({
                     ? 'bg-primary/20 text-primary'
                     : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
                 } disabled:cursor-not-allowed disabled:opacity-50`}
+                type="button"
               >
                 {testingVoice === voice.id ? 'Playing...' : 'Test'}
               </button>
@@ -239,6 +242,7 @@ const VoicePreferences = ({
                 onClick={() => applyPreset('standard')}
                 className="rounded-lg border border-[hsl(var(--color-border))] px-3 py-1 text-xs hover:bg-[hsl(var(--color-card-hover))]"
                 disabled={!preferSpeech}
+                type="button"
               >
                 Standard
               </button>
@@ -246,6 +250,7 @@ const VoicePreferences = ({
                 onClick={() => applyPreset('clear')}
                 className="rounded-lg border border-[hsl(var(--color-border))] px-3 py-1 text-xs hover:bg-[hsl(var(--color-card-hover))]"
                 disabled={!preferSpeech}
+                type="button"
               >
                 Clear
               </button>
@@ -253,6 +258,7 @@ const VoicePreferences = ({
                 onClick={() => applyPreset('expressive')}
                 className="rounded-lg border border-[hsl(var(--color-border))] px-3 py-1 text-xs hover:bg-[hsl(var(--color-card-hover))]"
                 disabled={!preferSpeech}
+                type="button"
               >
                 Expressive
               </button>

@@ -6,10 +6,13 @@ import { MessageCircle, Zap, Settings, Volume2, VolumeX, Moon, Brain, Activity, 
 import { useChatStore } from '../../store';
 import VoicePreferences from '../../components/chat/VoicePreferences';
 import ChatButton from '../../components/chat/ChatButton';
+import { useLocation } from 'react-router-dom';
+import QuickTipCard from '../../components/chat/QuickTipCard';
 
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat');
   const [selectedTip, setSelectedTip] = useState<string | null>(null);
+  const location = useLocation();
   
   const { 
     preferSpeech, 
@@ -24,6 +27,14 @@ const ChatPage = () => {
   const handleTabChange = (value: string) => {
     setActiveTab(value);
   };
+
+  // Check for initialQuestion in location state
+  useEffect(() => {
+    if (location.state?.initialQuestion) {
+      setSelectedTip(location.state.initialQuestion);
+      setActiveTab('chat');
+    }
+  }, [location.state]);
 
   // Ensure the component rerenders when the activeTab changes
   useEffect(() => {
@@ -112,19 +123,13 @@ const ChatPage = () => {
                   { title: "Workout Recovery", description: "Optimize your post-exercise recovery" },
                   { title: "Focus Enhancement", description: "Improve concentration and mental clarity" }
                 ].map((tip, index) => (
-                  <div 
+                  <QuickTipCard
                     key={index}
-                    className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-4 hover:border-primary/50 hover:shadow-md transition-all cursor-pointer"
+                    title={tip.title}
+                    description={tip.description}
+                    icon={tipIcons[tip.title] || <Shield className="h-5 w-5" />}
                     onClick={() => handleQuickTipClick(tip.title)}
-                  >
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                        {tipIcons[tip.title] || <Shield className="h-5 w-5" />}
-                      </div>
-                      <h3 className="font-medium text-sm leading-tight">{tip.title}</h3>
-                    </div>
-                    <p className="text-sm text-text-light line-clamp-2">{tip.description}</p>
-                  </div>
+                  />
                 ))}
               </div>
               
@@ -192,13 +197,13 @@ const ChatPage = () => {
                         />
                         <label
                           htmlFor="auto-scroll"
-                          className={`block h-6 overflow-hidden rounded-full bg-gray-300 cursor-pointer`}
+                          className="block h-6 overflow-hidden rounded-full bg-gray-300 cursor-pointer"
                         >
                           <span
-                            className={`absolute block w-4 h-4 mt-1 ml-1 rounded-full bg-white shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out transform translate-x-0`}
+                            className="absolute block w-4 h-4 mt-1 ml-1 rounded-full bg-white shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out transform translate-x-0"
                           ></span>
                           <span
-                            className={`block h-full w-full rounded-full bg-primary transform translate-x-full`}
+                            className="block h-full w-full rounded-full bg-primary transform translate-x-full"
                           ></span>
                         </label>
                       </div>
@@ -215,13 +220,13 @@ const ChatPage = () => {
                         />
                         <label
                           htmlFor="show-timestamps"
-                          className={`block h-6 overflow-hidden rounded-full bg-gray-300 cursor-pointer`}
+                          className="block h-6 overflow-hidden rounded-full bg-gray-300 cursor-pointer"
                         >
                           <span
-                            className={`absolute block w-4 h-4 mt-1 ml-1 rounded-full bg-white shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out transform translate-x-0`}
+                            className="absolute block w-4 h-4 mt-1 ml-1 rounded-full bg-white shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out transform translate-x-0"
                           ></span>
                           <span
-                            className={`block h-full w-full rounded-full bg-primary transform translate-x-full`}
+                            className="block h-full w-full rounded-full bg-primary transform translate-x-full"
                           ></span>
                         </label>
                       </div>
@@ -238,13 +243,13 @@ const ChatPage = () => {
                         />
                         <label
                           htmlFor="show-suggestions"
-                          className={`block h-6 overflow-hidden rounded-full bg-gray-300 cursor-pointer`}
+                          className="block h-6 overflow-hidden rounded-full bg-gray-300 cursor-pointer"
                         >
                           <span
-                            className={`absolute block w-4 h-4 mt-1 ml-1 rounded-full bg-white shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out transform translate-x-0`}
+                            className="absolute block w-4 h-4 mt-1 ml-1 rounded-full bg-white shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out transform translate-x-0"
                           ></span>
                           <span
-                            className={`block h-full w-full rounded-full bg-primary transform translate-x-full`}
+                            className="block h-full w-full rounded-full bg-primary transform translate-x-full"
                           ></span>
                         </label>
                       </div>
