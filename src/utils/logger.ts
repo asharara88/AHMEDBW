@@ -1,4 +1,4 @@
-import winston from 'winston';
+import { isDevelopment } from './environment';
 
 // Define log levels
 const levels = {
@@ -9,65 +9,59 @@ const levels = {
   debug: 4,
 };
 
-// Define log colors
-const colors = {
-  error: 'red',
-  warn: 'yellow',
-  info: 'green',
-  http: 'magenta',
-  debug: 'blue',
+// Get current log level based on environment
+const getCurrentLogLevel = (): number => {
+  return isDevelopment() ? levels.debug : levels.info;
 };
 
-// Add colors to winston
-winston.addColors(colors);
+// Check if log level should be displayed
+const shouldLog = (level: number): boolean => {
+  return level <= getCurrentLogLevel();
+};
 
-// Define logger format
-const format = winston.format.combine(
-  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
-  winston.format.colorize({ all: true }),
-  winston.format.printf(
-    (info) => `${info.timestamp} ${info.level}: ${info.message}`,
-  ),
-);
-
-// Define transport options
-const transports = [
-  new winston.transports.Console(),
-  new winston.transports.File({
-    filename: 'logs/error.log',
-    level: 'error',
-  }),
-  new winston.transports.File({ filename: 'logs/all.log' }),
-];
-
-// Create the logger
-const logger = winston.createLogger({
-  level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
-  levels,
-  format,
-  transports,
-});
+// Format log message with timestamp
+const formatMessage = (level: string, message: string, data?: any): string => {
+  const timestamp = new Date().toISOString().replace('T', ' ').slice(0, -5);
+  const dataStr = data ? ` ${JSON.stringify(data, null, 2)}` : '';
+  return `${timestamp} ${level.toUpperCase()}: ${message}${dataStr}`;
+};
 
 // Export logger functions
 export const logError = (message: string, data?: any): void => {
-  logger.error(`${message} ${data ? JSON.stringify(data, null, 2) : ''}`);
+  if (shouldLog(levels.error)) {
+    console.error(formatMessage('error', message, data));
+  }
 };
 
 export const logWarn = (message: string, data?: any): void => {
-  logger.warn(`${message} ${data ? JSON.stringify(data, null, 2) : ''}`);
+  if (shouldLog(levels.warn)) {
+    console.warn(formatMessage('warn', message, data));
+  }
 };
 
 export const logInfo = (message: string, data?: any): void => {
-  logger.info(`${message} ${data ? JSON.stringify(data, null, 2) : ''}`);
+  if (shouldLog(levels.info)) {
+    console.info(formatMessage('info', message, data));
+  }
 };
 
 export const logDebug = (message: string, data?: any): void => {
-  logger.debug(`${message} ${data ? JSON.stringify(data, null, 2) : ''}`);
+  if (shouldLog(levels.debug)) {
+    console.debug(formatMessage('debug', message, data));
+  }
 };
 
 export const logHttp = (message: string, data?: any): void => {
-  logger.http(`${message} ${data ? JSON.stringify(data, null, 2) : ''}`);
+  if (shouldLog(levels.http)) {
+    console.log(formatMessage('http', message, data));
+  }
 };
 
-// Export the logger for direct use
-export { logger };
+// Export a simple logger object for direct use
+export const logger = {
+  error: logError,
+  warn: logWarn,
+  info: logInfo,
+  debug: logDebug,
+  http: logHttp,
+};
