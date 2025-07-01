@@ -18,7 +18,7 @@ import { useUserProfileStore, UserProfile } from '../../store/useUserProfileStor
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
-import styles from './EnhancedOnboardingForm.module.css';
+import './EnhancedOnboardingForm.module.css';
 
 interface EnhancedOnboardingFormProps {
   onComplete: () => void;
@@ -223,29 +223,30 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
   const renderPersonalInfoStep = () => (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label className="block text-sm font-medium mb-2">First Name</label>
-        <Input
-          type="text"
-          value={currentStepData.firstName || profile?.firstName || ''}
-          onChange={(e) => handleFieldChange('firstName', e.target.value)}
-          error={!!validationErrors.firstName}
-        />
-        {validationErrors.firstName && (
-          <p className="text-red-500 text-sm mt-1">{validationErrors.firstName}</p>
-        )}
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-2">Last Name</label>
-        <Input
-          type="text"
-          value={currentStepData.lastName || profile?.lastName || ''}
-          onChange={(e) => handleFieldChange('lastName', e.target.value)}
-          error={!!validationErrors.lastName}
-        />
-        {validationErrors.lastName && (
-          <p className="text-red-500 text-sm mt-1">{validationErrors.lastName}</p>
-        )}
+        <div>
+          <label className="block text-sm font-medium mb-2">First Name</label>
+          <Input
+            type="text"
+            value={currentStepData.firstName || profile?.firstName || ''}
+            onChange={(e) => handleFieldChange('firstName', e.target.value)}
+            error={!!validationErrors.firstName}
+          />
+          {validationErrors.firstName && (
+            <p className="text-red-500 text-sm mt-1">{validationErrors.firstName}</p>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2">Last Name</label>
+          <Input
+            type="text"
+            value={currentStepData.lastName || profile?.lastName || ''}
+            onChange={(e) => handleFieldChange('lastName', e.target.value)}
+            error={!!validationErrors.lastName}
+          />
+          {validationErrors.lastName && (
+            <p className="text-red-500 text-sm mt-1">{validationErrors.lastName}</p>
+          )}
+        </div>
       </div>
       
       <div>
@@ -291,7 +292,6 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
         </select>
       </div>
     </div>
-  </div>
   );
 
   const renderHealthGoalsStep = () => {
@@ -465,9 +465,9 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
         
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
-            className={`bg-primary h-2 rounded-full transition-all duration-300 onboarding-progress-bar`}
+            className="bg-primary h-2 rounded-full transition-all duration-300 onboarding-progress-bar"
             data-progress={`${(currentStep.id / ONBOARDING_STEPS.length) * 100}%`}
-            style={{ '--progress-width': `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` } as React.CSSProperties}
+            style={{ width: `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` }}
           />
         </div>
 
