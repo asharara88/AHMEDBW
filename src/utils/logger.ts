@@ -1,64 +1,106 @@
-// Logger utility for consistent error logging across the application
+/**
+ * Log levels for different types of messages
+ */
+export enum LogLevel {
+  ERROR = 'error',
+  WARN = 'warn',
+  INFO = 'info',
+  DEBUG = 'debug'
+}
 
 /**
- * Log an error with a message and optional error object
- * @param message The error message
- * @param error Optional error object or additional details
+ * Enhanced logging utility with better error handling
  */
-export function logError(message: string, error?: any): void {
-  if (error) {
-    // Handle different types of error objects
-    if (error instanceof Error) {
-      console.error(`[ERROR] ${message}:`, {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
-    } else if (typeof error === 'object') {
-      // For objects like Supabase errors, try to extract useful information
-      console.error(`[ERROR] ${message}:`, {
-        error: error,
-        message: error.message || 'No message',
-        code: error.code || 'No code',
-        details: error.details || 'No details',
-        hint: error.hint || 'No hint'
-      });
-    } else {
-      console.error(`[ERROR] ${message}:`, error);
+class Logger {
+  private isDevelopment = import.meta.env.DEV;
+
+  private formatMessage(level: LogLevel, message: string, data?: any): string {
+    const timestamp = new Date().toISOString();
+    const prefix = `[${timestamp}] [${level.toUpperCase()}]`;
+    
+    if (data) {
+      return `${prefix} ${message}\n${JSON.stringify(data, null, 2)}`;
     }
-  } else {
-    console.error(`[ERROR] ${message}`);
+    
+    return `${prefix} ${message}`;
   }
-  
-  // In a production environment, you could send errors to a monitoring service
-  // Example: sendToErrorMonitoring(message, error);
-}
 
-/**
- * Log a warning with a message and optional details
- * @param message The warning message
- * @param details Optional additional details
- */
-export function logWarning(message: string, details?: any): void {
-  console.warn(`[WARNING] ${message}:`, details);
-}
+  private safeStringify(data: any): string {
+    try {
+      return JSON.stringify(data, (key, value) => {
+        // Handle circular references
+        if (typeof value === 'object' && value !== null) {
+          if (value instanceof Error) {
+            return {
+              name: value.name,
+              message: value.message,
+              stack: value.stack
+            };
+          }
+        }
+        return value;
+      }, 2);
+    } catch (error) {
+      return `[Unable to stringify data: ${error instanceof Error ? error.message : String(error)}]`;
+    }
+  }
 
-/**
- * Log an informational message with optional details
- * @param message The info message
- * @param details Optional additional details
- */
-export function logInfo(message: string, details?: any): void {
-  console.info(`[INFO] ${message}:`, details);
-}
+  error(message: string, data?: any): void {
+    const formattedMessage = this.formatMessage(LogLevel.ERROR, message, data);
+    
+    if (this.isDevelopment) {
+      console.error(formattedMessage);
+      if (data) {
+        console.error('Error data:', data);
+      }
+    }
+    
+    // In production, you might want to send errors to a logging service
+    // Example: sendToLoggingService(LogLevel.ERROR, message, data);
+  }
 
-/**
- * Log a debug message (only in development)
- * @param message The debug message
- * @param details Optional additional details
- */
-export function logDebug(message: string, details?: any): void {
-  if (import.meta.env.DEV) {
-    console.debug(`[DEBUG] ${message}:`, details);
+  warn(message: string, data?: any): void {
+    const formattedMessage = this.formatMessage(LogLevel.WARN, message, data);
+    
+    if (this.isDevelopment) {
+      console.warn(formattedMessage);
+      if (data) {
+        console.warn('Warning data:', data);
+      }
+    }
+  }
+
+  info(message: string, data?: any): void {
+    const formattedMessage = this.formatMessage(LogLevel.INFO, message, data);
+    
+    if (this.isDevelopment) {
+      console.info(formattedMessage);
+      if (data) {
+        console.info('Info data:', data);
+      }
+    }
+  }
+
+  debug(message: string, data?: any): void {
+    if (!this.isDevelopment) return;
+    
+    const formattedMessage = this.formatMessage(LogLevel.DEBUG, message, data);
+    console.debug(formattedMessage);
+    
+    if (data) {
+      console.debug('Debug data:', data);
+    }
   }
 }
+
+// Create singleton logger instance
+const logger = new Logger();
+
+// Export convenience functions
+export const logError = (message: string, data?: any) => logger.error(message, data);
+export const logWarn = (message: string, data?: any) => logger.warn(message, data);
+export const logInfo = (message: string, data?: any) => logger.info(message, data);
+export const logDebug = (message: string, data?: any) => logger.debug(message, data);
+
+// Export the logger instance for advanced usage
+export { logger };

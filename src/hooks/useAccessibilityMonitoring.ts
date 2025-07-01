@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { logWarning } from '../utils/logger';
+import { logWarn } from '../utils/logger';
 import { isDevelopment } from '../utils/environment';
 
 /**
@@ -16,7 +16,7 @@ export function useAccessibilityMonitoring(): void {
         // Check for images without alt text
         const imagesWithoutAlt = document.querySelectorAll('img:not([alt])');
         if (imagesWithoutAlt.length > 0) {
-          logWarning('Accessibility issue: Found images without alt text', {
+          logWarn('Accessibility issue: Found images without alt text', {
             count: imagesWithoutAlt.length,
           });
         }
@@ -24,7 +24,7 @@ export function useAccessibilityMonitoring(): void {
         // Check for buttons without accessible names
         const buttonsWithoutName = document.querySelectorAll('button:not([aria-label]):not(:has(*)):empty');
         if (buttonsWithoutName.length > 0) {
-          logWarning('Accessibility issue: Found buttons without accessible names', {
+          logWarn('Accessibility issue: Found buttons without accessible names', {
             count: buttonsWithoutName.length,
           });
         }
@@ -32,7 +32,7 @@ export function useAccessibilityMonitoring(): void {
         // Check for low contrast text (simplified check)
         const lowContrastElements = document.querySelectorAll('.text-text-light, .text-text-disabled');
         if (lowContrastElements.length > 0) {
-          logWarning('Potential accessibility issue: Check for low contrast text', {
+          logWarn('Potential accessibility issue: Check for low contrast text', {
             count: lowContrastElements.length,
           });
         }

@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient';
 import type { User, Session } from '@supabase/supabase-js';
-import { logError, logInfo, logWarning } from '../utils/logger';
+import { logError, logInfo, logWarn } from '../utils/logger';
 
 export interface AuthResponse {
   user: User | null;
@@ -15,7 +15,7 @@ const generateCaptchaToken = async () => {
     const captchaSecretKey = import.meta.env.VITE_CAPTCHA_SECRET_KEY;
     
     if (!captchaSecretKey) {
-      logWarning('Captcha secret key not found in environment variables');
+      logWarn('Captcha secret key not found in environment variables');
       return null;
     }
     
