@@ -9,15 +9,16 @@
     "lint": "eslint . --max-warnings 0",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "replace-console-error": "ts-node scripts/replaceConsoleErrorAndImport.ts",
-    "fetch:feeds": "ts-node scripts/fetchFeeds.ts",
+    "replace-console-error": "node --loader ts-node/esm scripts/replaceConsoleErrorAndImport.ts",
+    "fetch:feeds": "node --loader ts-node/esm scripts/fetchFeeds.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "postinstall": "echo 'Skipping problematic native builds'",
     "predeploy": "node scripts/deploy-validation.js",
-    "import:supplements": "ts-node src/scripts/importSupplements.ts"
+    "import:supplements": "node --loader ts-node/esm src/scripts/importSupplements.ts",
+    "import:csv": "node --loader ts-node/esm src/scripts/importSupplementsFromCsv.ts"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.0.16",
