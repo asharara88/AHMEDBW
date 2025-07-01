@@ -88,7 +88,8 @@ export const chatApi = {
             user_id: userId,
             message,
             response
-          });
+          })
+          .select();
         return result;
       },
       'Failed to save chat message'
