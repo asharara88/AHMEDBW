@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
+import { AppProviders } from './components/providers/AppProviders';
 import { checkSupabaseConnection, onConnectionError } from './utils/supabaseConnection';
 import { logError, logInfo } from './utils/logger';
 
@@ -34,11 +35,13 @@ async function initializeApp() {
       // You could show a toast notification here
     });
     
-    // Render the app regardless of connection status
+    // Render the app with providers
     const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
     root.render(
       <React.StrictMode>
-        <App />
+        <AppProviders>
+          <App />
+        </AppProviders>
       </React.StrictMode>
     );
     
@@ -58,7 +61,9 @@ async function initializeApp() {
       const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
       root.render(
         <React.StrictMode>
-          <App />
+          <AppProviders>
+            <App />
+          </AppProviders>
         </React.StrictMode>
       );
       logInfo('Application rendered despite initialization errors');
