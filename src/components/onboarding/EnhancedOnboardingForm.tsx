@@ -18,7 +18,6 @@ import { useUserProfileStore, UserProfile } from '../../store/useUserProfileStor
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
-import './EnhancedOnboardingForm.module.css';
 
 interface EnhancedOnboardingFormProps {
   onComplete: () => void;
@@ -109,7 +108,6 @@ const FITNESS_GOALS_OPTIONS = [
   'Athletic performance',
   'General fitness'
 ];
-
 
 const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
   onComplete,
@@ -465,8 +463,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
         
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
-            className="bg-primary h-2 rounded-full transition-all duration-300 onboarding-progress-bar"
-            data-progress={`${(currentStep.id / ONBOARDING_STEPS.length) * 100}%`}
+            className="bg-primary h-2 rounded-full transition-all duration-300"
             style={{ width: `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` }}
           />
         </div>
@@ -480,16 +477,20 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
             return (
               <div
                 key={step.id}
-                className={`flex flex-col items-center text-center ${
-                  isCurrent ? 'text-primary' : isCompleted ? 'text-success' : 'text-gray-400'
-                }`}
+                className={`relative flex flex-col items-center`}
               >
-                <div className={`p-2 rounded-full mb-2 ${
-                  isCurrent ? 'bg-primary/10' : isCompleted ? 'bg-success/10' : 'bg-gray-100'
-                }`}>
+                <div 
+                  className={`
+                    w-8 h-8 rounded-full flex items-center justify-center text-sm
+                    ${isCurrent ? 'bg-primary text-white' : 
+                      isCompleted ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'}
+                  `}
+                >
                   {isCompleted ? <Check size={16} /> : <Icon size={16} />}
                 </div>
-                <span className="text-xs text-center max-w-14 overflow-hidden text-ellipsis">{step.title}</span>
+                <span className="text-xs mt-1 text-center max-w-20">
+                  {step.title}
+                </span>
               </div>
             );
           })}
@@ -497,15 +498,21 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
       </div>
 
       {error && (
-        <div className="mb-6 flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600">
-          <AlertCircle className="h-5 w-5" />
-          <span>{error}</span>
+        <div className="mb-6 flex items-center gap-2 rounded-lg bg-red-50 p-4 border-red-200 bg-red-50">
+          <div className="flex items-center space-x-2 text-red-700">
+            <AlertCircle size={20} />
+            <span>{error}</span>
+          </div>
         </div>
       )}
 
-      <Card className="p-8">
+      {/* Current Step Content */}
+      <Card className="p-6">
         <div className="mb-6">
-          <h3 className="text-xl font-semibold mb-2">{currentStep.title}</h3>
+          <div className="flex items-center space-x-3 mb-2">
+            <currentStep.icon className="text-primary" size={24} />
+            <h3 className="text-xl font-semibold">{currentStep.title}</h3>
+          </div>
           <p className="text-gray-600">{currentStep.description}</p>
         </div>
 

@@ -19,7 +19,7 @@ const OnboardingPage = () => {
   const [onboardingType, setOnboardingType] = useState<'conversational' | 'form' | 'enhanced' | 'streamlined'>('streamlined');
   
   const { user, checkOnboardingStatus, updateProfile } = useAuthStore();
-  const { completeOnboarding } = useUserProfileStore();
+  const { completeOnboarding, loadProfile } = useUserProfileStore();
   const navigate = useNavigate();
   
   // Check if user is logged in and has already completed onboarding
@@ -31,6 +31,9 @@ const OnboardingPage = () => {
       }
       
       try {
+        // Load user profile for the enhanced onboarding form
+        await loadProfile(user.id);
+        
         const onboardingCompleted = await checkOnboardingStatus();
         if (onboardingCompleted) {
           navigate('/dashboard');
@@ -42,7 +45,7 @@ const OnboardingPage = () => {
     };
     
     checkUserStatus();
-  }, [user, navigate, checkOnboardingStatus]);
+  }, [user, navigate, checkOnboardingStatus, loadProfile]);
   
   const handleOnboardingComplete = async (formData?: OnboardingFormData) => {
     if (!user) {
@@ -56,7 +59,11 @@ const OnboardingPage = () => {
     try {
       if (onboardingType === 'enhanced' || onboardingType === 'streamlined') {
         // Enhanced form handles its own completion through the user profile store
-        await completeOnboarding({});
+        await completeOnboarding({
+          onboardingCompleted: true,
+          onboardingCompletedAt: new Date().toISOString(),
+          lastUpdated: new Date().toISOString()
+        });
       } else if (formData) {
         // Legacy form handling
         const completeFormData = {
