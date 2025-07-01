@@ -1,98 +1,34 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
-// Validate environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://leznzqfezoofngumpiqf.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxlem56cWZlem9vZm5ndW1waXFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQwOTI0NTUsImV4cCI6MjA1OTY2ODQ1NX0.5I67qAPpITjoBj2WqOm8e0NX78XPw0rEx54DTICnWME'
 
-// Debug logging for development
-if (import.meta.env.DEV) {
-  console.log('Environment check:', {
-    hasUrl: !!supabaseUrl,
-    hasKey: !!supabaseAnonKey,
-    url: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'undefined',
-    // Show first few characters of key for debugging (safe)
-    keyPrefix: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 8)}...` : 'undefined'
-  });
-}
-
-if (!supabaseUrl) {
-  const errorMessage = `
-Missing VITE_SUPABASE_URL environment variable.
-
-To fix this:
-1. Create a .env file in your project root (copy from .env.example)
-2. Add your Supabase project URL:
-   VITE_SUPABASE_URL=https://your-project-ref.supabase.co
-3. Get your project URL from: https://supabase.com/dashboard/project/your-project/settings/api
-4. Restart your development server after making changes
-
-Current value: ${supabaseUrl || 'undefined'}
-  `.trim();
-  
-  throw new Error(errorMessage);
-}
-
-if (!supabaseAnonKey) {
-  const errorMessage = `
-Missing VITE_SUPABASE_ANON_KEY environment variable.
-
-To fix this:
-1. Create a .env file in your project root (copy from .env.example)
-2. Add your Supabase anonymous key:
-   VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-3. Get your anon key from: https://supabase.com/dashboard/project/your-project/settings/api
-4. Restart your development server after making changes
-
-Current value: ${supabaseAnonKey || 'undefined'}
-  `.trim();
-  
-  throw new Error(errorMessage);
-}
-
-// Validate URL format
-try {
-  const url = new URL(supabaseUrl);
-  if (!url.hostname.includes('supabase.co') && !url.hostname.includes('localhost')) {
-    console.warn('Warning: Supabase URL does not appear to be a standard Supabase URL:', supabaseUrl);
-  }
-} catch (error) {
-  const errorMessage = `
-Invalid VITE_SUPABASE_URL format: "${supabaseUrl}"
-
-Expected format: https://your-project-ref.supabase.co
-Current value: ${supabaseUrl}
-
-To fix this:
-1. Check your .env file
-2. Ensure the URL starts with https:// and ends with .supabase.co
-3. Get the correct URL from: https://supabase.com/dashboard/project/your-project/settings/api
-  `.trim();
-  
-  throw new Error(errorMessage);
-}
-
-// Validate anon key format (basic check)
-if (!supabaseAnonKey.startsWith('eyJ')) {
-  console.warn('Warning: VITE_SUPABASE_ANON_KEY does not appear to be a valid JWT token');
-}
+console.log('🔄 Initializing Supabase client...')
+console.log('URL:', supabaseUrl)
+console.log('Key:', supabaseAnonKey ? '✅ Present' : '❌ Missing')
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true
-  },
-  global: {
-    headers: {
-      'X-Client-Info': 'biowell-app'
-    }
-  },
-  db: {
-    schema: 'public'
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 10
-    }
   }
-});
+})
+
+export const testConnection = async () => {
+  try {
+    console.log('🔄 Testing Supabase connection...')
+    const { data, error } = await supabase.from('user_profiles').select('id').limit(1)
+    
+    if (error) {
+      console.error('❌ Connection test failed:', error)
+      return false
+    }
+    
+    console.log('✅ Supabase connected successfully!')
+    return true
+  } catch (error) {
+    console.error('❌ Connection error:', error)
+    return false
+  }
+}
