@@ -237,7 +237,7 @@ const PricingSection = () => {
                   <td className="py-4 text-center"><Check className="mx-auto h-5 w-5 text-success" /></td>
                 </tr>
                 <tr className="border-b border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))]">
-                  <td className="py-4 font-medium">AI Health Coach</td>
+                  <td className="py-4 font-medium">AI MyCoach</td>
                   <td className="py-4 text-center"><span className="text-sm">Basic</span></td>
                   <td className="py-4 text-center"><span className="text-sm">Advanced</span></td>
                   <td className="py-4 text-center"><span className="text-sm">Custom</span></td>

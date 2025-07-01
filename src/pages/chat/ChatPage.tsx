@@ -79,9 +79,9 @@ const ChatPage = () => {
         transition={{ duration: 0.5 }}
       >
         <div className="mb-6">
-          <h1 className="text-2xl font-bold">Health Coach</h1>
+          <h1 className="text-2xl font-bold">MyCoach</h1>
           <p className="text-text-light">
-            Chat with your AI health coach for personalized guidance and recommendations
+            Chat with your AI MyCoach for personalized guidance and recommendations
           </p>
         </div>
 

@@ -152,7 +152,7 @@ function initializeApp() {
   // Log initialization in development mode
   if (isDevelopment()) {
     logInfo('Initializing Biowell application in development mode');
-    console.log('🏥 Biowell - Digital Health Coach');
+    console.log('🏥 Biowell - Digital MyCoach');
     console.log('📊 Environment:', {
       mode: import.meta.env.MODE,
       dev: import.meta.env.DEV,

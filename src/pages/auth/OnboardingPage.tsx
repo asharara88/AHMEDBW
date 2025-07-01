@@ -118,7 +118,7 @@ const OnboardingPage = () => {
                   ? 'bg-primary text-white' 
                   : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
               }`}
-              aria-pressed={String(onboardingType === 'conversational')}
+              aria-pressed={onboardingType === 'conversational'}
             >
               <MessageSquare className="h-4 w-4" aria-hidden="true" />
               <span>Chat</span>
@@ -131,7 +131,7 @@ const OnboardingPage = () => {
                   ? 'bg-primary text-white' 
                   : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
               }`}
-              aria-pressed={String(onboardingType === 'form')}
+              aria-pressed={onboardingType === 'form'}
             >
               <ClipboardList className="h-4 w-4" aria-hidden="true" />
               <span>Form</span>
@@ -144,7 +144,7 @@ const OnboardingPage = () => {
                   ? 'bg-primary text-white' 
                   : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
               }`}
-              aria-pressed={String(onboardingType === 'enhanced')}
+              aria-pressed={onboardingType === 'enhanced'}
             >
               <Layers className="h-4 w-4" aria-hidden="true" />
               <span>Guided</span>
@@ -157,7 +157,7 @@ const OnboardingPage = () => {
                   ? 'bg-primary text-white' 
                   : 'bg-[hsl(var(--color-card))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
               }`}
-              aria-pressed={String(onboardingType === 'streamlined')}
+              aria-pressed={onboardingType === 'streamlined'}
             >
               <Sparkles className="h-4 w-4" aria-hidden="true" />
               <span>Simple</span>

@@ -241,13 +241,13 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
               <img 
                 src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
-                alt="Health Coach" 
+                alt="MyCoach" 
                 className="h-5 w-5"
                 loading="eager"
               />
             </div>
             <div>
-              <h3 className="text-sm font-medium">Health Coach</h3>
+              <h3 className="text-sm font-medium">MyCoach</h3>
               <p className="text-xs text-text-light">Personalized health guidance</p>
             </div>
           </div>
@@ -286,12 +286,12 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
             <div className="mb-4 rounded-full bg-primary/10 p-4">
               <img 
                 src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
-                alt="Health Coach" 
+                alt="MyCoach" 
                 className="h-8 w-8 text-primary"
                 loading="lazy"
               />
             </div>
-            <h3 className="mb-2 text-lg font-semibold">Welcome to your Health Coach</h3>
+            <h3 className="mb-2 text-lg font-semibold">Welcome to your MyCoach</h3>
             <p className="mb-6 text-text-light">
               Ask me anything about your personal wellness.
             </p>
@@ -321,7 +321,7 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
                   <div className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <img 
                       src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
-                      alt="Health Coach" 
+                      alt="MyCoach" 
                       className="h-4 w-4"
                       loading="lazy"
                     />
@@ -370,7 +370,7 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
             <div className="mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
               <img 
                 src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
-                alt="Health Coach" 
+                alt="MyCoach" 
                 className="h-4 w-4"
                 loading="lazy"
               />
