@@ -18,7 +18,6 @@ import { useUserProfileStore, UserProfile } from '../../store/useUserProfileStor
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
-import styles from './EnhancedOnboardingForm.module.css';
 
 interface EnhancedOnboardingFormProps {
   onComplete: () => void;
@@ -223,72 +222,73 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
   const renderPersonalInfoStep = () => (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label className="block text-sm font-medium mb-2">First Name</label>
-        <Input
-          type="text"
-          value={currentStepData.firstName || profile?.firstName || ''}
-          onChange={(e) => handleFieldChange('firstName', e.target.value)}
-          error={!!validationErrors.firstName}
-        />
-        {validationErrors.firstName && (
-          <p className="text-red-500 text-sm mt-1">{validationErrors.firstName}</p>
-        )}
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-2">Last Name</label>
-        <Input
-          type="text"
-          value={currentStepData.lastName || profile?.lastName || ''}
-          onChange={(e) => handleFieldChange('lastName', e.target.value)}
-          error={!!validationErrors.lastName}
-        />
-        {validationErrors.lastName && (
-          <p className="text-red-500 text-sm mt-1">{validationErrors.lastName}</p>
-        )}
-      </div>
-      
-      <div>
-        <label className="block text-sm font-medium mb-2">Email</label>
-        <Input
-          type="email"
-          value={currentStepData.email || profile?.email || ''}
-          onChange={(e) => handleFieldChange('email', e.target.value)}
-        />
-      </div>
-      
-      <div>
-        <label className="block text-sm font-medium mb-2">Mobile</label>
-        <Input
-          type="tel"
-          value={currentStepData.mobile || profile?.mobile || ''}
-          onChange={(e) => handleFieldChange('mobile', e.target.value)}
-        />
-      </div>
-      
-      <div>
-        <label className="block text-sm font-medium mb-2">Date of Birth</label>
-        <Input
-          type="date"
-          value={currentStepData.dateOfBirth || profile?.dateOfBirth || ''}
-          onChange={(e) => handleFieldChange('dateOfBirth', e.target.value)}
-        />
-      </div>
-      
-      <div>
-        <label className="block text-sm font-medium mb-2">Gender</label>
-        <select
-          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-          value={currentStepData.gender || profile?.gender || ''}
-          onChange={(e) => handleFieldChange('gender', e.target.value)}
-          aria-label="Gender"
-        >
-          <option value="">Select gender</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="non-binary">Non-binary</option>
-          <option value="prefer-not-to-say">Prefer not to say</option>
-        </select>
+        <div>
+          <label className="block text-sm font-medium mb-2">First Name</label>
+          <Input
+            type="text"
+            value={currentStepData.firstName || profile?.firstName || ''}
+            onChange={(e) => handleFieldChange('firstName', e.target.value)}
+            error={!!validationErrors.firstName}
+          />
+          {validationErrors.firstName && (
+            <p className="text-red-500 text-sm mt-1">{validationErrors.firstName}</p>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2">Last Name</label>
+          <Input
+            type="text"
+            value={currentStepData.lastName || profile?.lastName || ''}
+            onChange={(e) => handleFieldChange('lastName', e.target.value)}
+            error={!!validationErrors.lastName}
+          />
+          {validationErrors.lastName && (
+            <p className="text-red-500 text-sm mt-1">{validationErrors.lastName}</p>
+          )}
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-2">Email</label>
+          <Input
+            type="email"
+            value={currentStepData.email || profile?.email || ''}
+            onChange={(e) => handleFieldChange('email', e.target.value)}
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-2">Mobile</label>
+          <Input
+            type="tel"
+            value={currentStepData.mobile || profile?.mobile || ''}
+            onChange={(e) => handleFieldChange('mobile', e.target.value)}
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-2">Date of Birth</label>
+          <Input
+            type="date"
+            value={currentStepData.dateOfBirth || profile?.dateOfBirth || ''}
+            onChange={(e) => handleFieldChange('dateOfBirth', e.target.value)}
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-2">Gender</label>
+          <select
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            value={currentStepData.gender || profile?.gender || ''}
+            onChange={(e) => handleFieldChange('gender', e.target.value)}
+            aria-label="Gender"
+          >
+            <option value="">Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="non-binary">Non-binary</option>
+            <option value="prefer-not-to-say">Prefer not to say</option>
+          </select>
+        </div>
       </div>
     </div>
   );
@@ -462,6 +462,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
           </span>
         </div>
         
+        <div className="w-full bg-gray-200 rounded-full h-2">
           <div
             className={`bg-primary h-2 rounded-full transition-all duration-300 onboarding-progress-bar`}
             data-progress={`${(currentStep.id / ONBOARDING_STEPS.length) * 100}%`}

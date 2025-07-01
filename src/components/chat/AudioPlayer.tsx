@@ -101,10 +101,12 @@ const AudioPlayer = ({ src, onEnded, className = '' }: AudioPlayerProps) => {
             {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
           </button>
           
-          <div className={`hidden sm:flex items-center gap-2 ${styles.progressContainer}`}>
+          <div 
+            className={`hidden sm:flex items-center gap-2 ${styles.progressContainer}`}
+            style={{ '--progress-width': duration > 0 ? `${(progress / duration) * 100}%` : '0%' } as React.CSSProperties}
+          >
             <div
-              className={`${styles.progressBar} absolute h-full rounded-full bg-primary transition-all duration-100`}
-              style={{ width: duration > 0 ? `${(progress / duration) * 100}%` : '0%' }}
+              className={`${styles.progressBar} ${styles.progressBarDynamic}`}
             ></div>
           </div>
           <span className="text-xs text-text-light">
