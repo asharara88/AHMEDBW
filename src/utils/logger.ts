@@ -99,6 +99,7 @@ const logger = new Logger();
 // Export convenience functions
 export const logError = (message: string, data?: any) => logger.error(message, data);
 export const logWarn = (message: string, data?: any) => logger.warn(message, data);
+export const logWarning = logWarn; // Alias for backward compatibility
 export const logInfo = (message: string, data?: any) => logger.info(message, data);
 export const logDebug = (message: string, data?: any) => logger.debug(message, data);
 

@@ -64,7 +64,7 @@ const HomePage = () => {
               </div>
 
               <h1 className="mb-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white text-center md:text-4xl lg:text-5xl">
-                Your Personal <span className="bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">MyCoach</span>
+                Your Personal <span className="bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">Wellness Coach</span>
               </h1>
 
               <p className="mx-auto mb-8 max-w-2xl text-sm text-gray-600 dark:text-gray-300 text-center md:text-base lg:text-lg">
@@ -217,7 +217,7 @@ const HomePage = () => {
               <div className="mb-4 inline-flex rounded-xl bg-primary/10 p-3 text-primary">
                 <MessageCircle className="h-6 w-6" />
               </div>
-              <h3 className="mb-2 text-lg font-bold">AI MyCoach</h3>
+              <h3 className="mb-2 text-lg font-bold">AI Health Coach</h3>
               <p className="text-text-light">
                 Get personalized health advice and answers to your questions 24/7 from your AI coach.
               </p>

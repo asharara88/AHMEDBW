@@ -89,6 +89,7 @@ const AudioPlayer = ({ src, onEnded, className = '' }: AudioPlayerProps) => {
             onClick={restart}
             className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-card))] hover:text-text"
             aria-label="Restart"
+            type="button"
           >
             <SkipBack className="h-3 w-3" />
           </button>
@@ -97,16 +98,15 @@ const AudioPlayer = ({ src, onEnded, className = '' }: AudioPlayerProps) => {
             onClick={togglePlayback}
             className="rounded-full bg-primary/10 p-1 text-primary hover:bg-primary/20"
             aria-label={isPlaying ? 'Pause' : 'Play'}
+            type="button"
           >
             {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
           </button>
           
-          <div 
-            className={`hidden sm:flex items-center gap-2 ${styles.progressContainer}`}
-            style={{ '--progress-width': duration > 0 ? `${(progress / duration) * 100}%` : '0%' } as React.CSSProperties}
-          >
+          <div className={`hidden sm:flex items-center gap-2 ${styles.progressContainer}`}>
             <div
-              className={`${styles.progressBar} ${styles.progressBarDynamic}`}
+              className={`${styles.progressBar} absolute h-full rounded-full bg-primary transition-all duration-100`}
+              style={{ width: duration > 0 ? `${(progress / duration) * 100}%` : '0%' }}
             ></div>
           </div>
           <span className="text-xs text-text-light">
