@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabaseClient'
+import { logError } from '../utils/logger'
 
 export interface RecipeRequest {
   dietPreference?: string
@@ -34,18 +35,20 @@ export class RecipeService {
       })
 
       if (error) {
-        console.error('Recipe function error:', error)
-        throw new Error(`Recipe service error: ${error.message}`)
+        logError('Recipe function error:', error)
+        throw new Error(`Recipe service error: ${error.message || 'Unknown error'}`)
       }
 
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to fetch recipes')
+      if (!data || !data.success) {
+        const errorMessage = data?.message || 'Failed to fetch recipes'
+        logError('Recipe data error:', { data })
+        throw new Error(errorMessage)
       }
 
-      console.log('Successfully fetched recipes:', data.recipes.length)
+      console.log('Successfully fetched recipes:', data.recipes?.length || 0)
       return data
     } catch (error) {
-      console.error('Error in getPersonalizedRecipes:', error)
+      logError('Error in getPersonalizedRecipes:', error)
       throw error
     }
   }
