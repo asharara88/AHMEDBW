@@ -12,12 +12,16 @@ import {
   ChevronRight,
   ChevronLeft,
   Check,
-  AlertCircle
+  AlertCircle,
+  Calendar,
+  Shield,
+  CheckCircle
 } from 'lucide-react';
 import { useUserProfileStore, UserProfile } from '../../store/useUserProfileStore';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
+import SuggestedQuestions from './SuggestedQuestions';
 
 interface StreamlinedOnboardingProps {
   onComplete: () => void;
@@ -506,7 +510,7 @@ const StreamlinedOnboarding: React.FC<StreamlinedOnboardingProps> = ({ onComplet
                   }`}
               >
                 {step.id < currentStep || skipped.includes(step.id) ? (
-                  <CheckCircle className="h-3 w-3" />
+                  <Check className="h-3 w-3" />
                 ) : (
                   step.id
                 )}
@@ -627,7 +631,3 @@ const StreamlinedOnboarding: React.FC<StreamlinedOnboardingProps> = ({ onComplet
 };
 
 export default StreamlinedOnboarding;
-
-// Import missing components
-import { Calendar, Shield, CheckCircle } from 'lucide-react';
-import SuggestedQuestions from './SuggestedQuestions';
