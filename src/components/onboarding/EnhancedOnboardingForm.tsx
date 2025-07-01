@@ -291,6 +291,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
         </select>
       </div>
     </div>
+  </div>
   );
 
   const renderHealthGoalsStep = () => {
@@ -462,6 +463,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
           </span>
         </div>
         
+        <div className="w-full bg-gray-200 rounded-full h-2">
           <div
             className={`bg-primary h-2 rounded-full transition-all duration-300 onboarding-progress-bar`}
             data-progress={`${(currentStep.id / ONBOARDING_STEPS.length) * 100}%`}
