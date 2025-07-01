@@ -2,14 +2,23 @@
 // deno-lint-ignore-file no-undef
 import OpenAI from "openai";
 
+// Declare Deno global for TypeScript
+declare const Deno: {
+  env: {
+    get(key: string): string | undefined;
+  };
+  serve(handler: (req: Request) => Promise<Response> | Response): void;
+};
+
 // Deno global types are available when running with Deno. 
 // If you see "Cannot find name 'Deno'" in your editor, make sure to use a Deno-compatible editor extension or run with Deno.
 
-const apiKey = Deno.env.get("OPENAI_API_KEY");
+// Ensure Deno is available before accessing Deno.env
+const apiKey = typeof Deno !== "undefined" && Deno.env ? Deno.env.get("OPENAI_API_KEY") : undefined;
 
 if (!apiKey) {
-  console.error("OPENAI_API_KEY is missing");
-  throw new Error("OPENAI_API_KEY not configured");
+  console.error("OPENAI_API_KEY is missing or Deno is not available");
+  throw new Error("OPENAI_API_KEY not configured or Deno is not available");
 }
 
 const openai = new OpenAI({
