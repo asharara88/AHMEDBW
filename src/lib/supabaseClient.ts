@@ -96,3 +96,28 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     }
   }
 });
+
+// Add connection error handling
+supabase.auth.onAuthStateChange((event, session) => {
+  if (import.meta.env.DEV) {
+    console.log('Auth state changed:', event, session ? 'Session exists' : 'No session');
+  }
+});
+
+// Test connection on client creation (non-blocking)
+if (import.meta.env.DEV) {
+  supabase
+    .from('profiles')
+    .select('count', { count: 'exact', head: true })
+    .limit(1)
+    .then(({ error }) => {
+      if (error && !error.message.includes('permission') && !error.message.includes('RLS')) {
+        console.warn('Supabase client connection test failed:', error.message);
+      } else {
+        console.log('Supabase client connection test passed');
+      }
+    })
+    .catch((error) => {
+      console.warn('Supabase client connection test error:', error.message);
+    });
+}

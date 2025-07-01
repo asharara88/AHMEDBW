@@ -57,23 +57,25 @@ export async function checkSupabaseConnection(): Promise<boolean> {
         return false;
       }
       
-      // Try a simple health check with timeout
+      // Try a simple health check with timeout and better error handling
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
       try {
         // Use a simple query that doesn't require authentication
+        // Try to access a public endpoint first
         const { error } = await supabase
           .from('profiles')
           .select('count', { count: 'exact', head: true })
+          .limit(1)
           .abortSignal(controller.signal);
         
         clearTimeout(timeoutId);
         
         // If we get a permission error, that's actually good - it means we connected
-        if (error && error.message.includes('permission')) {
+        if (error && (error.message.includes('permission') || error.message.includes('RLS'))) {
           connected = true;
-          logInfo('Supabase connection established successfully (permission check passed)');
+          logInfo('Supabase connection established successfully (RLS check passed)');
           return true;
         }
         
@@ -93,6 +95,15 @@ export async function checkSupabaseConnection(): Promise<boolean> {
         // If it's an abort error, it's a timeout
         if (fetchError instanceof Error && fetchError.name === 'AbortError') {
           throw new Error('Connection timeout - Supabase server did not respond within 10 seconds');
+        }
+        
+        // Handle network errors more gracefully
+        if (fetchError instanceof Error) {
+          if (fetchError.message.includes('Failed to fetch') || 
+              fetchError.message.includes('NetworkError') ||
+              fetchError.message.includes('fetch')) {
+            throw new Error(`Network connection failed: Unable to reach Supabase server at ${supabaseUrl}. Please check your internet connection and verify the Supabase URL is correct.`);
+          }
         }
         
         throw fetchError;
@@ -119,20 +130,23 @@ export async function checkSupabaseConnection(): Promise<boolean> {
         };
 
         // Provide specific guidance based on error type
-        if (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('timeout')) {
+        if (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('timeout') || error.message.includes('Network connection failed')) {
           errorDetails.commonCauses = [
             'Supabase URL is incorrect or project does not exist',
             'Network connectivity issues',
             'Supabase project is paused or suspended',
             'CORS configuration issues',
-            'Firewall blocking the connection'
+            'Firewall blocking the connection',
+            'Development server proxy issues'
           ];
           errorDetails.troubleshooting = [
             'Verify your VITE_SUPABASE_URL in the .env file',
             'Check if your Supabase project is active in the dashboard',
             'Ensure you have internet connectivity',
             'Try accessing your Supabase URL directly in a browser',
-            'Check if you\'re behind a corporate firewall'
+            'Check if you\'re behind a corporate firewall',
+            'Restart your development server',
+            'Clear browser cache and cookies'
           ];
         } else if (error.message.includes('API key') || error.message.includes('Invalid JWT')) {
           errorDetails.commonCauses = [
@@ -185,7 +199,9 @@ export async function checkSupabaseConnection(): Promise<boolean> {
           'Ensure you have internet connectivity',
           'Try restarting your development server',
           'Verify your Supabase URL format: https://your-project-ref.supabase.co',
-          'Check your Supabase anonymous key is correct and not expired'
+          'Check your Supabase anonymous key is correct and not expired',
+          'Clear browser cache and try again',
+          'Check if you need to authenticate with Supabase CLI: npx supabase login'
         ]
       }
     });
@@ -201,7 +217,9 @@ export async function checkSupabaseConnection(): Promise<boolean> {
         '2. Verify VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set',
         '3. Get credentials from https://supabase.com/dashboard/project/your-project/settings/api',
         '4. Restart your development server after making changes',
-        '5. Check your Supabase project is not paused or suspended'
+        '5. Check your Supabase project is not paused or suspended',
+        '6. Authenticate Supabase CLI: npx supabase login',
+        '7. Deploy required functions: npx supabase functions deploy openai-proxy'
       ]
     });
     
@@ -227,4 +245,26 @@ export function onConnectionError(callback: (event: CustomEvent) => void): () =>
   return () => {
     window.removeEventListener('supabase-connection-error', typedCallback);
   };
+}
+
+/**
+ * Test Supabase connection with a simple ping
+ * @returns {Promise<boolean>} True if connection test passes
+ */
+export async function testSupabaseConnection(): Promise<boolean> {
+  try {
+    // Simple test that doesn't require authentication
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/`, {
+      method: 'HEAD',
+      headers: {
+        'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+      }
+    });
+    
+    return response.status < 500; // Accept any non-server error status
+  } catch (error) {
+    logError('Supabase connection test failed', { error: error instanceof Error ? error.message : String(error) });
+    return false;
+  }
 }
