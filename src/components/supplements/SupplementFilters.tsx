@@ -137,7 +137,7 @@ const SupplementFilters: React.FC<SupplementFiltersProps> = ({
                           ? 'bg-primary text-white'
                           : 'bg-[hsl(var(--color-surface-1))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
                       }`}
-                      aria-pressed={!selectedCategory}
+                      aria-pressed={(!selectedCategory).toString()}
                     >
                       All Categories
                     </button>
@@ -151,7 +151,7 @@ const SupplementFilters: React.FC<SupplementFiltersProps> = ({
                             ? 'bg-primary text-white'
                             : 'bg-[hsl(var(--color-surface-1))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
                         }`}
-                        aria-pressed={selectedCategory === category}
+                        aria-pressed={(selectedCategory === category).toString()}
                       >
                         {category}
                       </button>

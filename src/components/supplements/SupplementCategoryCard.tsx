@@ -24,7 +24,7 @@ const SupplementCategoryCard: React.FC<SupplementCategoryCardProps> = ({
           : 'border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))]'
       } p-4 text-center transition-colors hover:border-primary/50`}
       onClick={onClick}
-      aria-pressed={isSelected}
+      aria-pressed={(isSelected.toString()).toString()}
     >
       <div className="mb-2 text-2xl">{icon}</div>
       <div className="font-medium">{category}</div>
