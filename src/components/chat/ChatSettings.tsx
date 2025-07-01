@@ -77,6 +77,7 @@ const ChatSettings = ({
         } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
         onClick={!disabled ? onChange : undefined}
         disabled={disabled}
+        type="button"
       >
         <span 
           className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform ${
@@ -101,6 +102,7 @@ const ChatSettings = ({
           <button
             onClick={onClose}
             className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-surface-1))] hover:text-text"
+            type="button"
           >
             <X className="h-4 w-4" />
           </button>
@@ -115,6 +117,7 @@ const ChatSettings = ({
               ? 'border-b-2 border-primary text-primary'
               : 'text-text-light hover:text-text'
           }`}
+          type="button"
         >
           <Headphones className="h-4 w-4" />
           Voice
@@ -126,6 +129,7 @@ const ChatSettings = ({
               ? 'border-b-2 border-primary text-primary'
               : 'text-text-light hover:text-text'
           }`}
+          type="button"
         >
           <MessageSquare className="h-4 w-4" />
           Chat

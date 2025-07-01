@@ -36,6 +36,7 @@ const ChatSettingsButton = ({
         }`}
         aria-label="Settings"
         aria-expanded={isOpen}
+        type="button"
       >
         <Settings className="h-5 w-5" />
       </button>

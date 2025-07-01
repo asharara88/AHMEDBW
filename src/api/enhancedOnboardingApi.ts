@@ -178,13 +178,9 @@ export const enhancedOnboardingApi = {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
-        if (error.code === 'PGRST116') {
-          // Profile doesn't exist yet
-          return null;
-        }
         logError('Error loading user profile', error);
         throw error;
       }

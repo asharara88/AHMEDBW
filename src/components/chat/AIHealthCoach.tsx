@@ -257,6 +257,7 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
               title={preferSpeech ? "Turn off voice" : "Turn on voice"}
               onClick={() => setPreferSpeech(!preferSpeech)}
               aria-pressed={preferSpeech}
+              type="button"
             >
               {preferSpeech ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
             </button>

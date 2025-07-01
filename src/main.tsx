@@ -58,15 +58,44 @@ Current status:
           return;
         }
         
-        // Try to connect to Supabase, but continue even if it fails
-        // The app will work in a degraded/demo mode if connection fails
-        const isConnected = await checkSupabaseConnection();
-        
-        if (isConnected) {
-          logInfo('Application initialized successfully with Supabase connection');
-        } else {
-          logInfo('Application initialized in offline mode - some features may be limited');
+        // Try to connect to Supabase with better error handling
+        try {
+          const isConnected = await checkSupabaseConnection();
+          
+          if (isConnected) {
+            logInfo('Application initialized successfully with Supabase connection');
+          } else {
+            logInfo('Application initialized in offline mode - some features may be limited');
+            
+            // Show a user-friendly notification in development
+            if (isDevelopment()) {
+              console.warn(`
+⚠️ Supabase Connection Failed ⚠️
+
+The app is running in offline mode. To restore full functionality:
+
+1. Check your internet connection
+2. Verify your Supabase project is active (not paused)
+3. Confirm your .env file has the correct credentials:
+   - VITE_SUPABASE_URL=${import.meta.env.VITE_SUPABASE_URL}
+   - VITE_SUPABASE_ANON_KEY=${import.meta.env.VITE_SUPABASE_ANON_KEY ? 'configured' : 'missing'}
+4. Try refreshing the page
+
+Visit https://supabase.com/dashboard to check your project status.
+              `);
+            }
+          }
+        } catch (connectionError) {
+          logError('Supabase connection failed during initialization', connectionError);
+          
+          if (isDevelopment()) {
+            console.error('🔌 Connection Error Details:', connectionError);
+          }
+          
+          // Continue with app initialization even if connection fails
+          logInfo('Continuing app initialization despite connection failure');
         }
+        
       } catch (error) {
         logError('Failed to initialize app', error);
         
@@ -127,7 +156,8 @@ function initializeApp() {
     console.log('📊 Environment:', {
       mode: import.meta.env.MODE,
       dev: import.meta.env.DEV,
-      prod: import.meta.env.PROD
+      prod: import.meta.env.PROD,
+      supabaseConfigured: !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY)
     });
   }
   
@@ -158,6 +188,7 @@ function initializeApp() {
               <li>Copy settings from <code>.env.example</code></li>
               <li>Add your Supabase project URL and anonymous key</li>
               <li>Restart your development server</li>
+              <li>Check your Supabase project is active (not paused)</li>
             </ol>
           </div>
           <button 

@@ -109,7 +109,6 @@ const FITNESS_GOALS_OPTIONS = [
   'General fitness'
 ];
 
-
 const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
   onComplete,
   isLoading = false
@@ -246,49 +245,49 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
             <p className="text-red-500 text-sm mt-1">{validationErrors.lastName}</p>
           )}
         </div>
-        
-        <div>
-          <label className="block text-sm font-medium mb-2">Email</label>
-          <Input
-            type="email"
-            value={currentStepData.email || profile?.email || ''}
-            onChange={(e) => handleFieldChange('email', e.target.value)}
-          />
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium mb-2">Mobile</label>
-          <Input
-            type="tel"
-            value={currentStepData.mobile || profile?.mobile || ''}
-            onChange={(e) => handleFieldChange('mobile', e.target.value)}
-          />
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium mb-2">Date of Birth</label>
-          <Input
-            type="date"
-            value={currentStepData.dateOfBirth || profile?.dateOfBirth || ''}
-            onChange={(e) => handleFieldChange('dateOfBirth', e.target.value)}
-          />
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium mb-2">Gender</label>
-          <select
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            value={currentStepData.gender || profile?.gender || ''}
-            onChange={(e) => handleFieldChange('gender', e.target.value)}
-            aria-label="Gender"
-          >
-            <option value="">Select gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="non-binary">Non-binary</option>
-            <option value="prefer-not-to-say">Prefer not to say</option>
-          </select>
-        </div>
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium mb-2">Email</label>
+        <Input
+          type="email"
+          value={currentStepData.email || profile?.email || ''}
+          onChange={(e) => handleFieldChange('email', e.target.value)}
+        />
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium mb-2">Mobile</label>
+        <Input
+          type="tel"
+          value={currentStepData.mobile || profile?.mobile || ''}
+          onChange={(e) => handleFieldChange('mobile', e.target.value)}
+        />
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium mb-2">Date of Birth</label>
+        <Input
+          type="date"
+          value={currentStepData.dateOfBirth || profile?.dateOfBirth || ''}
+          onChange={(e) => handleFieldChange('dateOfBirth', e.target.value)}
+        />
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium mb-2">Gender</label>
+        <select
+          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          value={currentStepData.gender || profile?.gender || ''}
+          onChange={(e) => handleFieldChange('gender', e.target.value)}
+          aria-label="Gender"
+        >
+          <option value="">Select gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="non-binary">Non-binary</option>
+          <option value="prefer-not-to-say">Prefer not to say</option>
+        </select>
       </div>
     </div>
   );
@@ -464,9 +463,8 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
         
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
-            className={`bg-primary h-2 rounded-full transition-all duration-300 onboarding-progress-bar`}
-            data-progress={`${(currentStep.id / ONBOARDING_STEPS.length) * 100}%`}
-            style={{ '--progress-width': `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` } as React.CSSProperties}
+            className="bg-primary h-2 rounded-full transition-all duration-300"
+            style={{ width: `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` }}
           />
         </div>
 
@@ -479,16 +477,20 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
             return (
               <div
                 key={step.id}
-                className={`flex flex-col items-center text-center ${
-                  isCurrent ? 'text-primary' : isCompleted ? 'text-success' : 'text-gray-400'
-                }`}
+                className={`relative flex flex-col items-center`}
               >
-                <div className={`p-2 rounded-full mb-2 ${
-                  isCurrent ? 'bg-primary/10' : isCompleted ? 'bg-success/10' : 'bg-gray-100'
-                }`}>
+                <div 
+                  className={`
+                    w-8 h-8 rounded-full flex items-center justify-center text-sm
+                    ${isCurrent ? 'bg-primary text-white' : 
+                      isCompleted ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'}
+                  `}
+                >
                   {isCompleted ? <Check size={16} /> : <Icon size={16} />}
                 </div>
-                <span className="text-xs text-center max-w-14 overflow-hidden text-ellipsis">{step.title}</span>
+                <span className="text-xs mt-1 text-center max-w-20">
+                  {step.title}
+                </span>
               </div>
             );
           })}
@@ -496,15 +498,21 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
       </div>
 
       {error && (
-        <div className="mb-6 flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600">
-          <AlertCircle className="h-5 w-5" />
-          <span>{error}</span>
+        <div className="mb-6 flex items-center gap-2 rounded-lg bg-red-50 p-4 border-red-200 bg-red-50">
+          <div className="flex items-center space-x-2 text-red-700">
+            <AlertCircle size={20} />
+            <span>{error}</span>
+          </div>
         </div>
       )}
 
-      <Card className="p-8">
+      {/* Current Step Content */}
+      <Card className="p-6">
         <div className="mb-6">
-          <h3 className="text-xl font-semibold mb-2">{currentStep.title}</h3>
+          <div className="flex items-center space-x-3 mb-2">
+            <currentStep.icon className="text-primary" size={24} />
+            <h3 className="text-xl font-semibold">{currentStep.title}</h3>
+          </div>
           <p className="text-gray-600">{currentStep.description}</p>
         </div>
 

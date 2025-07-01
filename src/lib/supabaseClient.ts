@@ -9,7 +9,7 @@ if (import.meta.env.DEV) {
   console.log('Environment check:', {
     hasUrl: !!supabaseUrl,
     hasKey: !!supabaseAnonKey,
-    url: supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : 'undefined',
+    url: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'undefined',
     // Show first few characters of key for debugging (safe)
     keyPrefix: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 8)}...` : 'undefined'
   });
@@ -81,5 +81,18 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'biowell-app'
+    }
+  },
+  db: {
+    schema: 'public'
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10
+    }
   }
 });
