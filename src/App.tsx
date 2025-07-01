@@ -25,6 +25,7 @@ const CheckoutCancelPage = lazy(() => import('./pages/checkout/CheckoutCancelPag
 const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
 const TestOpenAI = lazy(() => import('./pages/TestOpenAI'));
 const ImportSupplementsPage = lazy(() => import('./pages/admin/ImportSupplementsPage'));
+const RecipesPage = lazy(() => import('./pages/recipes/RecipesPage'));
 
 // Loading component
 const PageLoader = () => (
@@ -72,6 +73,11 @@ function App() {
           <Route path="supplements" element={
             <ProtectedRoute>
               <SupplementsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="recipes" element={
+            <ProtectedRoute>
+              <RecipesPage />
             </ProtectedRoute>
           } />
           <Route path="checkout" element={

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { UserCircle, Settings, LogOut, Sun, Moon, Laptop } from 'lucide-react';
+import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Utensils } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import Logo from '../common/Logo';
@@ -71,6 +71,12 @@ const Navbar = () => {
                     className={`nav-link ${isActive('/supplements') ? 'nav-link-active' : ''}`}
                   >
                     Supplements
+                  </Link>
+                  <Link 
+                    to="/recipes" 
+                    className={`nav-link ${isActive('/recipes') ? 'nav-link-active' : ''}`}
+                  >
+                    Recipes
                   </Link>
                 </>
               ) : (
@@ -216,6 +222,16 @@ const Navbar = () => {
                     onClick={toggleMenu}
                   >
                     Supplements
+                  </Link>
+                  <Link 
+                    to="/recipes" 
+                    className={`rounded-lg px-4 py-2 text-text-light transition-colors ${
+                      isActive('/recipes') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
+                    }`}
+                    onClick={toggleMenu}
+                  >
+                    <Utensils className="h-5 w-5 inline-block mr-2" />
+                    Recipes
                   </Link>
                   <Link 
                     to="/profile" 

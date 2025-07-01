@@ -15,6 +15,7 @@ import {
   Filler,
 } from 'chart.js';
 import { Line, Bar, Pie } from 'react-chartjs-2';
+import RecipeList from '../recipes/RecipeList';
 
 // Register ChartJS components
 ChartJS.register(
@@ -331,7 +332,7 @@ const NutritionDashboard = ({ userId }: NutritionDashboardProps) => {
                   </div>
                   <div className="mt-1">
                     <span className="text-xs text-text-light">
-                      Target: &lt;12 hrs
+                      Target: <12 hrs
                     </span>
                   </div>
                 </div>
@@ -585,6 +586,12 @@ const NutritionDashboard = ({ userId }: NutritionDashboardProps) => {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Recipe Recommendations */}
+      <div className="rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 sm:p-6">
+        <h2 className="mb-6 text-lg font-bold">Recommended Recipes</h2>
+        <RecipeList limit={3} showTitle={false} />
       </div>
     </div>
   );
