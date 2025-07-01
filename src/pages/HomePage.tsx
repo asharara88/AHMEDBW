@@ -68,7 +68,7 @@ const HomePage = () => {
               </h1>
 
               <p className="mx-auto mb-8 max-w-2xl text-sm text-gray-600 dark:text-gray-300 text-center md:text-base lg:text-lg">
-                Transform your health with personalized insights and evidence-based recommendations.
+                Optimize your wellness everyday with science backed insights with MyCoach&copy;
               </p>
 
               <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
