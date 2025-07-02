@@ -30,7 +30,7 @@ const ShoppingCart = ({
     country: '',
     postalCode: ''
   });
-  const [paymentInfo, setPaymentInfo] = useState({
+  const [_paymentInfo, _setPaymentInfo] = useState({
     cardNumber: '',
     cardName: '',
     expiry: '',
@@ -103,6 +103,7 @@ const ShoppingCart = ({
                     <h2 className="text-lg font-bold">Shopping Cart</h2>
                     <button
                       onClick={onClose}
+                      title="Close shopping cart"
                       className="rounded-full p-2 text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
                     >
                       <X className="h-5 w-5" />

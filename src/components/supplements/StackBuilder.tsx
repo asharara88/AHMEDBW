@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToggle } from '../../hooks/useToggle';
-import { Plus, X, Check, Save, Package, AlertCircle, Info, Search, Filter, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, X, Check, Save, Package, AlertCircle, Info, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Supplement } from '../../types/supplements';
 import ImageWithFallback from '../common/ImageWithFallback';
+import StackDetailModal from './StackDetailModal';
 
 interface StackBuilderProps {
   supplements: Supplement[];
@@ -18,6 +19,8 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
   const [activeStack, setActiveStack] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedStack, setSelectedStack] = useState<any | null>(null);
+  const [showStackDetail, setShowStackDetail] = useState(false);
   
   const {
     value: showCreateForm,
@@ -76,26 +79,47 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
       setStacks([
         {
           id: 'sleep-stack',
-          name: 'Sleep & Recovery',
+          name: 'Sleep & Recovery Stack',
           description: 'Improve sleep quality and recovery',
           category: 'Sleep',
-          supplements: ['magnesium-glycinate', 'ashwagandha'],
+          supplements: ['84d8651b-7d1c-46eb-9672-22c5dc769b36', '59d80403-b7de-4841-8b48-8d8b9414b152', 'b380649d-2467-4f21-9d69-e1a42bd792c4'],
+          total_price: 120,
           isActive: true
         },
         {
           id: 'focus-stack',
-          name: 'Focus & Cognition',
+          name: 'Focus & Cognition Stack',
           description: 'Enhance mental clarity and focus',
           category: 'Cognitive',
-          supplements: ['lions-mane', 'alpha-gpc'],
+          supplements: ['02967998-40ed-4655-82b2-e891ee989753', '3921422b-4add-492d-ba6b-b665ed6d3999', 'd512dc50-dcc7-4d33-ba5c-016674cc9dfa'],
+          total_price: 150,
           isActive: false
         },
         {
           id: 'immune-stack',
-          name: 'Immune Support',
+          name: 'Immune Support Stack',
           description: 'Strengthen immune system',
           category: 'Immunity',
-          supplements: ['vitamin-d3-k2', 'zinc-picolinate'],
+          supplements: ['b3841739-66dc-45ed-ae8b-9d00883a4239', '14be756a-1a54-445b-8d7a-a2a89bfb2f5c', 'f6e55a06-b4b1-427b-a985-5ef464601a40'],
+          total_price: 110,
+          isActive: false
+        },
+        {
+          id: 'performance-stack',
+          name: 'Performance Stack (Hydrolized variant)',
+          description: 'Maximize workout performance and recovery',
+          category: 'Performance',
+          supplements: ['d8d78df2-9533-4773-bc5e-447d067beb9a', 'custom-id-hydro', '6fb63925-366e-477c-a323-b0aed2b1981b'],
+          total_price: 180,
+          isActive: false
+        },
+        {
+          id: 'recovery-stack',
+          name: 'Recovery Stack',
+          description: 'Optimize post-workout recovery',
+          category: 'Recovery',
+          supplements: ['custom-id-iso', '3ce7e8c6-849a-4101-97ac-590e19907a14', '84d8651b-7d1c-46eb-9672-22c5dc769b36'],
+          total_price: 160,
           isActive: false
         }
       ]);
@@ -174,7 +198,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
       
       // Subscribe to all supplements in the stack
       if (stack.supplements && Array.isArray(stack.supplements)) {
-        stack.supplements.forEach(supplementId => {
+        stack.supplements.forEach((supplementId: string) => {
           if (!userSupplements.includes(supplementId)) {
             onToggleSubscription(supplementId);
           }
@@ -250,6 +274,11 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
     return matchesSearch && matchesCategory;
   });
   
+  const handleViewStackDetails = (stack: any) => {
+    setSelectedStack(stack);
+    setShowStackDetail(true);
+  };
+  
   if (loading && stacks.length === 0) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -320,6 +349,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
                     value={newStack.category}
                     onChange={(e) => setNewStack({ ...newStack, category: e.target.value })}
                     className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-3 py-2"
+                    aria-label="Filter supplements by category"
                   >
                     <option value="">Select a category</option>
                     {categories.map((category) => (
@@ -365,6 +395,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
                       value={selectedCategory || ''}
                       onChange={(e) => setSelectedCategory(e.target.value || null)}
                       className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-2 py-1 text-sm"
+                      aria-label="Filter supplements by category"
                     >
                       <option value="">All Categories</option>
                       {categories.map((category) => (
@@ -454,92 +485,114 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
       </AnimatePresence>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {stacks.map((stack) => (
-          <motion.div
-            key={stack.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-6 overflow-hidden"
-          >
-            <div className="mb-4 flex items-start justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-medium">{stack.name}</h3>
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                    {stack.category}
-                  </span>
-                </div>
-                <p className="text-sm text-text-light">{stack.description}</p>
-              </div>
-              {stack.isActive && (
-                <span className="rounded-full bg-success/10 px-2 py-1 text-xs font-medium text-success">
-                  Active
-                </span>
-              )}
-            </div>
-            
-            <div className="mb-6 space-y-2">
-              {(stack.supplements || []).map((supplementId: string) => {
-                const supplement = (supplements || []).find(s => s.id === supplementId);
-                if (!supplement) return null;
-                
-                return (
-                  <div
-                    key={supplementId}
-                    className="flex items-center justify-between rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 flex-shrink-0 overflow-hidden rounded-md">
-                        <ImageWithFallback
-                          src={supplement.form_image_url || supplement.image_url}
-                          alt={supplement.name}
-                          className="h-full w-full object-contain"
-                        />
-                      </div>
-                      <span className="truncate max-w-[120px]">{supplement.name}</span>
-                    </div>
-                    {userSupplements.includes(supplementId) ? (
-                      <CheckCircle className="h-4 w-4 text-success" />
-                    ) : (
-                      <AlertCircle className="h-4 w-4 text-warning" />
-                    )}
+        {stacks.map((stack) => {
+          // Get up to 3 supplements to show in the preview
+          const stackSupplementPreviews = stack.supplements
+            .slice(0, 3)
+            .map(id => supplements.find(s => s.id === id))
+            .filter(Boolean);
+          
+          const hasMoreSupplements = stack.supplements.length > 3;
+          
+          return (
+            <motion.div
+              key={stack.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-6 overflow-hidden cursor-pointer hover:border-primary/30 hover:shadow-md transition-all"
+              onClick={() => handleViewStackDetails(stack)}
+            >
+              <div className="mb-4 flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-medium">{stack.name}</h3>
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                      {stack.category}
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-            
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleActivateStack(stack.id)}
-                disabled={stack.isActive}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                  stack.isActive
-                    ? 'bg-success/10 text-success'
-                    : 'bg-primary text-white hover:bg-primary-dark'
-                }`}
-              >
-                {stack.isActive ? (
-                  <>
-                    <Check className="h-4 w-4" />
-                    Active Stack
-                  </>
-                ) : (
-                  <>
-                    <Package className="h-4 w-4" />
-                    Activate
-                  </>
+                  <p className="text-sm text-text-light">{stack.description}</p>
+                </div>
+                {stack.isActive && (
+                  <span className="rounded-full bg-success/10 px-2 py-1 text-xs font-medium text-success">
+                    Active
+                  </span>
                 )}
-              </button>
-              <button
-                onClick={() => handleDeleteStack(stack.id)}
-                className="rounded-lg border border-[hsl(var(--color-border))] p-2 text-text-light transition-colors hover:bg-error/10 hover:text-error"
-                aria-label="Delete stack"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          </motion.div>
-        ))}
+              </div>
+              
+              <div className="mb-6 space-y-2">
+                {stackSupplementPreviews.map((supplement) => {
+                  if (!supplement) return null;
+                  
+                  return (
+                    <div
+                      key={supplement.id}
+                      className="flex items-center justify-between rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 flex-shrink-0 overflow-hidden rounded-md">
+                          <ImageWithFallback
+                            src={supplement.form_image_url || supplement.image_url}
+                            alt={supplement.name}
+                            className="h-full w-full object-contain"
+                          />
+                        </div>
+                        <span className="truncate max-w-[120px]">{supplement.name}</span>
+                      </div>
+                      {userSupplements.includes(supplement.id) ? (
+                        <Check className="h-4 w-4 text-success" />
+                      ) : (
+                        <AlertCircle className="h-4 w-4 text-warning" />
+                      )}
+                    </div>
+                  );
+                })}
+                
+                {hasMoreSupplements && (
+                  <div className="flex items-center justify-center rounded-lg border border-dashed border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3 text-sm text-text-light">
+                    +{stack.supplements.length - 3} more supplements
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleActivateStack(stack.id);
+                  }}
+                  disabled={stack.isActive}
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                    stack.isActive
+                      ? 'bg-success/10 text-success'
+                      : 'bg-primary text-white hover:bg-primary-dark'
+                  }`}
+                >
+                  {stack.isActive ? (
+                    <>
+                      <Check className="h-4 w-4" />
+                      Active Stack
+                    </>
+                  ) : (
+                    <>
+                      <Package className="h-4 w-4" />
+                      Activate
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteStack(stack.id);
+                  }}
+                  className="rounded-lg border border-[hsl(var(--color-border))] p-2 text-text-light transition-colors hover:bg-error/10 hover:text-error"
+                  aria-label="Delete stack"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
       
       {stacks.length === 0 && !showCreateForm && (
@@ -567,6 +620,21 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
           supplements to your routine.
         </p>
       </div>
+      
+      {/* Stack Detail Modal */}
+      <StackDetailModal
+        isOpen={showStackDetail}
+        onClose={() => setShowStackDetail(false)}
+        stack={selectedStack}
+        supplementsData={supplements}
+        userSupplements={userSupplements}
+        onActivate={() => {
+          if (selectedStack) {
+            handleActivateStack(selectedStack.id);
+            setShowStackDetail(false);
+          }
+        }}
+      />
     </div>
   );
 };

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../../store';
-import EnhancedOnboardingForm from '../../components/onboarding/EnhancedOnboardingForm';
+import { EnhancedOnboardingForm } from '../../components/onboarding/EnhancedOnboardingForm';
 import ConversationalOnboarding from '../../components/onboarding/ConversationalOnboarding';
 import OnboardingForm from '../../components/onboarding/OnboardingForm';
 import StreamlinedOnboarding from '../../components/onboarding/StreamlinedOnboarding';

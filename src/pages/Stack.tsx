@@ -42,6 +42,7 @@ export default function StackPage() {
         <select
           onChange={(e) => setGoal(e.target.value)}
           value={goal}
+          aria-label="Filter supplements by goal"
           className="mt-1 w-full max-w-xs rounded-lg border border-[hsl(var(--color-border))] bg-background p-2"
         >
           {goals.map((g) => (
