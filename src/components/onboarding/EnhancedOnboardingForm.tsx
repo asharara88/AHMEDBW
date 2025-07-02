@@ -461,71 +461,43 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
             Step {currentStep.id} of {ONBOARDING_STEPS.length}
           </span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className={`bg-primary h-2 rounded-full transition-all duration-300 ${styles.progressBar}`}
-<<<<<<< HEAD
-            data-progress={`${(currentStep.id / ONBOARDING_STEPS.length) * 100}%`}
-            ref={(el) => {
-              if (el) {
-                el.style.width = `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%`;
-              }
-            }}
-          />
-        </div>
+<div className="w-full bg-gray-200 rounded-full h-2">
+  <div
+    className={`bg-primary h-2 rounded-full transition-all duration-300 ${styles.progressBar}`}
+    style={{ width: `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` }}
+  />
+</div>
 
-        <div className="flex justify-between mt-4">
-          {ONBOARDING_STEPS.map((step) => {
-            const Icon = step.icon;
-            const isCompleted = onboardingProgress.completedSteps.includes(step.id);
-            const isCurrent = step.id === currentStep.id;
-            
-            return (
-              <div
-                key={step.id}
-                className={`relative flex flex-col items-center`}
-=======
-            style={{ '--progress-width': `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` } as React.CSSProperties}
-          />
+<div className="flex justify-between mt-4">
+  {ONBOARDING_STEPS.map((step) => {
+    const Icon = step.icon;
+    const isCompleted = onboardingProgress.completedSteps.includes(step.id);
+    const isCurrent = step.id === currentStep.id;
+    
+    return (
+      <div
+        key={step.id}
+        className={`relative flex flex-col items-center`}
+      >
+        <div 
+          className={`
+            w-8 h-8 rounded-full flex items-center justify-center text-sm
+            ${isCurrent ? 'bg-primary text-white' : 
+              isCompleted ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'}
+          `}
+        >
+          {isCompleted ? <Check size={16} /> : <Icon size={16} />}
         </div>
+        <span className="text-xs mt-1 text-center max-w-20">
+          {step.title}
+        </span>
       </div>
-
-      <div className="flex justify-between mt-4">
-        {ONBOARDING_STEPS.map((step) => {
-          const Icon = step.icon;
-          const isCompleted = onboardingProgress.completedSteps.includes(step.id);
-          const isCurrent = step.id === currentStep.id;
-          
-          return (
-            <div
-              key={step.id}
-              className={`relative flex flex-col items-center`}
-            >
-              <div 
-                className={`
-                  w-8 h-8 rounded-full flex items-center justify-center text-sm
-                  ${isCurrent ? 'bg-primary text-white' : 
-                    isCompleted ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'}
-                `}
->>>>>>> 67f727d636e7b84bd0ddd02614e7e4997b8bd15a
-              >
-                {isCompleted ? <Check size={16} /> : <Icon size={16} />}
-              </div>
-<<<<<<< HEAD
-            );
-          })}
-        </div>
-=======
-              <span className="text-xs mt-1 text-center max-w-20">
-                {step.title}
-              </span>
-            </div>
-          );
-        })}
->>>>>>> 67f727d636e7b84bd0ddd02614e7e4997b8bd15a
+  );
+})}
       </div>
+    </div>
 
-      {error && (
+    {error && (
         <div className="mb-6 flex items-center gap-2 rounded-lg bg-red-50 p-4 border border-red-200">
           <div className="flex items-center space-x-2 text-red-700">
             <AlertCircle size={20} />
