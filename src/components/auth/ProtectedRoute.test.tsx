@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '../../test/utils';
+import { render, screen } from '@testing-library/react';
 import ProtectedRoute from './ProtectedRoute';
 import { useAuthStore } from '../../store';
 import '@testing-library/jest-dom';

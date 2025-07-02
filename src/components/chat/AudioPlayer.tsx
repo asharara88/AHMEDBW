@@ -106,7 +106,7 @@ const AudioPlayer = ({ src, onEnded, className = '' }: AudioPlayerProps) => {
           <div className={`hidden sm:flex items-center gap-2 ${styles.progressContainer}`}>
             <div
               className={`${styles.progressBar} absolute h-full rounded-full bg-primary transition-all duration-100`}
-              style={{ width: duration > 0 ? `${(progress / duration) * 100}%` : '0%' }}
+              data-progress={duration > 0 ? (progress / duration) * 100 : 0}
             ></div>
           </div>
           <span className="text-xs text-text-light">

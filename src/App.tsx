@@ -1,6 +1,5 @@
-import { lazy, Suspense } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import MyCoachPage from './pages/coach/MyCoachPage';
 import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/auth/LoginPage';
@@ -25,16 +24,15 @@ const CheckoutCancelPage = lazy(() => import('./pages/checkout/CheckoutCancelPag
 const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
 const TestOpenAI = lazy(() => import('./pages/TestOpenAI'));
 const ImportSupplementsPage = lazy(() => import('./pages/admin/ImportSupplementsPage'));
-const RecipesPage = lazy(() => import('./pages/recipes/RecipesPage'));
 
 // Loading component
-const PageLoader = () => (
+const PageLoader: React.FC = () => (
   <div className="flex items-center justify-center min-h-[400px]">
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
   </div>
 );
 
-function App() {
+const App: React.FC = () => {
   return (
     <Layout>
       <ScrollToTop />
@@ -75,11 +73,6 @@ function App() {
               <SupplementsPage />
             </ProtectedRoute>
           } />
-          <Route path="recipes" element={
-            <ProtectedRoute>
-              <RecipesPage />
-            </ProtectedRoute>
-          } />
           <Route path="checkout" element={
             <ProtectedRoute>
               <CheckoutPage />
@@ -105,6 +98,6 @@ function App() {
       </Suspense>
     </Layout>
   );
-}
+};
 
 export default App;
