@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Utensils, Coffee, Droplet, Clock, TrendingUp, TrendingDown, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Utensils, Coffee, Droplet, Clock, TrendingUp, TrendingDown, AlertCircle, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -163,6 +164,24 @@ const NutritionDashboard = ({ userId }: NutritionDashboardProps) => {
 
   return (
     <div className="space-y-6">
+      {/* Header with Recipe Link */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div>
+          <h2 className="text-xl font-bold flex items-center">
+            <Utensils className="mr-2 h-6 w-6 text-primary" />
+            Nutrition Dashboard
+          </h2>
+          <p className="text-text-light">Track your nutrition and meal patterns</p>
+        </div>
+        <Link 
+          to="/recipes" 
+          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
+        >
+          Browse Healthy Recipes
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+
       <div className="grid gap-6 md:grid-cols-12">
         {/* Nutrition Score Card */}
         <div className="md:col-span-4">
@@ -589,8 +608,23 @@ const NutritionDashboard = ({ userId }: NutritionDashboardProps) => {
       </div>
 
       {/* Recipe Recommendations */}
-      <div className="rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 sm:p-6">
-        <h2 className="mb-6 text-lg font-bold">Recommended Recipes</h2>
+      <div className="rounded-xl border border-primary/20 bg-[hsl(var(--color-card))] p-4 sm:p-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+          <div>
+            <h2 className="text-lg font-bold flex items-center">
+              <Utensils className="mr-2 h-5 w-5 text-primary" />
+              Recommended Recipes
+            </h2>
+            <p className="text-text-light">Based on your nutrition goals and preferences</p>
+          </div>
+          <Link 
+            to="/recipes" 
+            className="flex items-center gap-2 text-primary hover:text-primary-dark mt-2 md:mt-0"
+          >
+            View All Recipes
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
         <RecipeList limit={3} showTitle={false} />
       </div>
     </div>
