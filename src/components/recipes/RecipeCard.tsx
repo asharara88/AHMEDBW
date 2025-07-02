@@ -80,3 +80,5 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     </div>
   );
 };
+
+export default RecipeCard
