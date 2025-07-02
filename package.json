@@ -29,6 +29,7 @@
     "@supabase/auth-helpers-react": "^0.5.0",
     "@supabase/supabase-js": "^2.39.3",
     "@types/three": "^0.169.0",
+    "axios": "^1.10.0",
     "chart.js": "^4.4.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -45,8 +46,7 @@
     "react-router-dom": "^6.21.1",
     "tailwind-merge": "^3.2.0",
     "three": "^0.169.0",
-    "zustand": "^4.5.7",
-    "axios": "^1.10.0"
+    "zustand": "^4.5.7"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",

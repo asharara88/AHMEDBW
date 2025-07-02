@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { UserCircle, Settings, LogOut, Sun, Moon, Laptop } from 'lucide-react';
+import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Dumbbell } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import Logo from '../common/Logo';
@@ -71,6 +71,13 @@ const Navbar = () => {
                     className={`nav-link ${isActive('/supplements') ? 'nav-link-active' : ''}`}
                   >
                     Supplements
+                  </Link>
+                  <Link 
+                    to="/fitness" 
+                    className={`nav-link ${isActive('/fitness') ? 'nav-link-active' : ''}`}
+                  >
+                    <Dumbbell className="h-4 w-4 inline-block mr-1" />
+                    Fitness
                   </Link>
                 </>
               ) : (
@@ -216,6 +223,16 @@ const Navbar = () => {
                     onClick={toggleMenu}
                   >
                     Supplements
+                  </Link>
+                  <Link 
+                    to="/fitness" 
+                    className={`rounded-lg px-4 py-2 text-text-light transition-colors ${
+                      isActive('/fitness') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
+                    }`}
+                    onClick={toggleMenu}
+                  >
+                    <Dumbbell className="h-4 w-4 inline-block mr-2" />
+                    Fitness
                   </Link>
                   <Link 
                     to="/profile" 

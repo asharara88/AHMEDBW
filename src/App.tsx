@@ -25,6 +25,7 @@ const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
 const TestOpenAI = lazy(() => import('./pages/TestOpenAI'));
 const ImportSupplementsPage = lazy(() => import('./pages/admin/ImportSupplementsPage'));
 const RecipesPage = lazy(() => import('./pages/recipes/RecipesPage'));
+const FitnessPage = lazy(() => import('./pages/fitness/FitnessPage'));
 
 // Loading component
 const PageLoader: React.FC = () => (
@@ -97,6 +98,11 @@ const App: React.FC = () => {
           <Route path="recipes" element={
             <ProtectedRoute>
               <RecipesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="fitness" element={
+            <ProtectedRoute>
+              <FitnessPage />
             </ProtectedRoute>
           } />
           <Route path="*" element={<Navigate to="/" replace />} />
