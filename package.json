@@ -45,7 +45,8 @@
     "react-router-dom": "^6.21.1",
     "tailwind-merge": "^3.2.0",
     "three": "^0.169.0",
-    "zustand": "^4.5.7"
+    "zustand": "^4.5.7",
+    "axios": "^1.10.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
