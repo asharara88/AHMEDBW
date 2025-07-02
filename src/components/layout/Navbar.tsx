@@ -4,6 +4,8 @@ import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Dumbbell, Utensils } f
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import Logo from '../common/Logo';
+import EatwellLogo from '../common/EatwellLogo';
+import MovewellLogo from '../common/MovewellLogo';
 
 const Navbar = () => {
   const { user, signOut } = useAuth();
@@ -76,15 +78,13 @@ const Navbar = () => {
                     to="/recipes" 
                     className={`nav-link ${isActive('/recipes') ? 'nav-link-active' : ''}`}
                   >
-                    <Utensils className="h-4 w-4 inline-block mr-1" />
-                    EATWELL
+                    <EatwellLogo className="h-4 inline-block" />
                   </Link>
                   <Link 
                     to="/fitness" 
                     className={`nav-link ${isActive('/fitness') ? 'nav-link-active' : ''}`}
                   >
-                    <Dumbbell className="h-4 w-4 inline-block mr-1" />
-                    MOVEWELL
+                    <MovewellLogo className="h-4 inline-block" />
                   </Link>
                 </>
               ) : (
@@ -238,8 +238,7 @@ const Navbar = () => {
                     }`}
                     onClick={toggleMenu}
                   >
-                    <Utensils className="h-4 w-4 inline-block mr-2" />
-                    EATWELL
+                    <EatwellLogo className="h-4 inline-block" />
                   </Link>
                   <Link 
                     to="/fitness" 
@@ -248,8 +247,7 @@ const Navbar = () => {
                     }`}
                     onClick={toggleMenu}
                   >
-                    <Dumbbell className="h-4 w-4 inline-block mr-2" />
-                    MOVEWELL
+                    <MovewellLogo className="h-4 inline-block" />
                   </Link>
                   <Link 
                     to="/profile" 

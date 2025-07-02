@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { RecipeService, Recipe } from '../../services/recipeService';
 import { RecipeCard } from '../../components/recipes/RecipeCard';
 import { logError } from '../../utils/logger';
+import { motion } from 'framer-motion';
+import { Utensils } from 'lucide-react';
+import EatwellLogo from '../../components/common/EatwellLogo';
 
 const RecipesPage: React.FC = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -52,59 +55,54 @@ const RecipesPage: React.FC = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading personalized recipes...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div className="min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            Personalized Recipes
-          </h1>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-8"
+        >
+          <div className="flex justify-center items-center mb-4">
+            <EatwellLogo className="text-3xl" />
+          </div>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Discover healthy recipes tailored to your dietary preferences and health goals.
           </p>
-        </div>
+        </motion.div>
+
+        {loading && (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <span className="ml-2 text-text-light">Loading recipes...</span>
+          </div>
+        )}
 
         {error && (
-          <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                  Service Notice
-                </h3>
-                <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-                  <p>We're having trouble connecting to our recipe service. Showing fallback recipes instead.</p>
-                </div>
-              </div>
+          <div className="bg-error/10 text-error rounded-lg p-4 mb-4 flex items-start">
+            <Utensils className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="font-medium">Error loading recipes</p>
+              <p className="text-sm">{error}</p>
             </div>
           </div>
         )}
 
-        {recipes.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-gray-400">No recipes found. Please try again later.</p>
+        {!loading && recipes.length === 0 && (
+          <div className="text-center py-8 bg-[hsl(var(--color-surface-1))] rounded-lg">
+            <h3 className="text-lg font-medium mb-2">No recipes found</h3>
+            <p className="text-text-light">Try adjusting your filters</p>
           </div>
-        ) : (
+        )}
+
+        {recipes.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recipes.map((recipe) => (
-              <RecipeCard key={recipe.id} recipe={recipe} />
+            {recipes.map(recipe => (
+              <RecipeCard 
+                key={recipe.id} 
+                recipe={recipe} 
+              />
             ))}
           </div>
         )}
@@ -113,7 +111,7 @@ const RecipesPage: React.FC = () => {
           <button
             onClick={fetchRecipes}
             disabled={loading}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Loading...' : 'Refresh Recipes'}
           </button>
