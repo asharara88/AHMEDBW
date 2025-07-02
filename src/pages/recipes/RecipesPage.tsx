@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { RecipeService, Recipe } from '../../services/recipeService'
 import RecipeCard from '../../components/recipes/RecipeCard'
-import { Utensils, Filter, Search, Loader, AlertCircle } from 'lucide-react'
+import { Utensils, Filter, Search, Loader, AlertCircle, RefreshCw, Clock, Users } from 'lucide-react'
 
 const RecipesPage: React.FC = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([])
@@ -10,6 +10,7 @@ const RecipesPage: React.FC = () => {
   const [dietFilter, setDietFilter] = useState<string>('')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
+  const [retryCount, setRetryCount] = useState(0)
 
   useEffect(() => {
     fetchRecipes()
@@ -26,17 +27,72 @@ const RecipesPage: React.FC = () => {
       })
       
       setRecipes(result.recipes)
+      setRetryCount(0) // Reset retry count on success
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch recipes')
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch recipes'
+      setError(errorMessage)
       console.error('Error fetching recipes:', err)
     } finally {
       setLoading(false)
     }
   }
 
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1)
+    fetchRecipes()
+  }
+
   const filteredRecipes = recipes.filter(recipe => 
     recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
   )
+
+  const renderErrorMessage = () => {
+    const isConfigurationError = error?.includes('not properly configured') || 
+                                error?.includes('API key') ||
+                                error?.includes('configuration error')
+    
+    return (
+      <div className="bg-error/10 text-error rounded-lg p-6 mb-8">
+        <div className="flex items-start">
+          <AlertCircle className="h-5 w-5 mr-3 mt-0.5 flex-shrink-0" />
+          <div className="flex-1">
+            <h3 className="font-medium mb-2">
+              {isConfigurationError ? 'Service Configuration Issue' : 'Error Loading Recipes'}
+            </h3>
+            <p className="text-sm mb-4">{error}</p>
+            
+            {isConfigurationError ? (
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mt-4">
+                <h4 className="font-medium text-yellow-800 dark:text-yellow-200 mb-2">
+                  For Developers:
+                </h4>
+                <div className="text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
+                  <p>1. Ensure you have a Spoonacular API key</p>
+                  <p>2. Set it as a Supabase secret: <code className="bg-yellow-100 dark:bg-yellow-800 px-1 rounded">supabase secrets set SPOONACULAR_API_KEY=your-key</code></p>
+                  <p>3. Deploy the function: <code className="bg-yellow-100 dark:bg-yellow-800 px-1 rounded">supabase functions deploy get-personalized-recipes</code></p>
+                </div>
+              </div>
+            ) : (
+              <button 
+                onClick={handleRetry}
+                disabled={loading}
+                className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                {loading ? 'Retrying...' : 'Try Again'}
+              </button>
+            )}
+            
+            {retryCount > 0 && (
+              <p className="text-xs mt-2 opacity-75">
+                Retry attempt: {retryCount}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -84,19 +140,25 @@ const RecipesPage: React.FC = () => {
         </div>
       )}
 
-      {error && (
-        <div className="bg-error/10 text-error rounded-lg p-4 mb-8 flex items-start">
-          <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="font-medium">Error loading recipes</p>
-            <p className="text-sm">{error}</p>
-          </div>
+      {error && renderErrorMessage()}
+
+      {!loading && !error && filteredRecipes.length === 0 && recipes.length === 0 && (
+        <div className="text-center py-12 bg-[hsl(var(--color-surface-1))] rounded-lg">
+          <Utensils className="h-12 w-12 mx-auto text-text-light mb-4" />
+          <h3 className="text-lg font-medium mb-2">No recipes available</h3>
+          <p className="text-text-light mb-4">We're having trouble loading recipes right now</p>
+          <button 
+            onClick={handleRetry}
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+          >
+            Try Loading Recipes
+          </button>
         </div>
       )}
 
-      {!loading && !error && filteredRecipes.length === 0 && (
+      {!loading && !error && filteredRecipes.length === 0 && recipes.length > 0 && (
         <div className="text-center py-12 bg-[hsl(var(--color-surface-1))] rounded-lg">
-          <Utensils className="h-12 w-12 mx-auto text-text-light mb-4" />
+          <Search className="h-12 w-12 mx-auto text-text-light mb-4" />
           <h3 className="text-lg font-medium mb-2">No recipes found</h3>
           <p className="text-text-light">Try adjusting your search or filters</p>
         </div>
