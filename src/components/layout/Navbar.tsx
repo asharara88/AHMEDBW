@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Dumbbell } from 'lucide-react';
+import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Dumbbell, Utensils } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import Logo from '../common/Logo';
+import Logo from '../components/common/Logo';
 
 const Navbar = () => {
   const { user, signOut } = useAuth();
@@ -73,11 +73,18 @@ const Navbar = () => {
                     Supplements
                   </Link>
                   <Link 
+                    to="/recipes" 
+                    className={`nav-link ${isActive('/recipes') ? 'nav-link-active' : ''}`}
+                  >
+                    <Utensils className="h-4 w-4 inline-block mr-1" />
+                    EATWELL
+                  </Link>
+                  <Link 
                     to="/fitness" 
                     className={`nav-link ${isActive('/fitness') ? 'nav-link-active' : ''}`}
                   >
                     <Dumbbell className="h-4 w-4 inline-block mr-1" />
-                    Fitness
+                    MOVEWELL
                   </Link>
                 </>
               ) : (
@@ -225,6 +232,16 @@ const Navbar = () => {
                     Supplements
                   </Link>
                   <Link 
+                    to="/recipes" 
+                    className={`rounded-lg px-4 py-2 text-text-light transition-colors ${
+                      isActive('/recipes') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
+                    }`}
+                    onClick={toggleMenu}
+                  >
+                    <Utensils className="h-4 w-4 inline-block mr-2" />
+                    EATWELL
+                  </Link>
+                  <Link 
                     to="/fitness" 
                     className={`rounded-lg px-4 py-2 text-text-light transition-colors ${
                       isActive('/fitness') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
@@ -232,7 +249,7 @@ const Navbar = () => {
                     onClick={toggleMenu}
                   >
                     <Dumbbell className="h-4 w-4 inline-block mr-2" />
-                    Fitness
+                    MOVEWELL
                   </Link>
                   <Link 
                     to="/profile" 
