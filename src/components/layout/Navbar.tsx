@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Dumbbell, Utensils } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import Logo from '../components/common/Logo';
+import Logo from '../common/Logo';
 
 const Navbar = () => {
   const { user, signOut } = useAuth();
