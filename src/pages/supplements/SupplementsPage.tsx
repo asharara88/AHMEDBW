@@ -8,8 +8,6 @@ import CartWidget from '../../components/shopping/CartWidget';
 import ShoppingCart from '../../components/shopping/ShoppingCart';
 import SupplementGrid from '../../components/supplements/SupplementGrid';
 import SupplementFilters from '../../components/supplements/SupplementFilters';
-import SupplementCategories from '../../components/supplements/SupplementCategories';
-import SupplementFeatured from '../../components/supplements/SupplementFeatured';
 import StackBuilder from '../../components/supplements/StackBuilder';
 import SupplementRecommender from '../../components/supplements/SupplementRecommender';
 import ErrorBoundary from '../../components/common/ErrorBoundary';
@@ -67,12 +65,6 @@ const SupplementsPage = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  // Get recommended supplements (those with Green evidence level)
-  const recommendedSupplements = supplements
-    .filter(s => s.evidence_level === 'Green')
-    .sort(() => 0.5 - Math.random()) // Shuffle
-    .slice(0, 3);
-
   // Clear all filters
   const clearFilters = () => {
     setSearchQuery('');
@@ -99,10 +91,6 @@ const SupplementsPage = () => {
             <div className="flex items-center gap-4 w-full">
               <Tabs defaultValue="browse" onValueChange={setActiveTab} className="flex-1">
                 <TabsList>
-                  <TabsTrigger value="browse" className="flex items-center gap-2">
-                    <Package className="h-4 w-4" />
-                    <span>Browse</span>
-                  </TabsTrigger>
                   <TabsTrigger value="stacks" className="flex items-center gap-2">
                     <Brain className="h-4 w-4" />
                     <span>My Stacks</span>
@@ -117,24 +105,6 @@ const SupplementsPage = () => {
                   {/* Main Content */}
                   <div className="md:col-span-9 overflow-x-hidden max-w-full">
                     <TabsContent value="browse" className="mt-0">
-                      {/* Featured Supplements */}
-                      {recommendedSupplements.length > 0 && (
-                        <SupplementFeatured
-                          supplements={recommendedSupplements}
-                          userSupplements={userSupplements}
-                          onToggleSubscription={(supplementId) => toggleSubscription(user?.id || '', supplementId)}
-                          title="Recommended for You"
-                          description="Based on your health profile and goals"
-                        />
-                      )}
-                      
-                      {/* Categories */}
-                      <SupplementCategories
-                        categories={categories}
-                        selectedCategory={selectedCategory}
-                        onSelectCategory={setSelectedCategory}
-                      />
-                      
                       {/* Filters */}
                       <SupplementFilters
                         categories={categories}
