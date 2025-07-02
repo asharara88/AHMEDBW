@@ -12,6 +12,7 @@ import SupplementCategories from '../../components/supplements/SupplementCategor
 import SupplementFeatured from '../../components/supplements/SupplementFeatured';
 import StackBuilder from '../../components/supplements/StackBuilder';
 import SupplementRecommender from '../../components/supplements/SupplementRecommender';
+import ErrorBoundary from '../../components/common/ErrorBoundary';
 
 const SupplementsPage = () => {
   const { user } = useAuthStore();
@@ -200,11 +201,14 @@ const SupplementsPage = () => {
                     </TabsContent>
                     
                     <TabsContent value="stacks" className="mt-0">
-                      <StackBuilder 
-                        supplements={supplements}
-                        userSupplements={userSupplements}
-                        onToggleSubscription={(supplementId) => toggleSubscription(user?.id || '', supplementId)}
-                      />
+                      <ErrorBoundary>
+                        <StackBuilder
+                          supplements={supplements}
+                          userSupplements={userSupplements}
+                          onToggleSubscription={(supplementId) =>
+                            toggleSubscription(user?.id || '', supplementId)}
+                        />
+                      </ErrorBoundary>
                     </TabsContent>
                     
                     <TabsContent value="recommend" className="mt-0">
