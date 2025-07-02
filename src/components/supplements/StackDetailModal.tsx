@@ -15,7 +15,7 @@ interface StackDetailModalProps {
     supplements: string[];
     total_price: number;
     isActive?: boolean;
-  };
+  } | null;
   supplementsData: Supplement[];
   userSupplements: string[];
   onActivate: () => void;
@@ -29,7 +29,7 @@ const StackDetailModal: React.FC<StackDetailModalProps> = ({
   userSupplements,
   onActivate
 }) => {
-  if (!isOpen) return null;
+  if (!isOpen || !stack) return null;
 
   // Get the supplements in this stack - add null check for stack.supplements
   const stackSupplements = (stack.supplements ?? [])
