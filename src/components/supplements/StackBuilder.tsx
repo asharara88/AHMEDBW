@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToggle } from '../../hooks/useToggle';
-import { Plus, X, Check, Save, Package, AlertCircle, Info, Search, Filter, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, X, Check, Save, Package, AlertCircle, Info, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Supplement } from '../../types/supplements';
@@ -174,7 +174,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
       
       // Subscribe to all supplements in the stack
       if (stack.supplements && Array.isArray(stack.supplements)) {
-        stack.supplements.forEach(supplementId => {
+        stack.supplements.forEach((supplementId: string) => {
           if (!userSupplements.includes(supplementId)) {
             onToggleSubscription(supplementId);
           }
@@ -365,6 +365,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
                       value={selectedCategory || ''}
                       onChange={(e) => setSelectedCategory(e.target.value || null)}
                       className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-2 py-1 text-sm"
+                      aria-label="Filter supplements by category"
                     >
                       <option value="">All Categories</option>
                       {categories.map((category) => (

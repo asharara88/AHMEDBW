@@ -455,20 +455,24 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
     <div className="max-w-4xl mx-auto p-6">
       {/* Progress Bar */}
       <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Complete Your Profile</h2>
-            <span className="text-sm text-gray-500">
-              Step {currentStep.id} of {ONBOARDING_STEPS.length}
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className={`bg-primary h-2 rounded-full transition-all duration-300 ${styles.progressBar}`}
-              style={{ '--progress-width': `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` } as React.CSSProperties}
-            />
-          </div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold">Complete Your Profile</h2>
+          <span className="text-sm text-gray-500">
+            Step {currentStep.id} of {ONBOARDING_STEPS.length}
+          </span>
         </div>
-  
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div
+            className={`bg-primary h-2 rounded-full transition-all duration-300 ${styles.progressBar}`}
+            data-progress={`${(currentStep.id / ONBOARDING_STEPS.length) * 100}%`}
+            ref={(el) => {
+              if (el) {
+                el.style.width = `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%`;
+              }
+            }}
+          />
+        </div>
+
         <div className="flex justify-between mt-4">
           {ONBOARDING_STEPS.map((step) => {
             const Icon = step.icon;
@@ -496,7 +500,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
             );
           })}
         </div>
-        </div>
+      </div>
 
       {error && (
         <div className="mb-6 flex items-center gap-2 rounded-lg bg-red-50 p-4 border border-red-200">
@@ -508,58 +512,60 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
       )}
 
       {/* Current Step Content */}
+      {/* Current Step Content */}
       <Card className="p-6">
-            <div className="mb-6">
-              <div className="flex items-center space-x-3 mb-2">
-                <currentStep.icon className="text-primary" size={24} />
-                <h3 className="text-xl font-semibold">{currentStep.title}</h3>
-              </div>
-              <p className="text-gray-600">{currentStep.description}</p>
-            </div>
-    
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentStep.id}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                {renderStepContent()}
-              </motion.div>
-            </AnimatePresence>
-    
-            {/* Navigation Buttons */}
-            <div className="flex justify-between mt-8">
-              <Button
-                variant="outline"
-                onClick={handlePrevious}
-                disabled={currentStep.id === 1}
-              >
-                <ChevronLeft size={16} className="mr-1" />
-                Previous
-              </Button>
-    
-              <Button
-                onClick={handleNext}
-                disabled={saving || isLoading}
-                className="min-w-32"
-              >
-                {saving || isLoading ? (
-                  'Saving...'
-                ) : currentStep.id === ONBOARDING_STEPS.length ? (
-                  'Complete'
-                ) : (
-                  <>
-                    Next
-                    <ChevronRight size={16} className="ml-1" />
-                  </>
-                )}
-              </Button>
-            </div>
-            </Card>
+        <div className="mb-6">
+          <div className="flex items-center space-x-3 mb-2">
+            <currentStep.icon className="text-primary" size={24} />
+            <h3 className="text-xl font-semibold">{currentStep.title}</h3>
+          </div>
+          <p className="text-gray-600">{currentStep.description}</p>
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentStep.id}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            {renderStepContent()}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Navigation Buttons */}
+        <div className="flex justify-between mt-8">
+          <Button
+            variant="outline"
+            onClick={handlePrevious}
+            disabled={currentStep.id === 1}
+          >
+            <ChevronLeft size={16} className="mr-1" />
+            Previous
+          </Button>
+
+          <Button
+            onClick={handleNext}
+            disabled={saving || isLoading}
+            className="min-w-32"
+          >
+            {saving || isLoading ? (
+              'Saving...'
+            ) : currentStep.id === ONBOARDING_STEPS.length ? (
+              'Complete'
+            ) : (
+              <>
+                Next
+                <ChevronRight size={16} className="ml-1" />
+              </>
+            )}
+          </Button>
+        </div>
+      </Card>
     </div>
   );
 };
 
+export { EnhancedOnboardingForm };
 export default EnhancedOnboardingForm;
