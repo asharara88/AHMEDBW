@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/Tabs';
-import { Package, Brain, Beaker } from 'lucide-react';
+import { Brain, Beaker } from 'lucide-react';
 import { useAuthStore, useSupplementStore } from '../../store';
 import { CartProvider } from '../../components/shopping/CartProvider';
 import CartWidget from '../../components/shopping/CartWidget';
