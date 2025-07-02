@@ -305,11 +305,11 @@ const HealthTrends = ({ userId }: HealthTrendsProps) => {
         backgroundColor: currentTheme === 'dark' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(37, 99, 235, 0.1)',
         fill: true,
         tension: 0.4,
-        pointRadius: (ctx) => {
+        pointRadius: (ctx: any) => {
           const index = ctx.dataIndex;
           return data[index].events && data[index].events!.length > 0 ? 6 : 2;
         },
-        pointBackgroundColor: (ctx) => {
+        pointBackgroundColor: (ctx: any) => {
           const index = ctx.dataIndex;
           if (data[index].events && data[index].events!.length > 0) {
             const eventType = data[index].events![0].type;
@@ -317,14 +317,14 @@ const HealthTrends = ({ userId }: HealthTrendsProps) => {
           }
           return currentTheme === 'dark' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(37, 99, 235, 0.8)';
         },
-        pointBorderColor: (ctx) => {
+        pointBorderColor: (ctx: any) => {
           const index = ctx.dataIndex;
           if (data[index].events && data[index].events!.length > 0) {
             return '#ffffff';
           }
           return currentTheme === 'dark' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(37, 99, 235, 0.8)';
         },
-        pointBorderWidth: (ctx) => {
+        pointBorderWidth: (ctx: any) => {
           const index = ctx.dataIndex;
           return data[index].events && data[index].events!.length > 0 ? 2 : 1;
         },
@@ -529,7 +529,7 @@ const HealthTrends = ({ userId }: HealthTrendsProps) => {
                         ? 'bg-primary text-white'
                         : 'bg-[hsl(var(--color-card-hover))] text-text-light hover:text-text'
                     }`}
-                    aria-pressed={((timeRange === range).toString()).toString()}
+                    aria-pressed={(timeRange === range).toString()}
                   >
                     {range}
                   </button>
