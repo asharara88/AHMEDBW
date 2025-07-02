@@ -332,7 +332,7 @@ const NutritionDashboard = ({ userId }: NutritionDashboardProps) => {
                   </div>
                   <div className="mt-1">
                     <span className="text-xs text-text-light">
-                      Target: &lt;12 hrs
+                      Target: {"<12 hrs"}
                     </span>
                   </div>
                 </div>
