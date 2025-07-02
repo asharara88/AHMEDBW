@@ -9,7 +9,8 @@ import ActivityDashboard from './ActivityDashboard';
 import NutritionDashboard from './NutritionDashboard';
 import SupplementDashboard from './SupplementDashboard';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/Tabs';
-import { Calendar, Clock, Activity } from 'lucide-react';
+import { Calendar, Clock, Activity, Utensils, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const HealthDashboard = () => {
   const { user } = useAuth();
@@ -75,6 +76,42 @@ const HealthDashboard = () => {
         </div>
       </div>
 
+      {/* Nutrition & Recipes Highlight */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-xl bg-primary/10 p-4 border border-primary/20"
+      >
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-semibold flex items-center text-primary">
+              <Utensils className="h-5 w-5 mr-2" />
+              Nutrition & Recipes
+            </h3>
+            <p className="text-sm text-text-light mt-1">
+              Personalized nutrition insights and healthy recipe recommendations
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex flex-col">
+              <span className="text-sm text-text-light">Daily Calories</span>
+              <span className="text-lg font-semibold">2,150 kcal</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm text-text-light">Protein</span>
+              <span className="text-lg font-semibold">125g</span>
+            </div>
+            <Link 
+              to="/recipes" 
+              className="flex items-center gap-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
+            >
+              Browse Recipes
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </motion.div>
+
       <div className="grid gap-6 md:grid-cols-12">
         {/* BW Score Card */}
         <div className="md:col-span-4 min-w-0 overflow-x-visible">
@@ -94,7 +131,10 @@ const HealthDashboard = () => {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="sleep">Sleep</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
-            <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
+            <TabsTrigger value="nutrition" className="flex items-center gap-1">
+              <Utensils className="h-4 w-4" />
+              Nutrition
+            </TabsTrigger>
             <TabsTrigger value="supplements">Supplements</TabsTrigger>
           </TabsList>
           
