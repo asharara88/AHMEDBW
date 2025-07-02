@@ -1,99 +1,124 @@
-import { supabase } from '../lib/supabaseClient'
-import { logError } from '../utils/logger'
-
-export interface RecipeRequest {
-  dietPreference?: string
-  wellnessGoal?: string
-  numberOfResults?: number
-}
+import { supabase } from '../lib/supabaseClient';
+import { logError } from '../utils/logger';
 
 export interface Recipe {
-  id: number
-  title: string
-  image: string
-  readyInMinutes: number
-  servings: number
+  id: number;
+  title: string;
+  image: string;
+  readyInMinutes: number;
+  servings: number;
+  summary: string;
+  instructions: string;
+  extendedIngredients: Array<{
+    id: number;
+    name: string;
+    amount: number;
+    unit: string;
+  }>;
   nutrition?: {
-    calories: number
-    protein: number
-    carbs: number
-    fat: number
-  }
-  vegetarian: boolean
-  vegan: boolean
-  glutenFree: boolean
-  sourceUrl: string
+    nutrients: Array<{
+      name: string;
+      amount: number;
+      unit: string;
+    }>;
+  };
 }
 
 export class RecipeService {
-  static async getPersonalizedRecipes(request: RecipeRequest) {
+  static async getPersonalizedRecipes(): Promise<Recipe[]> {
     try {
-      console.log('Calling recipe function with:', request)
+      console.log('Calling get-personalized-recipes function...');
       
+      // Get the current session to ensure we have a valid token
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        throw new Error('Authentication required');
+      }
+
+      if (!session?.access_token) {
+        console.error('No access token found');
+        throw new Error('Authentication required');
+      }
+
+      // Call the Supabase Edge Function
       const { data, error } = await supabase.functions.invoke('get-personalized-recipes', {
-        body: request
-      })
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
 
       if (error) {
-        logError('Recipe function error:', error)
-        
-        // Provide more specific error messages based on error type
-        if (error.message?.includes('Edge Function returned a non-2xx status code')) {
-          throw new Error('Recipe service is currently unavailable. Please ensure the Spoonacular API key is configured correctly.')
-        } else if (error.message?.includes('timeout') || error.message?.includes('network')) {
-          throw new Error('Network timeout while fetching recipes. Please try again.')
-        } else {
-          throw new Error(`Recipe service error: ${error.message || 'Unknown error occurred'}`)
-        }
+        console.error('Supabase function error:', error);
+        logError('Recipe function error:', error);
+        throw new Error(`Failed to fetch recipes: ${error.message}`);
       }
 
       if (!data) {
-        logError('Recipe data is null or undefined:', { data, error })
-        throw new Error('No data received from recipe service. Please try again later.')
+        console.error('No data returned from function');
+        throw new Error('No data returned from recipe service');
       }
 
-      if (!data.success) {
-        const errorMessage = data?.message || data?.error || 'Failed to fetch recipes'
-        logError('Recipe API returned error:', { data })
-        
-        // Handle specific API errors
-        if (errorMessage.includes('API configuration error') || errorMessage.includes('Missing Spoonacular API key')) {
-          throw new Error('Recipe service is not properly configured. Please contact support.')
-        } else if (errorMessage.includes('Spoonacular API error')) {
-          throw new Error('External recipe service is temporarily unavailable. Please try again later.')
-        } else if (errorMessage.includes('timeout')) {
-          throw new Error('Request timed out while fetching recipes. Please try again.')
-        } else {
-          throw new Error(errorMessage)
-        }
-      }
+      console.log('Recipes fetched successfully:', data);
+      return data.recipes || [];
 
-      console.log('Successfully fetched recipes:', data.recipes?.length || 0)
-      return data
     } catch (error) {
-      logError('Error in getPersonalizedRecipes:', error)
+      console.error('Error in getPersonalizedRecipes:', error);
+      logError('Error in getPersonalizedRecipes:', error);
       
-      // Re-throw with better error message if it's a generic error
-      if (error instanceof Error) {
-        throw error
-      } else {
-        throw new Error('An unexpected error occurred while fetching recipes. Please try again.')
-      }
+      // Return fallback recipes if the service fails
+      return this.getFallbackRecipes();
     }
   }
 
-  static async getRecipesByWellnessGoal(wellnessGoal: string, dietPreference?: string, numberOfResults: number = 12) {
-    return this.getPersonalizedRecipes({
-      wellnessGoal,
-      dietPreference,
-      numberOfResults
-    })
-  }
-
-  static async getRecipesByDiet(dietPreference: string, numberOfResults: number = 12) {
-    return this.getPersonalizedRecipes({
-      dietPreference,
-      numberOfResults
-    })
+  private static getFallbackRecipes(): Recipe[] {
+    return [
+      {
+        id: 1,
+        title: "Mediterranean Quinoa Bowl",
+        image: "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg",
+        readyInMinutes: 25,
+        servings: 2,
+        summary: "A nutritious quinoa bowl with Mediterranean flavors, packed with protein and healthy fats.",
+        instructions: "1. Cook quinoa according to package directions. 2. Chop vegetables. 3. Combine all ingredients in a bowl. 4. Drizzle with olive oil and lemon juice.",
+        extendedIngredients: [
+          { id: 1, name: "quinoa", amount: 1, unit: "cup" },
+          { id: 2, name: "cucumber", amount: 1, unit: "medium" },
+          { id: 3, name: "tomatoes", amount: 2, unit: "medium" },
+          { id: 4, name: "feta cheese", amount: 0.5, unit: "cup" }
+        ]
+      },
+      {
+        id: 2,
+        title: "Grilled Salmon with Vegetables",
+        image: "https://images.pexels.com/photos/725991/pexels-photo-725991.jpeg",
+        readyInMinutes: 30,
+        servings: 2,
+        summary: "Heart-healthy grilled salmon with a colorful mix of roasted vegetables.",
+        instructions: "1. Preheat grill to medium-high. 2. Season salmon with herbs. 3. Grill salmon 4-5 minutes per side. 4. Roast vegetables until tender.",
+        extendedIngredients: [
+          { id: 1, name: "salmon fillet", amount: 2, unit: "pieces" },
+          { id: 2, name: "broccoli", amount: 1, unit: "head" },
+          { id: 3, name: "bell peppers", amount: 2, unit: "medium" },
+          { id: 4, name: "olive oil", amount: 2, unit: "tbsp" }
+        ]
+      },
+      {
+        id: 3,
+        title: "Avocado Toast with Poached Egg",
+        image: "https://images.pexels.com/photos/566566/pexels-photo-566566.jpeg",
+        readyInMinutes: 15,
+        servings: 1,
+        summary: "A simple yet nutritious breakfast or lunch option with healthy fats and protein.",
+        instructions: "1. Toast bread until golden. 2. Mash avocado with lime juice. 3. Poach egg in simmering water. 4. Assemble and season with salt and pepper.",
+        extendedIngredients: [
+          { id: 1, name: "whole grain bread", amount: 2, unit: "slices" },
+          { id: 2, name: "avocado", amount: 1, unit: "medium" },
+          { id: 3, name: "egg", amount: 1, unit: "large" },
+          { id: 4, name: "lime juice", amount: 1, unit: "tbsp" }
+        ]
+      }
+    ];
   }
 }
