@@ -210,6 +210,15 @@ The migration `20250629120000_inventory.sql` adds `stock_quantity`,
 table. These fields keep track of inventory levels and highlight featured
 products so supplements can be added to a stack or the shopping cart.
 
+### MyFitnessPal API Example
+
+Use the `scripts/myfitnesspal_search.sh` script to query nutritional data via RapidAPI.
+Set the `RAPIDAPI_KEY` environment variable before running.
+
+```bash
+RAPIDAPI_KEY=your-key-here ./scripts/myfitnesspal_search.sh "oreo" 1
+```
+
 ## Project Structure
 
 ```
