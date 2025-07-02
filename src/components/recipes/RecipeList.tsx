@@ -36,7 +36,7 @@ const RecipeList: React.FC<RecipeListProps> = ({
         numberOfResults: limit
       })
       
-      setRecipes(result.recipes)
+      setRecipes(result)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch recipes')
       console.error('Error fetching recipes:', err)
