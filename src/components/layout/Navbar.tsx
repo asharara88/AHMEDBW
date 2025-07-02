@@ -28,6 +28,8 @@ const Navbar = () => {
   
   const isActive = (path: string) => location.pathname === path;
 
+  const { theme, setTheme } = useTheme();
+  
   const getThemeIcon = () => {
     switch (theme) {
       case 'light': return <Sun className="h-5 w-5" />;
@@ -45,8 +47,6 @@ const Navbar = () => {
       <line x1="3" y1="18" x2="21" y2="18" />
     </svg>
   );
-  
-  const { theme, setTheme } = useTheme();
   
   return (
     <header className="sticky top-0 z-50 border-b border-[hsl(var(--color-border))] bg-background/95 backdrop-blur-md">
