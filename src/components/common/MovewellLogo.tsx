@@ -2,23 +2,18 @@ import React from 'react';
 
 interface MovewellLogoProps {
   className?: string;
-  color?: string;
 }
 
 const MovewellLogo: React.FC<MovewellLogoProps> = ({ 
-  className = '', 
-  color = '#3b82f6' // Default to primary blue
+  className = ''
 }) => {
   return (
-    <div className={`flex items-center font-bold ${className}`}>
-      <span style={{ color }}>MOV</span>
-      {/* Three dashes replacing the E */}
-      <div className="flex flex-col gap-[3px] mx-1">
-        <div style={{ backgroundColor: color, height: '3px', width: '16px', borderRadius: '1px' }}></div>
-        <div style={{ backgroundColor: color, height: '3px', width: '16px', borderRadius: '1px' }}></div>
-        <div style={{ backgroundColor: color, height: '3px', width: '16px', borderRadius: '1px' }}></div>
-      </div>
-      <span style={{ color }}>WELL</span>
+    <div className={`flex items-center ${className}`}>
+      <img 
+        src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/logos/2.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJsb2dvcy8yLnN2ZyIsImlhdCI6MTc1MTQ1MjcwMCwiZXhwIjoxNzgyOTg4NzAwfQ.ToGkjAJv89sLydmj8qQwVXYrKjvnPEU_zGWhAmVo1yE" 
+        alt="MOVEWELL" 
+        className="h-6 w-auto"
+      />
     </div>
   );
 };
