@@ -13,7 +13,7 @@ import { Calendar, Clock, Activity, Utensils, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const HealthDashboard = () => {
-  const { user } = useAuth();
+  const { user, isDemo } = useAuth();
   const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month'>('day');
   const [healthData] = useState({
     bwScore: 82,
@@ -76,6 +76,18 @@ const HealthDashboard = () => {
         </div>
       </div>
 
+      <div className="grid gap-6 md:grid-cols-12">
+        {/* BW Score Card */}
+        <div className="md:col-span-4 min-w-0 overflow-x-visible">
+          <BWScoreCard score={healthData.bwScore} trend="up" change={4} />
+        </div>
+
+        {/* Metrics Overview */}
+        <div className="md:col-span-8">
+          <MetricsOverview metrics={healthData.metrics} />
+        </div>
+      </div>
+
       {/* Nutrition & Recipes Highlight */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -111,18 +123,6 @@ const HealthDashboard = () => {
           </div>
         </div>
       </motion.div>
-
-      <div className="grid gap-6 md:grid-cols-12">
-        {/* BW Score Card */}
-        <div className="md:col-span-4 min-w-0 overflow-x-visible">
-          <BWScoreCard score={healthData.bwScore} trend="up" change={4} />
-        </div>
-
-        {/* Metrics Overview */}
-        <div className="md:col-span-8">
-          <MetricsOverview metrics={healthData.metrics} />
-        </div>
-      </div>
 
       {/* Health Trends */}
       <div className="overflow-x-visible">
