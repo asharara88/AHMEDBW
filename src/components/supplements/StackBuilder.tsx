@@ -197,8 +197,9 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
       if (!stack) return;
       
       // Subscribe to all supplements in the stack
-      if (stack.supplements && Array.isArray(stack.supplements)) {
-        stack.supplements.forEach((supplementId: string) => {
+      const stackSupplements = stack.supplements || [];
+      if (Array.isArray(stackSupplements)) {
+        stackSupplements.forEach((supplementId: string) => {
           if (!userSupplements.includes(supplementId)) {
             onToggleSubscription(supplementId);
           }
@@ -486,13 +487,14 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {stacks.map((stack) => {
-          // Get up to 3 supplements to show in the preview
-          const stackSupplementPreviews = stack.supplements
+          // Get up to 3 supplements to show in the preview - safely handle undefined supplements
+          const stackSupplements = stack.supplements || [];
+          const stackSupplementPreviews = stackSupplements
             .slice(0, 3)
             .map(id => supplements.find(s => s.id === id))
             .filter(Boolean);
           
-          const hasMoreSupplements = stack.supplements.length > 3;
+          const hasMoreSupplements = stackSupplements.length > 3;
           
           return (
             <motion.div
@@ -549,7 +551,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
                 
                 {hasMoreSupplements && (
                   <div className="flex items-center justify-center rounded-lg border border-dashed border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] p-3 text-sm text-text-light">
-                    +{stack.supplements.length - 3} more supplements
+                    +{stackSupplements.length - 3} more supplements
                   </div>
                 )}
               </div>
