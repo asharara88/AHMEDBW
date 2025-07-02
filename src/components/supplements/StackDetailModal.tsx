@@ -31,8 +31,8 @@ const StackDetailModal: React.FC<StackDetailModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  // Get the supplements in this stack
-  const stackSupplements = stack.supplements
+  // Get the supplements in this stack - add null check for stack.supplements
+  const stackSupplements = (stack.supplements ?? [])
     .map(id => supplementsData.find(s => s.id === id))
     .filter(Boolean) as Supplement[];
 
