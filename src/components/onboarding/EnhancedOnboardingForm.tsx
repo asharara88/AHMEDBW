@@ -464,11 +464,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
 <div className="w-full bg-gray-200 rounded-full h-2">
   <div
     className={`bg-primary h-2 rounded-full transition-all duration-300 ${styles.progressBar}`}
-<<<<<<< Updated upstream
     style={{ width: `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` }}
-=======
-    data-progress={(currentStep.id / ONBOARDING_STEPS.length) * 100}
->>>>>>> Stashed changes
   />
 </div>
 
