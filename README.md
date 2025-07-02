@@ -203,6 +203,13 @@ table for storing supplements that users add to their cart. Add items via the
 cart page, and proceed to checkout when ready. Row level security ensures each
 user can only manage their own cart items.
 
+### Inventory Tracking
+
+The migration `20250629120000_inventory.sql` adds `stock_quantity`,
+`is_available`, `is_featured`, and `is_bestseller` columns to the `supplements`
+table. These fields keep track of inventory levels and highlight featured
+products so supplements can be added to a stack or the shopping cart.
+
 ## Project Structure
 
 ```
