@@ -1,6 +1,6 @@
 import React from 'react'
 import { Recipe } from '../../services/recipeService'
-import { Clock, Users, Check } from 'lucide-react'
+import { Clock, Users } from 'lucide-react'
 
 interface RecipeCardProps {
   recipe: Recipe

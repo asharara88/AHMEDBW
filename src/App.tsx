@@ -24,6 +24,7 @@ const CheckoutCancelPage = lazy(() => import('./pages/checkout/CheckoutCancelPag
 const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
 const TestOpenAI = lazy(() => import('./pages/TestOpenAI'));
 const ImportSupplementsPage = lazy(() => import('./pages/admin/ImportSupplementsPage'));
+const RecipesPage = lazy(() => import('./pages/recipes/RecipesPage'));
 
 // Loading component
 const PageLoader: React.FC = () => (
@@ -91,6 +92,11 @@ const App: React.FC = () => {
           <Route path="profile" element={
             <ProtectedRoute>
               <ProfilePage />
+            </ProtectedRoute>
+          } />
+          <Route path="recipes" element={
+            <ProtectedRoute>
+              <RecipesPage />
             </ProtectedRoute>
           } />
           <Route path="*" element={<Navigate to="/" replace />} />

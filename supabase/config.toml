@@ -33,3 +33,5 @@ verify_jwt = false
 [functions.recommendations]
 verify_jwt = false
 
+[functions.get-personalized-recipes]
+verify_jwt = false

@@ -18,7 +18,8 @@
     "postinstall": "echo 'Skipping problematic native builds'",
     "predeploy": "node scripts/deploy-validation.js",
     "import:supplements": "node --loader ts-node/esm src/scripts/importSupplements.ts",
-    "import:csv": "node --loader ts-node/esm src/scripts/importSupplementsFromCsv.ts"
+    "import:csv": "node --loader ts-node/esm src/scripts/importSupplementsFromCsv.ts",
+    "deploy:functions": "supabase functions deploy get-personalized-recipes"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.0.16",
