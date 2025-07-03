@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { UserCircle, Settings, LogOut, Sun, Moon, Laptop, Dumbbell, Utensils } from 'lucide-react';
+import { UserCircle, Settings, LogOut, Sun, Moon, Laptop } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import Logo from '../../components/common/Logo';
-import EatwellLogo from '../../components/common/EatwellLogo';
-import MovewellLogo from '../../components/common/MovewellLogo';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -80,13 +78,13 @@ const Navbar = () => {
                     to="/recipes" 
                     className={`nav-link ${isActive('/recipes') ? 'nav-link-active' : ''}`}
                   >
-                    <EatwellLogo className="h-4 inline-block" />
+                    Recipes
                   </Link>
                   <Link 
                     to="/fitness" 
                     className={`nav-link ${isActive('/fitness') ? 'nav-link-active' : ''}`}
                   >
-                    <MovewellLogo className="h-4 inline-block" />
+                    Fitness
                   </Link>
                 </>
               ) : (
@@ -240,7 +238,7 @@ const Navbar = () => {
                     }`}
                     onClick={toggleMenu}
                   >
-                    <EatwellLogo className="h-4 inline-block" />
+                    Recipes
                   </Link>
                   <Link 
                     to="/fitness" 
@@ -249,7 +247,7 @@ const Navbar = () => {
                     }`}
                     onClick={toggleMenu}
                   >
-                    <MovewellLogo className="h-4 inline-block" />
+                    Fitness
                   </Link>
                   <Link 
                     to="/profile" 

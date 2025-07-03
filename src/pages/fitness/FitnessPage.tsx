@@ -6,7 +6,6 @@ import FoodSearch from '../../components/fitness/FoodSearch';
 import ExerciseSearch from '../../components/fitness/ExerciseSearch';
 import { FoodItem } from '../../api/myFitnessPalApi';
 import { Exercise } from '../../api/exerciseDbApi';
-import MovewellLogo from '../../components/common/MovewellLogo';
 
 interface LoggedFood {
   food: FoodItem;
@@ -95,7 +94,7 @@ const FitnessPage: React.FC = () => {
         transition={{ duration: 0.5 }}
       >
         <div className="mb-6 flex justify-center">
-          <MovewellLogo className="text-3xl" />
+          <h2 className="text-2xl font-bold">Fitness Tracker</h2>
         </div>
         <p className="text-center text-text-light mb-6">
           Track your nutrition and workouts to optimize your fitness goals
