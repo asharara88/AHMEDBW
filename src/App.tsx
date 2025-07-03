@@ -95,7 +95,7 @@ const App: React.FC = () => {
               <ProfilePage />
             </ProtectedRoute>
           } />
-          <Route path="recipes" element={
+          <Route path="nutrition" element={
             <ProtectedRoute>
               <RecipesPage />
             </ProtectedRoute>

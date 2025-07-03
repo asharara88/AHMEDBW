@@ -74,18 +74,6 @@ const Navbar = () => {
                   >
                     Supplements
                   </Link>
-                  <Link 
-                    to="/recipes" 
-                    className={`nav-link ${isActive('/recipes') ? 'nav-link-active' : ''}`}
-                  >
-                    Nutrition
-                  </Link>
-                  <Link 
-                    to="/fitness" 
-                    className={`nav-link ${isActive('/fitness') ? 'nav-link-active' : ''}`}
-                  >
-                    Fitness
-                  </Link>
                 </>
               ) : (
                 <>
@@ -230,24 +218,6 @@ const Navbar = () => {
                     onClick={toggleMenu}
                   >
                     Supplements
-                  </Link>
-                  <Link 
-                    to="/recipes" 
-                    className={`rounded-lg px-4 py-2 text-text-light transition-colors ${
-                      isActive('/recipes') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
-                    }`}
-                    onClick={toggleMenu}
-                  >
-                    Nutrition
-                  </Link>
-                  <Link 
-                    to="/fitness" 
-                    className={`rounded-lg px-4 py-2 text-text-light transition-colors ${
-                      isActive('/fitness') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
-                    }`}
-                    onClick={toggleMenu}
-                  >
-                    Fitness
                   </Link>
                   <Link 
                     to="/profile" 
