@@ -9,12 +9,8 @@ const MovewellLogo: React.FC<MovewellLogoProps> = ({
 }) => {
   return (
     <div className={`flex flex-col items-center ${className}`}>
-      <img 
-        src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/logos/2.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJsb2dvcy8yLnN2ZyIsImlhdCI6MTc1MTQ1MjcwMCwiZXhwIjoxNzgyOTg4NzAwfQ.ToGkjAJv89sLydmj8qQwVXYrKjvnPEU_zGWhAmVo1yE" 
-        alt="MOVEWELL" 
-        className="h-24 w-auto"
-      />
-      <span className="mt-2 text-sm font-medium text-gray-600 dark:text-gray-300">Fitness</span>
+      <div className="text-3xl font-bold text-green-600">MOVEWELL</div>
+      <span className="mt-1 text-sm font-medium text-gray-600 dark:text-gray-300">Fitness</span>
     </div>
   );
 };
