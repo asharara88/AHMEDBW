@@ -28,11 +28,19 @@ const VoicePreferences = ({
   const [testingVoice, setTestingVoice] = useState<string | null>(null);
 
   const testVoice = async (voiceId: string) => {
+    if (!preferSpeech) return;
+    
     setTestingVoice(voiceId);
     
     try {
       const testText = "Hello, I'm your Biowell health coach. How can I help you today?";
-      const audioBlob = await elevenlabsApi.textToSpeech(testText, voiceId);
+      const audioBlob = await elevenlabsApi.textToSpeech(testText, voiceId, {
+        stability: voiceSettings.stability,
+        similarity_boost: voiceSettings.similarityBoost,
+        style: 0.0,
+        use_speaker_boost: true
+      });
+      
       const url = URL.createObjectURL(audioBlob);
       
       // Play the audio
@@ -55,21 +63,27 @@ const VoicePreferences = ({
 
   const handleStabilityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const stability = parseFloat(e.target.value);
-    onUpdateVoiceSettings({
-      ...voiceSettings,
-      stability
-    });
+    if (!isNaN(stability)) {
+      onUpdateVoiceSettings({
+        ...voiceSettings,
+        stability
+      });
+    }
   };
 
   const handleSimilarityBoostChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const similarityBoost = parseFloat(e.target.value);
-    onUpdateVoiceSettings({
-      ...voiceSettings,
-      similarityBoost
-    });
+    if (!isNaN(similarityBoost)) {
+      onUpdateVoiceSettings({
+        ...voiceSettings,
+        similarityBoost
+      });
+    }
   };
 
   const applyPreset = (preset: 'standard' | 'clear' | 'expressive') => {
+    if (!preferSpeech) return;
+    
     let settings;
     
     switch (preset) {

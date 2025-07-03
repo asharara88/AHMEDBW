@@ -31,6 +31,7 @@ const ChatSettings = ({
   const [activeTab, setActiveTab] = useState<'voice' | 'chat'>(showVoiceSettings ? 'voice' : 'chat');
   const [autoScroll, setAutoScroll] = useState(true);
   const [showTimestamps, setShowTimestamps] = useState(true);
+  const [showSuggestions, setShowSuggestions] = useState(true);
   const [coachStyle, setCoachStyle] = useState<'balanced' | 'detailed' | 'concise'>('balanced');
   
   const { 
@@ -103,6 +104,7 @@ const ChatSettings = ({
             onClick={onClose}
             className="rounded-full p-1 text-text-light hover:bg-[hsl(var(--color-surface-1))] hover:text-text"
             type="button"
+            aria-label="Close settings"
           >
             <X className="h-4 w-4" />
           </button>
@@ -169,8 +171,8 @@ const ChatSettings = ({
               <ToggleSwitch
                 id="show-suggestions"
                 label="Show suggested questions"
-                checked={true}
-                onChange={() => {}}
+                checked={showSuggestions}
+                onChange={() => setShowSuggestions(!showSuggestions)}
               />
             </div>
           </div>
