@@ -60,7 +60,7 @@ const Navbar = () => {
                     to="/dashboard" 
                     className={`nav-link ${isActive('/dashboard') ? 'nav-link-active' : ''}`}
                   >
-                    Dashboard
+                    Home
                   </Link>
                   <Link 
                     to="/chat" 
@@ -78,7 +78,7 @@ const Navbar = () => {
                     to="/recipes" 
                     className={`nav-link ${isActive('/recipes') ? 'nav-link-active' : ''}`}
                   >
-                    Recipes
+                    Nutrition
                   </Link>
                   <Link 
                     to="/fitness" 
@@ -211,7 +211,7 @@ const Navbar = () => {
                     }`}
                     onClick={toggleMenu}
                   >
-                    Dashboard
+                    Home
                   </Link>
                   <Link 
                     to="/chat" 
@@ -238,7 +238,7 @@ const Navbar = () => {
                     }`}
                     onClick={toggleMenu}
                   >
-                    Recipes
+                    Nutrition
                   </Link>
                   <Link 
                     to="/fitness" 

@@ -64,7 +64,7 @@ const RecipesPage: React.FC = () => {
           className="text-center mb-8"
         >
           <div className="flex justify-center items-center mb-4">
-            <h2 className="text-2xl font-bold">Healthy Recipes</h2>
+            <h2 className="text-2xl font-bold">Nutrition</h2>
           </div>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Discover healthy recipes tailored to your dietary preferences and health goals.
