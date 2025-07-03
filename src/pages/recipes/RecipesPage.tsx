@@ -3,16 +3,18 @@ import { RecipeService, Recipe } from '../../services/recipeService';
 import { RecipeCard } from '../../components/recipes/RecipeCard';
 import { logError } from '../../utils/logger';
 import { motion } from 'framer-motion';
-import { Utensils } from 'lucide-react';
+import { Utensils, Filter, Check } from 'lucide-react';
 
 const RecipesPage: React.FC = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [dietFilter, setDietFilter] = useState<string>('all');
+  const [healthFilter, setHealthFilter] = useState<string>('all');
 
   useEffect(() => {
     fetchRecipes();
-  }, []);
+  }, [dietFilter, healthFilter]);
 
   const fetchRecipes = async () => {
     try {
@@ -20,7 +22,10 @@ const RecipesPage: React.FC = () => {
       setError(null);
       
       console.log('Fetching personalized recipes...');
-      const fetchedRecipes = await RecipeService.getPersonalizedRecipes();
+      const fetchedRecipes = await RecipeService.getPersonalizedRecipes({
+        dietPreference: dietFilter !== 'all' ? dietFilter : undefined,
+        wellnessGoal: healthFilter !== 'all' ? healthFilter : undefined
+      });
       
       console.log('Recipes received:', fetchedRecipes);
       setRecipes(fetchedRecipes);
@@ -54,6 +59,26 @@ const RecipesPage: React.FC = () => {
     }
   };
 
+  const dietOptions = [
+    { value: 'all', label: 'All Diets' },
+    { value: 'vegetarian', label: 'Vegetarian' },
+    { value: 'vegan', label: 'Vegan' },
+    { value: 'gluten-free', label: 'Gluten Free' },
+    { value: 'keto', label: 'Keto' },
+    { value: 'paleo', label: 'Paleo' },
+    { value: 'mediterranean', label: 'Mediterranean' }
+  ];
+
+  const healthOptions = [
+    { value: 'all', label: 'All Goals' },
+    { value: 'weight-loss', label: 'Weight Loss' },
+    { value: 'heart-health', label: 'Heart Health' },
+    { value: 'high-protein', label: 'High Protein' },
+    { value: 'low-carb', label: 'Low Carb' },
+    { value: 'low-sodium', label: 'Low Sodium' },
+    { value: 'high-fiber', label: 'High Fiber' }
+  ];
+
   return (
     <div className="min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -70,6 +95,49 @@ const RecipesPage: React.FC = () => {
             Discover healthy recipes tailored to your dietary preferences and health goals.
           </p>
         </motion.div>
+
+        {/* Filters */}
+        <div className="mb-8 flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col items-start">
+            <label className="mb-2 text-sm font-medium text-text-light">Diet Type</label>
+            <div className="flex flex-wrap gap-2">
+              {dietOptions.map(option => (
+                <button
+                  key={option.value}
+                  onClick={() => setDietFilter(option.value)}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-colors ${
+                    dietFilter === option.value 
+                      ? 'bg-primary text-white' 
+                      : 'bg-[hsl(var(--color-surface-1))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
+                  }`}
+                >
+                  {dietFilter === option.value && <Check className="h-3 w-3" />}
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <div className="flex flex-col items-start">
+            <label className="mb-2 text-sm font-medium text-text-light">Health Focus</label>
+            <div className="flex flex-wrap gap-2">
+              {healthOptions.map(option => (
+                <button
+                  key={option.value}
+                  onClick={() => setHealthFilter(option.value)}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-colors ${
+                    healthFilter === option.value 
+                      ? 'bg-secondary text-white' 
+                      : 'bg-[hsl(var(--color-surface-1))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'
+                  }`}
+                >
+                  {healthFilter === option.value && <Check className="h-3 w-3" />}
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {loading && (
           <div className="flex justify-center items-center py-8">

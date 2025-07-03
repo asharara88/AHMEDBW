@@ -68,6 +68,10 @@ serve(async (req) => {
       )
     }
 
+    // Parse request body
+    const requestData = await req.json().catch(() => ({}));
+    const { dietPreference, wellnessGoal, numberOfResults = 12 } = requestData;
+
     // Get user preferences from the database
     const { data: profile } = await supabase
       .from('profiles')
@@ -91,7 +95,7 @@ serve(async (req) => {
     // Build query parameters based on user preferences
     const queryParams = new URLSearchParams({
       apiKey: spoonacularApiKey,
-      number: '12',
+      number: numberOfResults.toString(),
       addRecipeInformation: 'true',
       addRecipeNutrition: 'true',
       fillIngredients: 'true',
@@ -99,7 +103,9 @@ serve(async (req) => {
     })
 
     // Add diet preference if available
-    if (profile?.diet_preference && profile.diet_preference !== 'omnivore') {
+    if (dietPreference && dietPreference !== 'all') {
+      queryParams.append('diet', dietPreference)
+    } else if (profile?.diet_preference && profile.diet_preference !== 'omnivore') {
       queryParams.append('diet', profile.diet_preference)
     }
 
@@ -109,8 +115,18 @@ serve(async (req) => {
       queryParams.append('intolerances', intolerances)
     }
 
-    // Add health goal-based cuisine preferences
-    if (profile?.primary_health_goals && profile.primary_health_goals.length > 0) {
+    // Add health goal-based parameters
+    if (wellnessGoal && wellnessGoal !== 'all') {
+      if (wellnessGoal === 'weight-loss') {
+        queryParams.append('maxCalories', '400')
+      } else if (wellnessGoal === 'heart-health') {
+        queryParams.append('cuisine', 'mediterranean')
+      } else if (wellnessGoal === 'high-protein') {
+        queryParams.append('minProtein', '20')
+      } else if (wellnessGoal === 'low-carb') {
+        queryParams.append('maxCarbs', '20')
+      }
+    } else if (profile?.primary_health_goals && profile.primary_health_goals.length > 0) {
       const healthGoals = profile.primary_health_goals
       if (healthGoals.includes('weight-loss')) {
         queryParams.append('maxCalories', '400')

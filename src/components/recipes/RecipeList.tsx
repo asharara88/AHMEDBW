@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { RecipeService, Recipe } from '../../services/recipeService'
 import RecipeCard from './RecipeCard'
-import { Loader, AlertCircle } from 'lucide-react'
+import { Loader, AlertCircle, Filter, Check } from 'lucide-react'
 
 interface RecipeListProps {
   dietPreference?: string
@@ -20,10 +20,12 @@ const RecipeList: React.FC<RecipeListProps> = ({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
+  const [dietFilter, setDietFilter] = useState<string>(dietPreference || 'all')
+  const [healthFilter, setHealthFilter] = useState<string>(wellnessGoal || 'all')
 
   useEffect(() => {
     fetchRecipes()
-  }, [dietPreference, wellnessGoal])
+  }, [dietFilter, healthFilter])
 
   const fetchRecipes = async () => {
     setLoading(true)
@@ -31,8 +33,8 @@ const RecipeList: React.FC<RecipeListProps> = ({
     
     try {
       const result = await RecipeService.getPersonalizedRecipes({
-        dietPreference,
-        wellnessGoal,
+        dietPreference: dietFilter !== 'all' ? dietFilter : undefined,
+        wellnessGoal: healthFilter !== 'all' ? healthFilter : undefined,
         numberOfResults: limit
       })
       
@@ -44,6 +46,23 @@ const RecipeList: React.FC<RecipeListProps> = ({
       setLoading(false)
     }
   }
+
+  const dietOptions = [
+    { value: 'all', label: 'All Diets' },
+    { value: 'vegetarian', label: 'Vegetarian' },
+    { value: 'vegan', label: 'Vegan' },
+    { value: 'gluten-free', label: 'Gluten Free' },
+    { value: 'keto', label: 'Keto' },
+    { value: 'paleo', label: 'Paleo' }
+  ]
+
+  const healthOptions = [
+    { value: 'all', label: 'All Goals' },
+    { value: 'weight-loss', label: 'Weight Loss' },
+    { value: 'heart-health', label: 'Heart Health' },
+    { value: 'high-protein', label: 'High Protein' },
+    { value: 'low-carb', label: 'Low Carb' }
+  ]
 
   if (loading) {
     return (
@@ -78,11 +97,40 @@ const RecipeList: React.FC<RecipeListProps> = ({
   return (
     <div>
       {showTitle && (
-        <h2 className="text-xl font-bold mb-4">
-          {wellnessGoal ? `Recipes for ${wellnessGoal}` : 
-           dietPreference ? `${dietPreference.charAt(0).toUpperCase() + dietPreference.slice(1)} Recipes` : 
-           'Recommended Recipes'}
-        </h2>
+        <div className="mb-6 flex justify-between items-center">
+          <h2 className="text-xl font-bold">
+            {wellnessGoal ? `Recipes for ${wellnessGoal}` : 
+             dietPreference ? `${dietPreference.charAt(0).toUpperCase() + dietPreference.slice(1)} Recipes` : 
+             'Recommended Recipes'}
+          </h2>
+          
+          <div className="flex gap-2">
+            <div className="relative">
+              <button 
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[hsl(var(--color-border))] text-sm hover:bg-[hsl(var(--color-card-hover))]"
+              >
+                <Filter className="h-4 w-4" />
+                <span>Filter</span>
+              </button>
+              
+              <div className="absolute right-0 top-full mt-2 z-10 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 p-2 hidden">
+                <div className="py-1">
+                  <p className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400">Diet Type</p>
+                  {dietOptions.map(option => (
+                    <button
+                      key={option.value}
+                      className="flex items-center w-full px-4 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700"
+                      onClick={() => setDietFilter(option.value)}
+                    >
+                      {dietFilter === option.value && <Check className="h-4 w-4 mr-2 text-green-500" />}
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -90,61 +138,9 @@ const RecipeList: React.FC<RecipeListProps> = ({
           <RecipeCard 
             key={recipe.id} 
             recipe={recipe} 
-            onClick={() => setSelectedRecipe(recipe)}
           />
         ))}
       </div>
-
-      {selectedRecipe && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-[hsl(var(--color-card))] rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="relative h-64">
-              <img 
-                src={selectedRecipe.image} 
-                alt={selectedRecipe.title}
-                className="w-full h-full object-cover"
-              />
-              <button 
-                onClick={() => setSelectedRecipe(null)}
-                className="absolute top-2 right-2 bg-black/50 text-white rounded-full p-2 hover:bg-black/70"
-              >
-                ×
-              </button>
-            </div>
-            
-            <div className="p-6">
-              <h2 className="text-xl font-bold mb-2">{selectedRecipe.title}</h2>
-              
-              <div className="flex gap-2 mb-4">
-                {selectedRecipe.vegetarian && (
-                  <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
-                    Vegetarian
-                  </span>
-                )}
-                {selectedRecipe.vegan && (
-                  <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
-                    Vegan
-                  </span>
-                )}
-                {selectedRecipe.glutenFree && (
-                  <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">
-                    Gluten Free
-                  </span>
-                )}
-              </div>
-              
-              <a 
-                href={selectedRecipe.sourceUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="block w-full bg-primary text-white text-center py-3 rounded-lg hover:bg-primary-dark transition-colors"
-              >
-                View Full Recipe
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

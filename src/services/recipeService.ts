@@ -24,10 +24,16 @@ export interface Recipe {
   };
 }
 
+interface RecipeQueryParams {
+  dietPreference?: string;
+  wellnessGoal?: string;
+  numberOfResults?: number;
+}
+
 export class RecipeService {
-  static async getPersonalizedRecipes(): Promise<Recipe[]> {
+  static async getPersonalizedRecipes(params: RecipeQueryParams = {}): Promise<Recipe[]> {
     try {
-      console.log('Calling get-personalized-recipes function...');
+      console.log('Calling get-personalized-recipes function with params:', params);
       
       // Get the current session to ensure we have a valid token
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -47,6 +53,11 @@ export class RecipeService {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
+        body: {
+          dietPreference: params.dietPreference,
+          wellnessGoal: params.wellnessGoal,
+          numberOfResults: params.numberOfResults || 12
+        }
       });
 
       if (error) {
