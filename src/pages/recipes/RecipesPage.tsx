@@ -4,7 +4,6 @@ import { RecipeCard } from '../../components/recipes/RecipeCard';
 import { logError } from '../../utils/logger';
 import { motion } from 'framer-motion';
 import { Utensils } from 'lucide-react';
-import EatwellLogo from '../../components/common/EatwellLogo';
 
 const RecipesPage: React.FC = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -65,7 +64,7 @@ const RecipesPage: React.FC = () => {
           className="text-center mb-8"
         >
           <div className="flex justify-center items-center mb-4">
-            <EatwellLogo className="text-3xl" />
+            <h2 className="text-2xl font-bold">Healthy Recipes</h2>
           </div>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Discover healthy recipes tailored to your dietary preferences and health goals.
