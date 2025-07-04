@@ -24,7 +24,7 @@ export default function StackPage() {
       if (goal !== 'All') {
         query = query.ilike('goal', `%${goal}%`);
       }
-      const { data, error } = await query;
+      const { error } = await query;
       if (!error && data) {
         setSupplements(data as Supplement[]);
       }

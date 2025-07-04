@@ -32,7 +32,7 @@ export const testConnection = async () => {
     console.log('🔄 Testing Supabase connection...')
     
     // Test with a simple query that should always work
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('profiles')
       .select('id')
       .limit(1)

@@ -35,7 +35,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
     // Generate captcha token
     const captchaToken = await generateCaptchaToken();
     
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
       options: {
@@ -65,7 +65,7 @@ export async function signUp(email: string, password: string): Promise<{ data: a
     // Generate captcha token
     const captchaToken = await generateCaptchaToken();
     
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -114,7 +114,7 @@ export async function signOut(): Promise<void> {
  */
 export async function getCurrentSession(): Promise<Session | null> {
   try {
-    const { data, error } = await supabase.auth.getSession();
+    const { error } = await supabase.auth.getSession();
     
     if (error) {
       logError('Get session error', error.message);
@@ -133,7 +133,7 @@ export async function getCurrentSession(): Promise<Session | null> {
  */
 export async function refreshSession(): Promise<Session | null> {
   try {
-    const { data, error } = await supabase.auth.refreshSession();
+    const { error } = await supabase.auth.refreshSession();
     
     if (error) {
       logError('Refresh session error', error.message);
@@ -160,7 +160,7 @@ export async function refreshSession(): Promise<Session | null> {
  */
 export async function getCurrentUser(): Promise<User | null> {
   try {
-    const { data, error } = await supabase.auth.getUser();
+    const { error } = await supabase.auth.getUser();
     
     if (error) {
       logError('Get user error', error.message);

@@ -53,7 +53,7 @@ const ImportSupplementsPage = () => {
     setDbLoading(true);
     
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('supplements')
         .select('*')
         .limit(100);

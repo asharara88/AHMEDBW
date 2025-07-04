@@ -45,12 +45,6 @@ const ShoppingCart = ({
   };
 
 
-  const handlePlaceOrder = () => {
-    alert('Order placed successfully!');
-    clearCart();
-    onClose();
-    setCheckoutStep('cart');
-  };
   const handleCheckout = () => {
     alert('Order placed successfully!');
     clearCart();

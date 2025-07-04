@@ -100,7 +100,7 @@ const HealthTrends = ({ userId }: HealthTrendsProps) => {
       try {
         // In a real app, fetch data from Supabase
         if (!isDemo) {
-          const { data, error } = await supabase
+          const { error } = await supabase
             .from('cgm_data')
             .select('*')
             .eq('user_id', userId)
