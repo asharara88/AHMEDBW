@@ -117,7 +117,8 @@ const VoicePreferences = ({
           id="enable-speech"
           checked={preferSpeech}
           onChange={onToggleSpeech}
-          className="h-4 w-4 rounded border-[hsl(var(--color-border))] text-primary focus:ring-primary"
+          className="h-4 w-4 rounded border-[hsl(var(--color-border))] text-primary focus:ring-primary" 
+          aria-checked={preferSpeech.toString()}
         />
         <label htmlFor="enable-speech" className="text-sm">
           Enable voice responses
@@ -169,7 +170,8 @@ const VoicePreferences = ({
                   name="voice-selection"
                   checked={selectedVoice === voice.id}
                   onChange={() => onSelectVoice(voice.id)}
-                  className="h-4 w-4 text-primary focus:ring-primary"
+                  className="h-4 w-4 text-primary focus:ring-primary" 
+                  aria-checked={(selectedVoice === voice.id).toString()}
                   disabled={!preferSpeech}
                 />
                 <label htmlFor={`voice-${voice.id}`} className="text-sm">

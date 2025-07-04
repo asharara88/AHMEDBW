@@ -115,7 +115,7 @@ const ChatSettings = ({
         <button
           onClick={() => setActiveTab('voice')}
           className={`flex items-center gap-1 px-4 py-2 text-sm transition-colors ${
-            activeTab === 'voice'
+            activeTab === 'voice' 
               ? 'border-b-2 border-primary text-primary'
               : 'text-text-light hover:text-text'
           }`}
@@ -139,7 +139,7 @@ const ChatSettings = ({
       </div>
           
       {activeTab === 'voice' && (
-        <VoicePreferences
+        <VoicePreferences 
           preferSpeech={actualPreferSpeech}
           onToggleSpeech={actualToggleSpeech}
           selectedVoice={actualSelectedVoice}
@@ -155,21 +155,21 @@ const ChatSettings = ({
             <h4 className="mb-3 text-sm font-medium">Chat Preferences</h4>
             <div className="space-y-3 rounded-lg bg-[hsl(var(--color-surface-1))] p-4">
               <ToggleSwitch
-                id="auto-scroll"
+                id="auto-scroll" 
                 label="Auto-scroll to new messages"
                 checked={autoScroll}
                 onChange={() => setAutoScroll(!autoScroll)}
               />
               
               <ToggleSwitch
-                id="show-timestamps"
+                id="show-timestamps" 
                 label="Show message timestamps"
                 checked={showTimestamps}
                 onChange={() => setShowTimestamps(!showTimestamps)}
               />
               
               <ToggleSwitch
-                id="show-suggestions"
+                id="show-suggestions" 
                 label="Show suggested questions"
                 checked={showSuggestions}
                 onChange={() => setShowSuggestions(!showSuggestions)}
