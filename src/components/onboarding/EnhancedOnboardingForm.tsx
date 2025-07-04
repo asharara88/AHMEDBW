@@ -461,40 +461,11 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
             Step {currentStep.id} of {ONBOARDING_STEPS.length}
           </span>
         </div>
-<<<<<<< HEAD
-<div className="w-full bg-gray-200 rounded-full h-2">
-  <div
-    className={`bg-primary h-2 rounded-full transition-all duration-300 ${styles.progressBar}`}
-    style={{ width: `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` }}
-  />
-</div>
-
-<div className="flex justify-between mt-4">
-  {ONBOARDING_STEPS.map((step) => {
-    const Icon = step.icon;
-    const isCompleted = onboardingProgress.completedSteps.includes(step.id);
-    const isCurrent = step.id === currentStep.id;
-    
-    return (
-      <div
-        key={step.id}
-        className={`relative flex flex-col items-center`}
-      >
-        <div 
-          className={`
-            w-8 h-8 rounded-full flex items-center justify-center text-sm
-            ${isCurrent ? 'bg-primary text-white' : 
-              isCompleted ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'}
-          `}
-        >
-          {isCompleted ? <Check size={16} /> : <Icon size={16} />}
-=======
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
             className={`bg-primary h-2 rounded-full transition-all duration-300 ${styles.progressBar}`}
             style={{ '--progress-width': `${(currentStep.id / ONBOARDING_STEPS.length) * 100}%` } as React.CSSProperties & { '--progress-width': string }}
           />
->>>>>>> 461cf21d3a7ffa5270e8dd39b7220b27b4da7cfe
         </div>
 
         <div className="flex justify-between mt-4">
