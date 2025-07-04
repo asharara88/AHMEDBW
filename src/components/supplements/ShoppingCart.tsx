@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingCart as ShoppingCartIcon, Minus, Plus, Trash2, ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import ImageWithFallback from '../common/ImageWithFallback';
 import { Supplement } from '../../types/supplements';
 
@@ -141,6 +140,7 @@ const ShoppingCart = ({
                             <div className="mt-1 flex items-center">
                               <button
                                 onClick={() => updateQuantity(item.supplement.id, item.quantity - 1)}
+                                title="Decrease quantity"
                                 className="rounded-l-md border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-2 py-1 text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text dark:bg-[hsl(var(--color-surface-1))]"
                               >
                                 <Minus className="h-3 w-3" />
@@ -150,6 +150,7 @@ const ShoppingCart = ({
                               </span>
                               <button
                                 onClick={() => updateQuantity(item.supplement.id, item.quantity + 1)}
+                                title="Increase quantity"
                                 className="rounded-r-md border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-2 py-1 text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text dark:bg-[hsl(var(--color-surface-1))]"
                               >
                                 <Plus className="h-3 w-3" />
@@ -160,6 +161,7 @@ const ShoppingCart = ({
                             <span className="font-medium">AED {(item.supplement.price_aed * item.quantity).toFixed(2)}</span>
                             <button
                               onClick={() => removeItem(item.supplement.id)}
+                              title="Remove item from cart"
                               className="mt-1 text-text-light hover:text-error"
                             >
                               <Trash2 className="h-4 w-4" />

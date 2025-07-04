@@ -529,7 +529,7 @@ const HealthTrends = ({ userId }: HealthTrendsProps) => {
                         ? 'bg-primary text-white'
                         : 'bg-[hsl(var(--color-card-hover))] text-text-light hover:text-text'
                     }`}
-                    aria-pressed={(timeRange === range).toString()}
+                    aria-pressed={((timeRange === range).toString()).toString()}
                   >
                     {range}
                   </button>

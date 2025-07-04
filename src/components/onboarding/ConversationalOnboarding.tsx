@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Send, User, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { logError } from '../../utils/logger';
@@ -73,7 +73,9 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
   };
 
   const handleSubmit = async (e: React.FormEvent | string) => {
-    e?.preventDefault?.();
+    if (typeof e !== 'string') {
+      e?.preventDefault?.();
+    }
     const messageContent = typeof e === 'string' ? e : input;
     
     if (!messageContent.trim()) return;
@@ -206,7 +208,6 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
               src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
               alt="MyCoach" 
               className="h-5 w-5"
-              loading="eager"
             />
           </div>
           <div>
@@ -235,7 +236,6 @@ const ConversationalOnboarding = ({ onComplete }: ConversationalOnboardingProps)
                   src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
                   alt="MyCoach" 
                   className="h-4 w-4"
-                  loading="lazy"
                 />
               </div>
             )}

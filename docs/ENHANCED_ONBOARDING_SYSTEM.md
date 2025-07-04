@@ -1,8 +1,8 @@
-# Enhanced Onboarding System - BioWell
+# ced Onboarding System - BioWell
 
 ## Overview
 
-The enhanced onboarding system has been completely refined to successfully collect and save comprehensive user data for profile creation and future personalization. This system provides a robust, multi-step, user-friendly experience that captures detailed health, lifestyle, and preference information.
+The ced onboarding system has been completely refined to successfully collect and save comprehensive user data for profile creation and future personalization. This system provides a robust, multi-step, user-friendly experience that captures detailed health, lifestyle, and preference information.
 
 ## Key Features
 
@@ -12,7 +12,7 @@ The enhanced onboarding system has been completely refined to successfully colle
 - **Step Validation**: Real-time validation ensures data completeness and accuracy
 - **Progress Tracking**: Visual progress indicators show completion status
 
-### 2. Enhanced Data Structure
+### 2. ced Data Structure
 The `UserProfile` interface now includes:
 - **Personal Information**: Name, email, mobile, date of birth, gender
 - **Physical Metrics**: Height, weight, activity level, exercise preferences
@@ -29,7 +29,7 @@ Users can choose from three different onboarding experiences:
 - **Standard Form**: Simple traditional form for quick setup
 
 ### 4. Robust Data Storage
-- **Enhanced API**: `enhancedOnboardingApi` handles comprehensive data saving
+- **ced API**: `cedOnboardingApi` handles comprehensive data saving
 - **Database Schema**: Updated profiles and quiz_responses tables with new fields
 - **Backward Compatibility**: Legacy onboarding API still supported
 - **Error Handling**: Graceful failure handling with partial completion support
@@ -38,7 +38,7 @@ Users can choose from three different onboarding experiences:
 
 ### Components
 
-#### 1. Enhanced Onboarding Form (`EnhancedOnboardingForm.tsx`)
+#### 1. ced Onboarding Form (`cedOnboardingForm.tsx`)
 - Multi-step wizard interface
 - Step-by-step data collection
 - Real-time validation
@@ -52,7 +52,7 @@ Users can choose from three different onboarding experiences:
 - Profile data management
 - Error handling and validation
 
-#### 3. Enhanced Onboarding API (`enhancedOnboardingApi.ts`)
+#### 3. ced Onboarding API (`cedOnboardingApi.ts`)
 - Comprehensive data saving to Supabase
 - Profile and quiz response management
 - User metadata updates
@@ -78,11 +78,11 @@ Users can choose from three different onboarding experiences:
 
 ### Key Files Created/Modified
 
-1. **`src/components/onboarding/EnhancedOnboardingForm.tsx`** - New comprehensive form
-2. **`src/store/useUserProfileStore.ts`** - Enhanced profile management
-3. **`src/api/enhancedOnboardingApi.ts`** - New API for comprehensive data handling
+1. **`src/components/onboarding/cedOnboardingForm.tsx`** - New comprehensive form
+2. **`src/store/useUserProfileStore.ts`** - ced profile management
+3. **`src/api/cedOnboardingApi.ts`** - New API for comprehensive data handling
 4. **`src/pages/auth/OnboardingPage.tsx`** - Updated to support multiple onboarding types
-5. **`supabase/migrations/20250627000000_enhanced_user_profile.sql`** - Database schema updates
+5. **`supabase/migrations/20250627000000_ced_user_profile.sql`** - Database schema updates
 
 ### Data Validation
 
@@ -123,7 +123,7 @@ const { profile } = useUserProfileStore();
 
 ## Personalization Benefits
 
-The enhanced data collection enables:
+The ced data collection enables:
 - **Targeted Health Recommendations**: Based on health goals and concerns
 - **Personalized Supplement Suggestions**: Using current supplements and medical info
 - **Custom Workout Plans**: Based on fitness goals and activity level
@@ -140,7 +140,7 @@ The enhanced data collection enables:
 - **GDPR Compliance**: User consent and data deletion capabilities
 - **Audit Trail**: Comprehensive logging of data access and changes
 
-## Future Enhancements
+## Future cements
 
 - **AI-Powered Recommendations**: Use collected data for ML-driven insights
 - **Progress Tracking**: Monitor changes in health metrics over time
@@ -159,6 +159,6 @@ The system has been tested for:
 
 ## Conclusion
 
-The enhanced onboarding system provides a comprehensive, user-friendly experience that successfully collects detailed user data for personalization. The robust architecture ensures data integrity, security, and scalability while maintaining excellent user experience.
+The ced onboarding system provides a comprehensive, user-friendly experience that successfully collects detailed user data for personalization. The robust architecture ensures data integrity, security, and scalability while maintaining excellent user experience.
 
 The system is now ready for production use and provides a solid foundation for advanced personalization features in the BioWell application.

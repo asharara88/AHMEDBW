@@ -21,13 +21,11 @@ const RecipesPage: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      console.log('Fetching personalized recipes...');
       const fetchedRecipes = await RecipeService.getPersonalizedRecipes({
         dietPreference: dietFilter !== 'all' ? dietFilter : undefined,
         wellnessGoal: healthFilter !== 'all' ? healthFilter : undefined
       });
       
-      console.log('Recipes received:', fetchedRecipes);
       setRecipes(fetchedRecipes);
       
     } catch (err) {

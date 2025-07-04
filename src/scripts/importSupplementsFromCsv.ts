@@ -261,7 +261,6 @@ async function importSupplementsFromCsv() {
 if (require.main === module) {
   importSupplementsFromCsv()
     .then(result => {
-      console.log('Import result:', result);
       process.exit(result.success ? 0 : 1);
     })
     .catch(error => {

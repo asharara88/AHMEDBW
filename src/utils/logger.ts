@@ -53,7 +53,6 @@ export const logDebug = (message: string, data?: any): void => {
 
 export const logHttp = (message: string, data?: any): void => {
   if (shouldLog(levels.http)) {
-    console.log(formatMessage('http', message, data));
   }
 };
 

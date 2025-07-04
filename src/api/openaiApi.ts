@@ -69,7 +69,6 @@ export const openaiApi = {
       
       let response;
       try {
-        console.log('Making request to Edge Function:', `${supabaseUrl}/functions/v1/openai-proxy`);
         
         response = await fetch(
           `${supabaseUrl}/functions/v1/openai-proxy`,
@@ -158,7 +157,6 @@ export const openaiApi = {
       }
 
       const data = await response.json();
-      console.log('OpenAI API request successful');
       return data;
     } catch (err) {
       if (err instanceof Error || (err && typeof err === 'object' && 'type' in err)) {

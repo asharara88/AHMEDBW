@@ -86,7 +86,6 @@ const QuizPage = () => {
     
     try {
       // In a real app, you would save this data to your backend
-      console.log('Submitting answers:', answers);
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));

@@ -39,7 +39,6 @@ const ChatPage = () => {
   // Ensure the component rerenders when the activeTab changes
   useEffect(() => {
     // This effect ensures the component rerenders when activeTab changes
-    console.log(`Active tab changed to: ${activeTab}`);
   }, [activeTab]);
 
   // Map of tip icons

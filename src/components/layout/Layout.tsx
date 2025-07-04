@@ -2,7 +2,6 @@ import { useState, ReactNode } from 'react';
 import Navbar from './Navbar';
 import { useAuth } from '../../contexts/AuthContext';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import FloatingChatButton from '../chat/FloatingChatButton';
 import Footer from './Footer';
 
 interface LayoutProps {
@@ -75,7 +74,6 @@ const Layout = ({ children }: LayoutProps) => {
         {children}
       </main>
       <Footer />
-      {user && <FloatingChatButton />}
     </div>
   );
 };
