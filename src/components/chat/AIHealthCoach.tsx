@@ -8,7 +8,7 @@ import { useAutoScroll } from '../../hooks/useAutoScroll';
 import ReactMarkdown from 'react-markdown';
 import { useChatStore } from '../../store';
 import ApiErrorDisplay from '../common/ApiErrorDisplay';
-import VoicePreferences from './VoicePreferences';
+import VoicePreferences from './VoicePreferences'; 
 import ChatSettingsButton from './ChatSettingsButton';
 import AudioVisualizer from './AudioVisualizer';
 import AudioPlayer from './AudioPlayer';
@@ -106,7 +106,7 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
   const handleSubmit = async (e: React.FormEvent | string) => {
     e?.preventDefault?.();
     const messageContent = typeof e === 'string' ? e : input;
-    
+
     if (!messageContent.trim()) return;
     
     setInput('');
@@ -242,7 +242,7 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
               <img 
                 src="https://leznzqfezoofngumpiqf.supabase.co/storage/v1/object/sign/icons-favicons/stack%20dash%20metalic%20favicon.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82ZjcyOGVhMS1jMTdjLTQ2MTYtOWFlYS1mZmI3MmEyM2U5Y2EiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpY29ucy1mYXZpY29ucy9zdGFjayBkYXNoIG1ldGFsaWMgZmF2aWNvbi5zdmciLCJpYXQiOjE3NTAyMjE4NjgsImV4cCI6MTc4MTc1Nzg2OH0.k7wGfiV-4klxCyuBpz_MhVhF0ahuZZqNI-LQh8rLLJA" 
                 alt="MyCoach" 
-                className="h-5 w-5"
+                className="h-5 w-5" 
                 loading="eager"
               />
             </div>
@@ -251,12 +251,12 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
               <p className="text-xs text-text-light">Personalized health guidance</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button 
-              className={`rounded-full p-1 ${preferSpeech ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'}`}
-              title={preferSpeech ? "Turn off voice" : "Turn on voice"}
-              onClick={() => setPreferSpeech(!preferSpeech)}
-              aria-pressed={preferSpeech}
+          <div className="flex items-center gap-2"> 
+            <button
+              className={`rounded-full p-1 ${preferSpeech ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'}`} 
+              title={preferSpeech ? "Turn off voice" : "Turn on voice"} 
+              onClick={() => setPreferSpeech(!preferSpeech)} 
+              aria-pressed={preferSpeech.toString()} 
               type="button"
             >
               {preferSpeech ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
