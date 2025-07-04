@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Send, User, CheckCircle, ArrowRight } from 'lucide-react';
+import { Send, User, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { logError } from '../../utils/logger';
 import { useAutoScroll } from '../../hooks/useAutoScroll';

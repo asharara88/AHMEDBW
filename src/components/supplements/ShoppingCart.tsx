@@ -20,21 +20,6 @@ const ShoppingCart = ({
 }: ShoppingCartProps) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'shipping' | 'payment' | 'review'>('cart');
-  const [shippingInfo, setShippingInfo] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    address: '',
-    city: '',
-    country: '',
-    postalCode: ''
-  });
-  const [_paymentInfo, _setPaymentInfo] = useState({
-    cardNumber: '',
-    cardName: '',
-    expiry: '',
-    cvv: ''
-  });
 
   const total = cartItems.reduce((sum, item) => sum + (item.supplement.price_aed * item.quantity), 0);
 
@@ -75,22 +60,11 @@ const ShoppingCart = ({
     onClose();
     setCheckoutStep('cart');
   };
-
-  return (
-    <div className="h-full">
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: '100%' }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed inset-0 z-50 flex justify-end bg-black/50"
-            onClick={onClose}
-          >
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
+  const handleCheckout = () => {
+    alert('Order placed successfully!');
+    clearCart();
+    onClose();
+  };
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               className="h-full w-full max-w-md overflow-hidden bg-[hsl(var(--color-card))] shadow-xl"
@@ -215,15 +189,15 @@ const ShoppingCart = ({
       {!isOpen && (
         <div className="rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4 sm:p-6">
           <div className="mb-4">
-            <ShoppingCartIcon className="mx-auto h-12 w-12 text-primary/50 mb-4" />
-          </div>
-          <h3 className="mb-2 text-lg font-semibold">Your Cart</h3>
-          <p className="mb-4 text-text-light">
-            {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in your cart
-          </p>
-          <button 
-            onClick={() => onClose()}
-            className="w-full rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary-dark"
+                  <button
+                    onClick={() => cartItems.length > 0 && handleCheckout()}
+                    className={`mb-2 flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 font-medium text-white transition-colors hover:bg-primary-dark ${
+                      cartItems.length === 0 ? 'pointer-events-none opacity-50' : ''
+                    }`}
+                  >
+                    Checkout
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
           >
             View Cart
           </button>
