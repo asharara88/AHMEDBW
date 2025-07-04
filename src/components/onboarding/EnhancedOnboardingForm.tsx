@@ -460,7 +460,7 @@ const EnhancedOnboardingForm: React.FC<EnhancedOnboardingFormProps> = ({
           <span className="text-sm text-gray-500">
             Step {currentStep.id} of {ONBOARDING_STEPS.length}
           </span>
-        </div>
+  </div>
   <div className="w-full bg-gray-200 rounded-full h-2">
     <div
       className={`bg-primary h-2 rounded-full transition-all duration-300 ${styles.progressBar}`}

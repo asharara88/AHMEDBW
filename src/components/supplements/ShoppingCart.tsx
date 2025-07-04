@@ -19,7 +19,7 @@ const ShoppingCart = ({
   onClose
 }: ShoppingCartProps) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [checkoutStep, setCheckoutStep] = useState<'cart' | 'shipping' | 'payment' | 'review'>('cart');
+  const [, setCheckoutStep] = useState<'cart' | 'shipping' | 'payment' | 'review'>('cart');
 
   const total = cartItems.reduce((sum, item) => sum + (item.supplement.price_aed * item.quantity), 0);
 
@@ -44,15 +44,6 @@ const ShoppingCart = ({
     setCartItems([]);
   };
 
-  const handleShippingSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCheckoutStep('payment');
-  };
-
-  const handlePaymentSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCheckoutStep('review');
-  };
 
   const handlePlaceOrder = () => {
     alert('Order placed successfully!');
@@ -65,6 +56,21 @@ const ShoppingCart = ({
     clearCart();
     onClose();
   };
+
+  return (
+    <div>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 z-50 flex items-center justify-end bg-black/50 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               className="h-full w-full max-w-md overflow-hidden bg-[hsl(var(--color-card))] shadow-xl"
@@ -195,12 +201,10 @@ const ShoppingCart = ({
                       cartItems.length === 0 ? 'pointer-events-none opacity-50' : ''
                     }`}
                   >
-                    Checkout
+                    View Cart
                     <ChevronRight className="h-4 w-4" />
                   </button>
-          >
-            View Cart
-          </button>
+          </div>
         </div>
       )}
     </div>

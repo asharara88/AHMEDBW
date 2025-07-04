@@ -1,7 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://leznzqfezoofngumpiqf.supabase.co'
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxlem56cWZlem9vZm5ndW1waXFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQwOTI0NTUsImV4cCI6MjA1OTY2ODQ1NX0.5I67qAPpITjoBj2WqOm8e0NX78XPw0rEx54DTICnWME'
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('❌ Missing Supabase environment variables')
+  console.error('VITE_SUPABASE_URL:', supabaseUrl ? '✅ Present' : '❌ Missing')
+  console.error('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? '✅ Present' : '❌ Missing')
+  throw new Error('Missing required Supabase environment variables. Please check your .env file.')
+}
 
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -9,12 +16,26 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true
+  },
+  global: {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  },
+  db: {
+    schema: 'public'
   }
 })
 
 export const testConnection = async () => {
   try {
-    const { error } = await supabase.from('user_profiles').select('id').limit(1)
+    console.log('🔄 Testing Supabase connection...')
+    
+    // Test with a simple query that should always work
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id')
+      .limit(1)
     
     if (error) {
       console.error('❌ Connection test failed:', error)
@@ -27,3 +48,6 @@ export const testConnection = async () => {
     return false
   }
 }
+
+// Test connection on initialization
+testConnection()
