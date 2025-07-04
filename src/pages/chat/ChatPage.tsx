@@ -106,7 +106,7 @@ const ChatPage = () => {
               className={`rounded-full p-2 ${preferSpeech ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'}`}
               title={preferSpeech ? "Turn off voice" : "Turn on voice"}
               onClick={() => setPreferSpeech(!preferSpeech)}
-              aria-pressed={preferSpeech}
+              aria-pressed={preferSpeech.toString()}
               type="button"
             >
               {preferSpeech ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
