@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/Tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/Tabs';
 import { Dumbbell, Utensils, Calendar, LineChart, Plus, Trash2, X } from 'lucide-react';
-import FoodSearch from '../components/fitness/FoodSearch'; 
-import ExerciseSearch from '../components/fitness/ExerciseSearch'; 
-import MealPlanner from '../components/fitness/MealPlanner';
-import { FoodItem } from '../api/myFitnessPalApi';
-import { Exercise } from '../api/exerciseDbApi';
+import FoodSearch from './components/fitness/FoodSearch'; 
+import ExerciseSearch from './components/fitness/ExerciseSearch'; 
+import MealPlanner from './components/fitness/MealPlanner';
+import { FoodItem } from './api/myFitnessPalApi';
+import { Exercise } from './api/exerciseDbApi';
 
 interface LoggedFood {
   food: FoodItem;
