@@ -154,7 +154,7 @@
   /* Mobile-specific optimizations */
   @media (max-width: 640px) {
     /* Increase tap target sizes */
-    .nav-link, .dropdown-item, button, a, input[type="button"], input[type="submit"] {
+    .nav-link, .dropdown-item, button, a, input[type="button"], input[type="submit"], .btn {
       min-height: 44px;
       min-width: 44px;
       display: flex;
@@ -185,8 +185,13 @@
     
     /* Fix iOS safe area */
     .container {
-      padding-left: max(1rem, env(safe-area-inset-left));
-      padding-right: max(1rem, env(safe-area-inset-right));
+      padding-left: max(1rem, env(safe-area-inset-left, 1rem));
+      padding-right: max(1rem, env(safe-area-inset-right, 1rem));
+    }
+    
+    /* Floating buttons */
+    .fixed-bottom {
+      padding-bottom: env(safe-area-inset-bottom, 0.5rem);
     }
   }
 }
@@ -404,14 +409,12 @@
 /* Add safe area insets for notched devices */
 @supports (padding: max(0px)) {
   .fixed-bottom {
-    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0.5rem));
   }
   
   .fixed-top {
-    padding-top: max(0.5rem, env(safe-area-inset-top));
+    padding-top: max(0.5rem, env(safe-area-inset-top, 0.5rem));
   }
-  /* Fix for iOS input zoom */
-  input[type="text"],
   input[type="email"],
   input[type="password"],
   input[type="number"],

@@ -81,7 +81,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Logo />
+          <Logo className="scale-125 origin-left" />
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex md:items-center md:space-x-6">
@@ -116,12 +116,12 @@ const Navbar = () => {
               <div className="relative" ref={profileMenuRef}>
                 <button
                   onClick={toggleProfileMenu}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white"
+                  className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white"
                   aria-label="Open profile menu"
                   aria-expanded={isProfileMenuOpen}
                   aria-haspopup="true"
                 >
-                  <User className="h-5 w-5" />
+                  <User className="h-6 w-6" />
                 </button>
 
                 {/* Profile Dropdown */}
@@ -134,9 +134,9 @@ const Navbar = () => {
                       transition={{ duration: 0.2 }}
                       className="absolute right-0 top-full z-50 mt-2 min-w-[200px] origin-top-right rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-2))] p-2 shadow-xl transition-all duration-300"
                     >
-                      <Link
+                      <Link 
                         to="/profile"
-                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-sm text-text-light transition-all duration-300 hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
+                        className="flex w-full items-center gap-2 rounded-lg px-4 py-3 text-sm text-text-light transition-all duration-300 hover:bg-[hsl(var(--color-card-hover))] hover:text-text min-h-[48px]"
                         onClick={() => setIsProfileMenuOpen(false)}
                       >
                         <User className="h-4 w-4" />
@@ -144,7 +144,7 @@ const Navbar = () => {
                       </Link>
                       <Link
                         to="/profile"
-                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-sm text-text-light transition-all duration-300 hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
+                        className="flex w-full items-center gap-2 rounded-lg px-4 py-3 text-sm text-text-light transition-all duration-300 hover:bg-[hsl(var(--color-card-hover))] hover:text-text min-h-[48px]"
                         onClick={() => setIsProfileMenuOpen(false)}
                       >
                         <Settings className="h-4 w-4" />
@@ -152,7 +152,7 @@ const Navbar = () => {
                       </Link>
                       <button
                         onClick={handleSignOut}
-                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-sm text-error transition-all duration-300 hover:bg-error/10"
+                        className="flex w-full items-center gap-2 rounded-lg px-4 py-3 text-sm text-error transition-all duration-300 hover:bg-error/10 min-h-[48px]"
                       >
                         <LogOut className="h-4 w-4" />
                         Sign Out
@@ -165,13 +165,13 @@ const Navbar = () => {
               <div className="hidden items-center space-x-2 sm:flex">
                 <Link
                   to="/login"
-                  className="rounded-lg px-4 py-2 text-sm font-medium text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text min-h-[40px] flex items-center"
+                  className="rounded-lg px-4 py-2 text-sm font-medium text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text min-h-[44px] flex items-center"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/signup"
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark min-h-[40px] flex items-center"
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark min-h-[44px] flex items-center"
                 >
                   Sign Up
                 </Link>
@@ -182,12 +182,12 @@ const Navbar = () => {
             <div className="relative" ref={menuRef}>
               <button
                 onClick={toggleMenu}
-                className="rounded-lg p-2 text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text md:hidden min-h-[40px] min-w-[40px] flex items-center justify-center"
+                className="rounded-lg p-2 text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center"
                 aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
                 aria-expanded={isMenuOpen}
                 aria-controls="mobile-menu"
               >
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                {isMenuOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
               </button>
             </div>
           </div>
@@ -212,14 +212,14 @@ const Navbar = () => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center gap-3 rounded-lg px-4 py-3 text-base transition-colors ${
+                    className={`flex items-center gap-3 rounded-lg px-4 py-4 text-base transition-colors min-h-[56px] ${
                       isActive(item.path)
                         ? 'bg-primary/10 font-medium text-primary'
                         : 'text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
                     }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    {item.icon}
+                    <span className="text-xl">{item.icon}</span>
                     {item.label}
                   </Link>
                 ))}
@@ -227,14 +227,14 @@ const Navbar = () => {
                   <div className="mt-4 flex flex-col space-y-2 pt-4 border-t border-[hsl(var(--color-border))]">
                     <Link
                       to="/login"
-                      className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-4 py-3 text-center font-medium"
+                      className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-4 py-4 text-center font-medium min-h-[56px] flex items-center justify-center"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Sign In
                     </Link>
                     <Link
                       to="/signup"
-                      className="rounded-lg bg-primary px-4 py-3 text-center font-medium text-white"
+                      className="rounded-lg bg-primary px-4 py-4 text-center font-medium text-white min-h-[56px] flex items-center justify-center"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Sign Up
