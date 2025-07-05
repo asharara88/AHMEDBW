@@ -31,62 +31,62 @@ export const testConnection = async () => {
   try {
     logInfo('Testing Supabase connection...')
     
-    // First try a simple health check
+    // Test with a simple auth session check first (most reliable)
     try {
-      const response = await fetch(`${supabaseUrl}/health`, {
-        headers: {
-          'apikey': supabaseAnonKey
-        }
-      })
-      
-      if (response.ok) {
-        logInfo('Supabase health check successful')
+      const { data, error } = await supabase.auth.getSession()
+      if (error) {
+        logError('Auth session check failed', error)
       } else {
-        logError('Supabase health check failed', await response.text())
+        logInfo('Supabase auth connection successful')
       }
-    } catch (healthError) {
-      logError('Supabase health check error', healthError)
+    } catch (authError) {
+      logError('Auth connection error', authError)
     }
     
-    // Try with a simple query to a table that should exist
+    // Try a simple database query to test database connectivity
     try {
       const { data, error } = await supabase
-        .from('supplements')
+        .from('profiles')
         .select('id')
         .limit(1)
       
       if (error) {
         logError('Database query test failed', error)
         
-        // Try alternative test with auth endpoint
+        // If profiles table doesn't exist, try a different approach
         try {
-          const { data: authData, error: authError } = await supabase.auth.getSession()
-          if (authError) {
-            logError('Auth connection also failed', authError)
+          const { data: configData, error: configError } = await supabase
+            .from('configuration')
+            .select('id')
+            .limit(1)
+          
+          if (configError) {
+            logError('Alternative database query also failed', configError)
             return false
           }
-          logInfo('Auth connection successful, but database query failed')
+          
+          logInfo('Supabase database connection successful (via configuration table)')
           return true
-        } catch (authErr) {
-          logError('Both database and auth connections failed', authErr)
+        } catch (fallbackError) {
+          logError('Fallback database query failed', fallbackError)
           return false
         }
       }
       
-      logInfo('Supabase connection successful')
+      logInfo('Supabase database connection successful')
       return true
     } catch (dbError) {
       logError('Database connection error', dbError)
       
-      // Try a simpler connection test
+      // If database queries fail, at least check if we can reach Supabase
       try {
         const { data, error } = await supabase.auth.getSession()
         if (!error) {
-          logInfo('Basic Supabase connection works')
+          logInfo('Basic Supabase connection works (auth only)')
           return true
         }
       } catch (fallbackError) {
-        logError('Fallback connection test also failed', fallbackError)
+        logError('All connection tests failed', fallbackError)
       }
       
       return false
