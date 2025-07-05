@@ -1,0 +1,41 @@
+#!/bin/bash
+
+echo "📈 GRADUAL EXPANSION STRATEGY"
+echo "============================"
+
+echo "Phase 1: MINIMAL (Current)"
+echo "- Only exclude: node_modules, dist, .vite, .cache, logs, OS files"
+echo "- Keep visible: ALL source code, configs, docs, tests"
+
+echo ""
+echo "Phase 2: CONSERVATIVE (If needed)"
+echo "- Add: temporary files (*.tmp, temp/*)"
+echo "- Add: editor swap files (*.swp, *.swo)"
+echo "- Add: archive files (*.zip, *.tar)"
+echo "- Still keep: ALL project-critical files"
+
+echo ""
+echo "Phase 3: MODERATE (Advanced users only)"
+echo "- Add: large media files (*.mp4, *.mov - case by case)"
+echo "- Add: backup files (*.bak, *.backup)"
+echo "- Still keep: ALL source code and configs"
+
+echo ""
+echo "⚠️  NEVER EXCLUDE (without careful consideration):"
+echo "❌ Source code files (src/*)"
+echo "❌ Configuration files (*.json, *.config.*)"
+echo "❌ Package files (package.json, package-lock.json)"
+echo "❌ Build configuration (vite.config.ts, tsconfig.json)"
+echo "❌ Documentation (README.md, docs/*)"
+echo "❌ Test files (may contain important examples)"
+echo "❌ Environment examples (.env.example)"
+echo "❌ Git configuration (.gitignore)"
+
+echo ""
+echo "📋 TESTING CHECKLIST after each phase:"
+echo "□ Can Bolt still understand project structure?"
+echo "□ Can Bolt still see component relationships?"
+echo "□ Can Bolt still access configuration files?"
+echo "□ Can Bolt still understand build process?"
+echo "□ Can Bolt still see test examples?"
+echo "□ Can Bolt still access documentation?"

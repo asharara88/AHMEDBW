@@ -1,0 +1,66 @@
+stack_name,supplement_id,supplement_name
+performance,4104da9b-419a-467b-a5e3-219af1688fd2,Omega-3 DHA
+performance,3921422b-4add-492d-ba6b-b665ed6d3999,Bacopa Monnieri
+performance,d512dc50-dcc7-4d33-ba5c-016674cc9dfa,Ginkgo Biloba
+performance,02967998-40ed-4655-82b2-e891ee989753,Rhodiola Rosea
+performance,144faa9a-4568-495c-bcf4-2df5343645f4,Creatine
+performance,44b13cc8-0849-4139-95dc-e6398bba4be3,Phosphatidylserine (PS)
+performance,6b76e334-28fd-471d-aa03-f4033a47d0a4,Acetyl-L-Carnitine (ALCAR)
+
+weight_loss,c819dd7d-7598-464f-9035-3d0fc7d0d11a,Glucomannan (Konjac Root Fiber)
+weight_loss,5f2ee344-f2d0-4f2e-bcb7-61ca184246c0,Protein Supplement (Whey or Casein)
+weight_loss,c860e190-a49f-4f07-83a8-b15c70da0630,Capsaicin (Cayenne Pepper Extract)
+weight_loss,22a6765e-e31d-45de-8e44-4d8e647f63cd,Garcinia Cambogia (Hydroxycitric Acid)
+weight_loss,779a58e5-91b9-44b0-b28d-49dd0ab23149,Conjugated Linoleic Acid (CLA)
+weight_loss,6268c5d9-7030-4c96-8d3b-d0b4ae310213,Apple Cider Vinegar
+
+metabolic_health,573c5b45-8392-4d96-939c-b97875a0f9bf,B-Complex Vitamins
+metabolic_health,60bddd52-b650-4bb9-93a9-60832c62eb9e,Magnesium
+metabolic_health,09d52661-929e-4182-8ff3-3c9b12a8f5a3,Alpha-Lipoic Acid (ALA)
+metabolic_health,fb7d3154-da80-4410-957b-468b4097724e,Berberine
+metabolic_health,f344bb92-323e-4866-9035-14166ce62e48,Chromium Picolinate
+metabolic_health,d336e246-7f2b-419f-a8f3-664ecbe235ec,Green Tea Extract (EGCG)
+
+male_fertility,14be756a-1a54-445b-8d7a-a2a89bfb2f5c,Zinc & Selenium
+male_fertility,8e4a259b-2a0d-4022-b395-18f026715aad,Coenzyme Q10
+male_fertility,ad011523-8efa-4fd9-baba-3220d875294a,L-Carnitine (and Acetyl-L-Carnitine)
+male_fertility,103503ff-bbf0-4847-8232-87bb7d5025f1,Myo-Inositol
+male_fertility,428fa76b-9a85-433a-bc33-7ab489229ed4,Ashwagandha (Withania somnifera)
+male_fertility,7c9320b7-a2d8-4ea8-bbfd-bd4a3717fd28,Omega-3 Fatty Acids
+
+female_fertility,9a5bd5ab-a46b-4573-8db4-3b5220699938,Folic Acid (Vitamin B9)
+female_fertility,5cfac377-e9a9-4ddf-8c79-0faae7d65428,Vitamin D
+female_fertility,cdf4f799-8d49-4dad-896b-9a6b08c999dc,Myo-Inositol (and D-Chiro-Inositol)
+female_fertility,794100bd-271f-4ca6-8b61-30e893b70f13,Dose (Myo-Inositol + D-Chiro dose)
+female_fertility,65a7f597-763c-4220-8477-7d912b1ab3d2,Coenzyme Q10
+female_fertility,cdc32cbb-410c-4455-9251-46d0d0326680,Omega-3 and Antioxidants
+female_fertility,49589b47-53e3-4b04-8a41-7fc7eb1fd277,DHEA (Dehydroepiandrosterone)
+female_fertility,f99c2fe8-cc60-4044-afba-526bfbed0373,Iron
+
+longevity,b3841739-66dc-45ed-ae8b-9d00883a4239,Vitamin D3
+longevity,7b661d5e-4076-443d-9f57-0c2cad74695a,Antioxidant & Mitochondrial Support (CoQ₁₀, ALA)
+longevity,d2158dce-d606-40bd-9f78-989da529d023,Caloric Restriction Mimetics (Resveratrol, Spermidine)
+longevity,c78b6024-b9c0-47d9-b988-15ca7b34638b,Curcumin (Turmeric Extract)
+
+body_building,d8d78df2-9533-4773-bc5e-447d067beb9a,Creatine Monohydrate
+body_building,cba68a6a-4f83-47e8-b602-681bb5c18f9c,Whey Protein (or Equivalent Protein Supplements)
+body_building,6fb63925-366e-477c-a323-b0aed2b1981b,β-Alanine
+body_building,bb65adee-fdb7-4347-9eee-c98ae050fb16,Branched-Chain Amino Acids (BCAAs)
+body_building,63337363-0151-4016-a245-27fb413aa2ff,HMB (β-Hydroxy β-Methylbutyrate)
+body_building,custom-id-iso,Whey Protein Isolate (Unflavored)
+body_building,custom-id-hydro,Hydrolyzed Whey Protein
+
+endurance,c3f55641-bf95-4526-8f37-78a51a4a32b8,Beetroot Nitrate (Nitric Oxide Booster)
+endurance,4c7cca02-2629-4db5-a03b-d6ad7a564128,Caffeine
+endurance,1ede43cd-257b-413f-8e30-0f40499de406,β-Alanine (Endurance)
+endurance,58112a9b-688d-4807-9f4a-74f9a9bbd4e8,Sodium Bicarbonate
+endurance,39cba2f9-9f79-4e10-8f24-8772b17267e4,Electrolytes (Na, K, Mg)
+endurance,cb137706-f3c8-4e38-8280-24c697b1dcb6,Adaptogens (Rhodiola rosea)
+
+gut_health,f6e55a06-b4b1-427b-a985-5ef464601a40,Probiotics
+gut_health,225f22c1-bf34-41ce-80e7-a7aef154f24a,Prebiotic Fiber (Inulin, FOS, GOS)
+gut_health,74a8a03a-5522-4776-bbeb-15e2f20f53ad,L-Glutamine
+gut_health,ae79290d-eb00-4994-aa9c-0fb103e2bd72,Zinc Carnosine
+gut_health,7aa94f5e-87be-4a35-8a6c-81bbd1970f87,Digestive Enzymes
+gut_health,7d49f15d-292f-489d-a6f5-3d80c699c269,Psyllium Husk
+gut_health,5ea6b82b-9450-4962-9b3c-0aa902990322,Peppermint Oil (enteric-coated)

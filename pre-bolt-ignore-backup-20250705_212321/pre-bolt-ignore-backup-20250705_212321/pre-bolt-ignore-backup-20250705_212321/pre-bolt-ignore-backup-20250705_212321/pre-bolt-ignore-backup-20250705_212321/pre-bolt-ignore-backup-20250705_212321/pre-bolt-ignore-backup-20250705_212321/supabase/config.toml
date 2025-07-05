@@ -1,0 +1,37 @@
+[project]
+name = "biowell"
+id = "your-project-id"
+
+[api]
+port = 54321
+schemas = ["public"]
+extra_search_path = ["extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+
+[studio]
+port = 54323
+
+[functions]
+port = 54324
+verify_jwt = true
+
+[functions.openai-proxy]
+verify_jwt = false
+
+[functions.chat-assistant]
+verify_jwt = false
+
+[functions.match-supplement]
+verify_jwt = false
+
+[functions.onboarding-status]
+verify_jwt = false
+
+[functions.recommendations]
+verify_jwt = false
+
+[functions.get-personalized-recipes]
+verify_jwt = false

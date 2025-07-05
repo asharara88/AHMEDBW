@@ -1,0 +1,104 @@
+{
+  "name": "biowell-digital-coach-lite",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint . --max-warnings 0",
+    "preview": "vite preview",
+    "clean": "rm -rf dist",
+    "replace-console-error": "node --loader ts-node/esm scripts/replaceConsoleErrorAndImport.ts",
+    "fetch:feeds": "node --loader ts-node/esm scripts/fetchFeeds.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "postinstall": "echo 'Skipping problematic native builds'",
+    "predeploy": "node scripts/deploy-validation.js",
+    "import:supplements": "node --loader ts-node/esm src/scripts/importSupplements.ts",
+    "import:csv": "node --loader ts-node/esm src/scripts/importSupplementsFromCsv.ts"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.0.16",
+    "@radix-ui/react-tabs": "^1.0.4",
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
+    "@stripe/react-stripe-js": "^3.7.0",
+    "@stripe/stripe-js": "^7.4.0",
+    "@supabase/auth-helpers-nextjs": "^0.10.0",
+    "@supabase/auth-helpers-react": "^0.5.0",
+    "@supabase/supabase-js": "^2.39.3",
+    "@types/three": "^0.169.0",
+    "axios": "^1.10.0",
+    "chart.js": "^4.4.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "date-fns": "^3.0.6",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "framer-motion": "^10.18.0",
+    "lucide-react": "^0.344.0",
+    "openai": "^4.100.0",
+    "papaparse": "^5.5.3",
+    "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.3.1",
+    "react-error-boundary": "^6.0.0",
+    "react-intersection-observer": "^9.16.0",
+    "react-markdown": "^9.0.1",
+    "react-router-dom": "^6.21.1",
+    "react-window": "^1.8.11",
+    "react-window-infinite-loader": "^1.0.10",
+    "tailwind-merge": "^3.2.0",
+    "three": "^0.169.0",
+    "zustand": "^4.5.7"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^14.3.1",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^20.10.6",
+    "@types/papaparse": "^5.3.16",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "@vitest/coverage-v8": "^3.2.3",
+    "@vitest/ui": "^3.2.3",
+    "autoprefixer": "^10.4.18",
+    "eslint": "^8.56.0",
+    "jsdom": "^24.1.3",
+    "msw": "^2.8.4",
+    "postcss": "^8.4.35",
+    "rollup-plugin-visualizer": "^6.0.3",
+    "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^7.18.0",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "overrides": {
+    "xml2js": "^0.6.2",
+    "node-expat": "npm:@xml-tools/parser@^1.0.11"
+  },
+  "npm": {
+    "prebuild": false
+  }
+}

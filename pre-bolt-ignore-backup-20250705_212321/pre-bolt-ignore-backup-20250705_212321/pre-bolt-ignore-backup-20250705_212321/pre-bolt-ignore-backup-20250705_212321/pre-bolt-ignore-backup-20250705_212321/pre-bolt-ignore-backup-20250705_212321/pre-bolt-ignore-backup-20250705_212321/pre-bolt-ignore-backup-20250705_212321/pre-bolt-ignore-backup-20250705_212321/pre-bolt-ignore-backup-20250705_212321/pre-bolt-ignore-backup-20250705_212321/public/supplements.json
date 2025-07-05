@@ -1,0 +1,162 @@
+{
+  "stacks": [
+    {
+      "name": "Sleep & Recovery Stack",
+      "category": "Sleep",
+      "supplements": [
+        {
+          "name": "Magnesium Glycinate",
+          "dosage": "300-400mg",
+          "timing": "1-2 hours before bed",
+          "benefits": ["Sleep quality", "Muscle relaxation", "Stress reduction"],
+          "price": 49.99
+        },
+        {
+          "name": "L-Theanine",
+          "dosage": "200mg",
+          "timing": "30-60 minutes before bed",
+          "benefits": ["Relaxation", "Sleep onset", "Stress reduction"],
+          "price": 29.99
+        },
+        {
+          "name": "Ashwagandha",
+          "dosage": "600mg",
+          "timing": "Evening",
+          "benefits": ["Stress reduction", "Sleep quality", "Recovery"],
+          "price": 39.99
+        }
+      ]
+    },
+    {
+      "name": "Cognitive Performance Stack",
+      "category": "Cognition",
+      "supplements": [
+        {
+          "name": "Lion's Mane",
+          "dosage": "500-1000mg",
+          "timing": "Morning",
+          "benefits": ["Memory", "Focus", "Nerve health"],
+          "price": 44.99
+        },
+        {
+          "name": "Alpha-GPC",
+          "dosage": "300mg",
+          "timing": "Morning/Afternoon",
+          "benefits": ["Focus", "Memory", "Mental energy"],
+          "price": 39.99
+        },
+        {
+          "name": "Bacopa Monnieri",
+          "dosage": "300mg",
+          "timing": "With meals",
+          "benefits": ["Memory", "Learning", "Stress reduction"],
+          "price": 34.99
+        }
+      ]
+    },
+    {
+      "name": "Metabolic Health Stack",
+      "category": "Metabolism",
+      "supplements": [
+        {
+          "name": "Berberine",
+          "dosage": "500mg",
+          "timing": "With meals",
+          "benefits": ["Glucose control", "Gut health", "Lipid metabolism"],
+          "price": 49.99
+        },
+        {
+          "name": "Alpha Lipoic Acid",
+          "dosage": "600mg",
+          "timing": "With meals",
+          "benefits": ["Antioxidant", "Glucose utilization", "Nerve health"],
+          "price": 39.99
+        },
+        {
+          "name": "Chromium Picolinate",
+          "dosage": "200mcg",
+          "timing": "With meals",
+          "benefits": ["Glucose metabolism", "Appetite control"],
+          "price": 24.99
+        }
+      ]
+    },
+    {
+      "name": "Gut Health Stack",
+      "category": "Digestion",
+      "supplements": [
+        {
+          "name": "Probiotics",
+          "dosage": "10-30 billion CFU",
+          "timing": "Morning on empty stomach",
+          "benefits": ["Gut health", "Immune support", "Digestion"],
+          "price": 54.99
+        },
+        {
+          "name": "L-Glutamine",
+          "dosage": "5g",
+          "timing": "Between meals",
+          "benefits": ["Gut lining support", "Recovery", "Immune function"],
+          "price": 34.99
+        },
+        {
+          "name": "Digestive Enzymes",
+          "dosage": "1-2 capsules",
+          "timing": "With meals",
+          "benefits": ["Digestion", "Nutrient absorption"],
+          "price": 29.99
+        }
+      ]
+    },
+    {
+      "name": "Immune Support Stack",
+      "category": "Immunity",
+      "supplements": [
+        {
+          "name": "Vitamin D3+K2",
+          "dosage": "5000 IU D3, 100mcg K2",
+          "timing": "Morning with fat",
+          "benefits": ["Immune function", "Bone health", "Heart health"],
+          "price": 39.99
+        },
+        {
+          "name": "Zinc Picolinate",
+          "dosage": "15-30mg",
+          "timing": "With meals",
+          "benefits": ["Immune support", "Skin health", "Hormone balance"],
+          "price": 24.99
+        },
+        {
+          "name": "Quercetin",
+          "dosage": "500mg",
+          "timing": "With meals",
+          "benefits": ["Immune modulation", "Antioxidant", "Anti-inflammatory"],
+          "price": 34.99
+        }
+      ]
+    }
+  ],
+  "individual_supplements": [
+    {
+      "name": "NAC (N-Acetyl Cysteine)",
+      "category": "Antioxidant",
+      "dosage": "600-1200mg",
+      "benefits": ["Antioxidant", "Detoxification", "Respiratory health"],
+      "price": 39.99
+    },
+    {
+      "name": "CoQ10",
+      "category": "Energy",
+      "dosage": "100-200mg",
+      "benefits": ["Energy production", "Heart health", "Antioxidant"],
+      "price": 44.99
+    },
+    {
+      "name": "Creatine Monohydrate",
+      "category": "Performance",
+      "dosage": "5g",
+      "benefits": ["Muscle strength", "Cognitive function", "Energy"],
+      "price": 29.99
+    }
+  ]
+}
