@@ -130,7 +130,7 @@
 
   /* Improve touch targets for mobile */
   button, a, input, select, textarea {
-    @apply touch-manipulation;
+    @apply touch-manipulation min-h-[44px];
   }
 
   /* Fix iOS input styling */
@@ -141,7 +141,8 @@
   /* Prevent iOS zoom on input focus */
   @media screen and (max-width: 768px) {
     input, select, textarea {
-      font-size: 16px !important;
+      font-size: 16px;
+      min-height: 44px;
     }
   }
   
@@ -149,11 +150,41 @@
   a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
     @apply outline-none ring-2 ring-primary ring-offset-2;
   }
+
+  /* Mobile-specific optimizations */
+  @media (max-width: 640px) {
+    /* Increase tap target sizes */
+    .nav-link, .dropdown-item, button, a {
+      min-height: 44px;
+      padding-top: 0.625rem;
+      padding-bottom: 0.625rem;
+    }
+    
+    /* Improve form elements */
+    input, select, textarea {
+      padding: 0.75rem;
+    }
+    
+    /* Fix mobile viewport issues */
+    body, html {
+      height: 100%;
+      position: relative;
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+  }
 }
 
 @layer components {
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-40;
+  }
+
+  /* Mobile-optimized button */
+  @media (max-width: 640px) {
+    .btn {
+      @apply min-h-[44px] px-4 py-2;
+    }
   }
   
   .btn-primary {
@@ -174,6 +205,13 @@
 
   .input {
     @apply w-full rounded-xl border-2 border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-3 text-text shadow-sm placeholder:text-text-disabled/75 transition-all duration-300 hover:border-primary/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20;
+  }
+
+  /* Mobile-optimized input */
+  @media (max-width: 640px) {
+    .input {
+      @apply min-h-[44px] px-3 py-2 text-base;
+    }
   }
   
   .label {
@@ -237,11 +275,11 @@
   /* Mobile-specific styles */
   @media (max-width: 640px) {
     .btn {
-      @apply px-4 py-2 text-sm;
+      @apply px-4 py-2 text-base min-h-[44px];
     }
     
     .input {
-      @apply px-3 py-2 text-sm;
+      @apply px-3 py-2 text-base min-h-[44px];
     }
     
     .dropdown-menu {
@@ -249,12 +287,12 @@
     }
     
     .nav-link {
-      @apply px-3 py-1.5;
+      @apply px-3 py-2;
     }
 
     /* Improve tap targets on mobile */
     .btn, .nav-link, .dropdown-item {
-      @apply min-h-[44px] min-w-[44px];
+      @apply min-h-[44px] min-w-[44px] flex items-center;
     }
   }
 }
@@ -313,16 +351,19 @@
 /* iOS-specific fixes */
 @supports (-webkit-touch-callout: none) {
   .h-screen {
-    height: -webkit-fill-available;
+    height: 100vh;
+    height: -webkit-fill-available; /* Fallback for iOS */
   }
   
   .min-h-screen {
+    min-height: 100vh;
     min-height: -webkit-fill-available;
   }
   
   /* Fix for iOS momentum scrolling */
   .overflow-y-auto, .overflow-y-scroll {
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
   }
   
   /* Fix for iOS input zoom */

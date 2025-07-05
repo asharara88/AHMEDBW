@@ -13,7 +13,7 @@ const CartButton = ({ onClick, className = '' }: CartButtonProps) => {
   return (
     <button
       onClick={onClick}
-      className={`relative flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark ${className}`}
+      className={`relative flex items-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-dark min-h-[44px] ${className}`}
       aria-label={`Shopping cart with ${itemCount} items`}
     >
       <ShoppingCart className="h-5 w-5" />
