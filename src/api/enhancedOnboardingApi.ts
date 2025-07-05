@@ -19,11 +19,11 @@ export interface OnboardingFormData {
   supplementHabits?: string[];
 }
 
-export const cedOnboardingApi = {
+export const enhancedOnboardingApi = {
   /**
    * Save comprehensive profile data to the profiles table
    */
-  async savecedProfile(user: User, profileData: Partial<UserProfile>): Promise<void> {
+  async saveEnhancedProfile(user: User, profileData: Partial<UserProfile>): Promise<void> {
     try {
       const { error } = await supabase
         .from('profiles')
@@ -73,21 +73,21 @@ export const cedOnboardingApi = {
         });
 
       if (error) {
-        logError('Error saving ced profile', error);
+        logError('Error saving enhanced profile', error);
         throw error;
       }
       
-      logInfo('ced profile saved successfully');
+      logInfo('Enhanced profile saved successfully');
     } catch (err) {
-      logError('Error in savecedProfile', err);
+      logError('Error in saveEnhancedProfile', err);
       throw err;
     }
   },
 
   /**
-   * Save ced quiz responses with more detailed data
+   * Save enhanced quiz responses with more detailed data
    */
-  async savecedQuizResponses(user: User, profileData: Partial<UserProfile>): Promise<void> {
+  async saveEnhancedQuizResponses(user: User, profileData: Partial<UserProfile>): Promise<void> {
     try {
       const { error } = await supabase
         .from('quiz_responses')
@@ -122,21 +122,21 @@ export const cedOnboardingApi = {
         });
       
       if (error) {
-        logError('Error saving ced quiz responses', error);
+        logError('Error saving enhanced quiz responses', error);
         throw error;
       }
       
-      logInfo('ced quiz responses saved successfully');
+      logInfo('Enhanced quiz responses saved successfully');
     } catch (err) {
-      logError('Error saving ced quiz responses', err);
+      logError('Error saving enhanced quiz responses', err);
       // Don't rethrow - allow this to fail without blocking the main flow
     }
   },
 
   /**
-   * Update user metadata in Supabase Auth with ced data
+   * Update user metadata in Supabase Auth with enhanced data
    */
-  async updatecedUserMetadata(_user: User, profileData: Partial<UserProfile>): Promise<void> {
+  async updateEnhancedUserMetadata(_user: User, profileData: Partial<UserProfile>): Promise<void> {
     try {
       const { error } = await supabase.auth.updateUser({
         data: {
@@ -158,13 +158,13 @@ export const cedOnboardingApi = {
       });
       
       if (error) {
-        logError('Error updating ced user metadata', error);
+        logError('Error updating enhanced user metadata', error);
         throw error;
       }
       
-      logInfo('ced user metadata updated successfully');
+      logInfo('Enhanced user metadata updated successfully');
     } catch (err) {
-      logError('Error updating ced user metadata', err);
+      logError('Error updating enhanced user metadata', err);
       // Don't rethrow - allow this to fail without blocking the main flow
     }
   },
@@ -240,9 +240,9 @@ export const cedOnboardingApi = {
   },
 
   /**
-   * Complete the entire ced onboarding process
+   * Complete the entire enhanced onboarding process
    */
-  async completecedOnboarding(user: User, profileData: Partial<UserProfile>): Promise<void> {
+  async completeEnhancedOnboarding(user: User, profileData: Partial<UserProfile>): Promise<void> {
     // Ensure required fields are present
     const completeData: Partial<UserProfile> = {
       ...profileData,
@@ -254,30 +254,30 @@ export const cedOnboardingApi = {
     
     // Use Promise.allSettled to allow failures in quiz/meta without blocking main onboarding
     const results = await Promise.allSettled([
-      this.savecedProfile(user, completeData),
-      this.savecedQuizResponses(user, completeData),
-      this.updatecedUserMetadata(user, completeData)
+      this.saveEnhancedProfile(user, completeData),
+      this.saveEnhancedQuizResponses(user, completeData),
+      this.updateEnhancedUserMetadata(user, completeData)
     ]);
     
     // Check for errors in the main profile update (first promise)
     if (results[0].status === 'rejected') {
-      logError('Failed to save ced profile', results[0].reason);
+      logError('Failed to save enhanced profile', results[0].reason);
       throw results[0].reason;
     }
     
     // Log any other failures but don't block completion
     if (results[1].status === 'rejected') {
-      logError('Failed to save ced quiz responses', results[1].reason);
+      logError('Failed to save enhanced quiz responses', results[1].reason);
     }
     
     if (results[2].status === 'rejected') {
-      logError('Failed to update ced user metadata', results[2].reason);
+      logError('Failed to update enhanced user metadata', results[2].reason);
     }
     
     // Save to localStorage for future use
-    localStorage.setItem('biowell-ced-user-profile', JSON.stringify(completeData));
+    localStorage.setItem('biowell-enhanced-user-profile', JSON.stringify(completeData));
     
-    logInfo('ced onboarding completed successfully');
+    logInfo('Enhanced onboarding completed successfully');
   }
 };
 
@@ -299,7 +299,7 @@ export const onboardingApi = {
       currentSupplements: data.supplementHabits || []
     };
     
-    return cedOnboardingApi.savecedProfile(user, profileData);
+    return enhancedOnboardingApi.saveEnhancedProfile(user, profileData);
   },
 
   async saveQuizResponses(user: User, data: OnboardingFormData): Promise<void> {
@@ -314,7 +314,7 @@ export const onboardingApi = {
       currentSupplements: data.supplementHabits || []
     };
     
-    return cedOnboardingApi.savecedQuizResponses(user, profileData);
+    return enhancedOnboardingApi.saveEnhancedQuizResponses(user, profileData);
   },
 
   async updateUserMetadata(user: User, data: OnboardingFormData): Promise<void> {
@@ -327,7 +327,7 @@ export const onboardingApi = {
       primaryHealthGoals: data.healthGoals || []
     };
     
-    return cedOnboardingApi.updatecedUserMetadata(user, profileData);
+    return enhancedOnboardingApi.updateEnhancedUserMetadata(user, profileData);
   },
 
   async completeOnboarding(user: User, data: OnboardingFormData): Promise<void> {
@@ -346,6 +346,6 @@ export const onboardingApi = {
       currentSupplements: data.supplementHabits || []
     };
     
-    return cedOnboardingApi.completecedOnboarding(user, profileData);
+    return enhancedOnboardingApi.completeEnhancedOnboarding(user, profileData);
   }
 };
