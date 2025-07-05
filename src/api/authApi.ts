@@ -83,7 +83,7 @@ export const authApi = {
       // Generate captcha token
       const captchaToken = await generateCaptchaToken();
       
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
