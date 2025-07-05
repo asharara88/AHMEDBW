@@ -21,13 +21,13 @@ const CartWidget = () => {
       {/* Mobile floating cart button */}
       <div className="fixed bottom-4 right-4 z-40 md:hidden">
         <button
-          onClick={() => setIsCartOpen(true)}
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-lg"
+          onClick={() => setIsCartOpen(true)} 
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg"
           aria-label={`Shopping cart with ${itemCount} items`}
         >
-          <ShoppingCartIcon className="h-6 w-6" />
+          <ShoppingCartIcon className="h-7 w-7" />
           {itemCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-error text-xs font-bold text-white">
+            <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-error text-xs font-bold text-white">
               {itemCount}
             </span>
           )}

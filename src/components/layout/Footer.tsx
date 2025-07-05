@@ -8,7 +8,7 @@ const Footer = () => {
   return (
     <footer className="border-t border-[hsl(var(--color-border))] bg-background-alt py-12">
       <div className="container mx-auto px-4">
-        <div className="grid gap-8 grid-cols-2 md:grid-cols-4">
+        <div className="grid gap-8 md:grid-cols-4">
           {/* Logo and Description */}
           <div className="col-span-2 md:col-span-1">
             <Logo className="mb-4" />
@@ -18,7 +18,7 @@ const Footer = () => {
           </div>
 
           {/* Quick Links */}
-          <div className="col-span-1 md:col-span-1">
+          <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider">Quick Links</h3>
             <ul className="space-y-2">
               <li>
@@ -45,7 +45,7 @@ const Footer = () => {
           </div>
 
           {/* Resources */}
-          <div className="col-span-1 md:col-span-1">
+          <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider">Resources</h3>
             <ul className="space-y-2">
               <li>
@@ -72,7 +72,7 @@ const Footer = () => {
           </div>
 
           {/* Contact */}
-          <div className="col-span-2 md:col-span-1 mt-4 md:mt-0">
+          <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider">Contact</h3>
             <ul className="space-y-2">
               <li>
@@ -114,7 +114,7 @@ const Footer = () => {
           <p className="text-sm text-text-light">
             &copy; {currentYear} Biowell AI. All rights reserved.
           </p>
-          <div className="mt-2 flex justify-center space-x-4">
+          <div className="mt-2 flex flex-wrap justify-center gap-4">
             <Link to="/privacy" className="text-xs text-text-light hover:text-primary">
               Privacy Policy
             </Link>

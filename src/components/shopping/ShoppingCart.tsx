@@ -439,7 +439,9 @@ const ShoppingCart = ({ isOpen, onClose }: ShoppingCartProps) => {
                 </div>
               </div>
             </div>
-              <div className="flex-1 overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+          )}
+          <div className="flex-1 overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+          </div>
         </div>
       )}
     </div>

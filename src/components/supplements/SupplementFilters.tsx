@@ -29,14 +29,14 @@ const SupplementFilters: React.FC<SupplementFiltersProps> = ({
   return (
     <div className="mb-6 space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative flex-1">
+        <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-text-light" />
           <input 
             type="text"
             placeholder="Search supplements..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] pl-10 pr-4 py-3 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] pl-10 pr-4 py-3 min-h-[44px] text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             aria-label="Search supplements"
           />
           {searchQuery && (
@@ -52,7 +52,7 @@ const SupplementFilters: React.FC<SupplementFiltersProps> = ({
         
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 text-sm text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
+          className="flex items-center gap-2 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 min-h-[44px] text-sm text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
           aria-expanded={showFilters}
           aria-controls="filter-panel"
         >
@@ -64,7 +64,7 @@ const SupplementFilters: React.FC<SupplementFiltersProps> = ({
       
       {/* Active filters */}
       {hasActiveFilters && (
-        <div className="flex flex-wrap items-center gap-2 mb-4">
+        <div className="flex flex-wrap items-center gap-2 mt-3">
           {selectedCategory && (
             <div className="flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
               Category: {selectedCategory}
@@ -129,10 +129,10 @@ const SupplementFilters: React.FC<SupplementFiltersProps> = ({
                 {/* Categories */}
                 <div className="overflow-x-auto">
                   <h3 className="mb-3 text-sm font-medium">Categories</h3>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 overflow-x-auto pb-2" style={{ WebkitOverflowScrolling: 'touch' }}>
                     <button
                       onClick={() => setSelectedCategory(null)}
-                      className={`rounded-lg px-3 py-1.5 text-xs font-medium ${
+                      className={`rounded-lg px-3 py-2 min-h-[36px] text-xs font-medium ${
                         !selectedCategory
                           ? 'bg-primary text-white'
                           : 'bg-[hsl(var(--color-surface-1))] text-text-light hover:bg-[hsl(var(--color-card-hover))]'

@@ -33,7 +33,7 @@ const HealthDashboard = () => {
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <h2 className="text-xl font-bold">Health Dashboard</h2>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2" style={{ WebkitOverflowScrolling: 'touch' }}>
           <span className="text-sm text-text-light">Time Range:</span>
           <div className="flex rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))]">
             <button
@@ -77,13 +77,13 @@ const HealthDashboard = () => {
       </div>
 
       <div className="grid gap-6 md:grid-cols-12">
-        {/* BW Score Card */}
-        <div className="md:col-span-4 min-w-0 overflow-x-visible">
+        {/* BW Score Card - Full width on mobile, 4 columns on desktop */}
+        <div className="md:col-span-4 min-w-0 overflow-x-visible w-full">
           <BWScoreCard score={healthData.bwScore} trend="up" change={4} />
         </div>
 
-        {/* Metrics Overview */}
-          <TabsList className="mb-6 overflow-x-auto flex-wrap">
+        {/* Metrics Overview - Full width on mobile, 8 columns on desktop */}
+        <div className="md:col-span-8 w-full">
           <MetricsOverview metrics={healthData.metrics} />
         </div>
       </div>
@@ -92,9 +92,9 @@ const HealthDashboard = () => {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
+        className="rounded-xl bg-primary/10 p-4 border border-primary/20 overflow-hidden"
       >
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h3 className="text-lg font-semibold flex items-center text-primary">
               <Utensils className="h-5 w-5 mr-2" />
@@ -109,7 +109,7 @@ const HealthDashboard = () => {
               <span className="text-sm text-text-light">Daily Calories</span>
               <span className="text-lg font-semibold">2,150 kcal</span>
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col mt-2 sm:mt-0">
               <span className="text-sm text-text-light">Protein</span>
               <span className="text-lg font-semibold">125g</span>
             </div>
@@ -127,7 +127,7 @@ const HealthDashboard = () => {
       {/* Health Trends */}
       <div className="overflow-x-visible">
         <Tabs defaultValue="overview">
-          <TabsList className="mb-4">
+          <TabsList className="mb-4 overflow-x-auto flex-nowrap" style={{ WebkitOverflowScrolling: 'touch' }}>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="sleep">Sleep</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>

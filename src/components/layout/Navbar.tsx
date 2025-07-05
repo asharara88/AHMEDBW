@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User, LogOut, Moon, Sun, Settings, Home, LayoutDashboard, MessageSquare, Package } from 'lucide-react';
+import { Menu, X, User, LogOut, Moon, Sun, Settings, Home, LayoutDashboard, MessageSquare, Package, Info, CreditCard } from 'lucide-react';
 import Logo from '../common/Logo';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -12,6 +12,31 @@ const Navbar = () => {
   const { user, signOut } = useAuth();
   const { theme, setTheme, currentTheme } = useTheme();
   const location = useLocation();
+  const menuRef = useRef<HTMLDivElement>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close menus when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Close menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+    setIsProfileMenuOpen(false);
+  }, [location.pathname]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -76,7 +101,7 @@ const Navbar = () => {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="rounded-full p-2 text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
+              className="rounded-full p-2 text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text min-h-[40px] min-w-[40px] flex items-center justify-center"
               aria-label={currentTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {currentTheme === 'dark' ? (
@@ -88,10 +113,10 @@ const Navbar = () => {
 
             {/* Auth Actions */}
             {user ? (
-              <div className="relative">
+              <div className="relative" ref={profileMenuRef}>
                 <button
                   onClick={toggleProfileMenu}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white"
                   aria-label="Open profile menu"
                   aria-expanded={isProfileMenuOpen}
                   aria-haspopup="true"
@@ -107,19 +132,19 @@ const Navbar = () => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="dropdown-menu"
+                      className="absolute right-0 top-full z-50 mt-2 min-w-[200px] origin-top-right rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-2))] p-2 shadow-xl transition-all duration-300"
                     >
                       <Link
                         to="/profile"
-                        className="dropdown-item"
+                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-sm text-text-light transition-all duration-300 hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
                         onClick={() => setIsProfileMenuOpen(false)}
                       >
                         <User className="h-4 w-4" />
                         Profile
                       </Link>
                       <Link
-                        to="/settings"
-                        className="dropdown-item"
+                        to="/profile"
+                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-sm text-text-light transition-all duration-300 hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
                         onClick={() => setIsProfileMenuOpen(false)}
                       >
                         <Settings className="h-4 w-4" />
@@ -127,7 +152,7 @@ const Navbar = () => {
                       </Link>
                       <button
                         onClick={handleSignOut}
-                        className="dropdown-item text-error hover:bg-error/10"
+                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-sm text-error transition-all duration-300 hover:bg-error/10"
                       >
                         <LogOut className="h-4 w-4" />
                         Sign Out
@@ -137,16 +162,16 @@ const Navbar = () => {
                 </AnimatePresence>
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
+              <div className="hidden items-center space-x-2 sm:flex">
                 <Link
                   to="/login"
-                  className="rounded-lg px-4 py-2 text-sm font-medium text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
+                  className="rounded-lg px-4 py-2 text-sm font-medium text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text min-h-[40px] flex items-center"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/signup"
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark min-h-[40px] flex items-center"
                 >
                   Sign Up
                 </Link>
@@ -154,15 +179,17 @@ const Navbar = () => {
             )}
 
             {/* Mobile Menu Button */}
-            <button
-              onClick={toggleMenu}
-              className="rounded-lg p-2 text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text md:hidden"
-              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-              aria-expanded={isMenuOpen}
-              aria-controls="mobile-menu"
-            >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={toggleMenu}
+                className="rounded-lg p-2 text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text md:hidden min-h-[40px] min-w-[40px] flex items-center justify-center"
+                aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={isMenuOpen}
+                aria-controls="mobile-menu"
+              >
+                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -173,13 +200,14 @@ const Navbar = () => {
           <motion.div
             id="mobile-menu"
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto', maxHeight: '80vh' }}
+            animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="border-t border-[hsl(var(--color-border))] bg-background overflow-y-auto md:hidden"
+            className="border-t border-[hsl(var(--color-border))] bg-background md:hidden"
+            style={{ maxHeight: 'calc(100vh - 64px)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}
           >
             <div className="container mx-auto px-4 py-4">
-              <nav className="flex flex-col space-y-4">
+              <nav className="flex flex-col space-y-1">
                 {filteredNavItems.map((item) => (
                   <Link
                     key={item.path}
@@ -196,17 +224,17 @@ const Navbar = () => {
                   </Link>
                 ))}
                 {!user && (
-                  <div className="mt-4 flex flex-col space-y-2 pt-4">
+                  <div className="mt-4 flex flex-col space-y-2 pt-4 border-t border-[hsl(var(--color-border))]">
                     <Link
                       to="/login"
-                      className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-4 py-2 text-center font-medium"
+                      className="rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-4 py-3 text-center font-medium"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Sign In
                     </Link>
                     <Link
                       to="/signup"
-                      className="rounded-lg bg-primary px-4 py-2 text-center font-medium text-white"
+                      className="rounded-lg bg-primary px-4 py-3 text-center font-medium text-white"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Sign Up
