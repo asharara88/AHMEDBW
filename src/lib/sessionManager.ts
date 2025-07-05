@@ -6,7 +6,7 @@ import { logInfo, logError } from '../utils/logger';
  */
 export async function restoreSession() {
   try {
-    const { error } = await supabase.auth.getSession();
+    const { data, error } = await supabase.auth.getSession();
     if (error) {
       logError('restoreSession → getSession error', error);
       return null;
@@ -30,7 +30,7 @@ export async function refreshSessionIfNeeded() {
       return null;
     }
 
-    const { error } = await supabase.auth.refreshSession();
+    const { data, error } = await supabase.auth.refreshSession();
     if (error) {
       logError('refreshSessionIfNeeded → refreshSession error', error);
       if (

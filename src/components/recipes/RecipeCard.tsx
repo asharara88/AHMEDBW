@@ -28,10 +28,11 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="relative">
-        <img
+        <img 
           src={recipe.image}
           alt={recipe.title}
-          className="w-full h-48 object-cover"
+          className="w-full h-48 object-cover" 
+          loading="lazy"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             target.src = 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg';
@@ -93,7 +94,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         
         <button 
           onClick={toggleDetails}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 min-h-[44px]"
         >
           {showDetails ? "Hide Details" : "View Recipe"}
           {!showDetails && <ExternalLink className="h-4 w-4" />}

@@ -149,7 +149,7 @@ const MetricsOverview = ({ metrics }: MetricsOverviewProps) => {
               <div className="mt-1 flex items-baseline">
                 <span className="text-base font-semibold text-text sm:text-xl">
                   {typeof metric.value === 'number'
-                    ? metric.value.toLocaleString(undefined, {
+                    ? metric.value.toLocaleString('en-US', {
                         minimumFractionDigits: 0,
                         maximumFractionDigits: 1
                       })

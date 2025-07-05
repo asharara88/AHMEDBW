@@ -97,17 +97,17 @@ const RecipeList: React.FC<RecipeListProps> = ({
   return (
     <div>
       {showTitle && (
-        <div className="mb-6 flex justify-between items-center">
+        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h2 className="text-xl font-bold">
             {wellnessGoal ? `Recipes for ${wellnessGoal}` : 
              dietPreference ? `${dietPreference.charAt(0).toUpperCase() + dietPreference.slice(1)} Recipes` : 
              'Recommended Recipes'}
           </h2>
           
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full sm:w-auto">
             <div className="relative">
               <button 
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[hsl(var(--color-border))] text-sm hover:bg-[hsl(var(--color-card-hover))]"
+                className="flex items-center gap-1 px-3 py-2 min-h-[44px] rounded-lg border border-[hsl(var(--color-border))] text-sm hover:bg-[hsl(var(--color-card-hover))] w-full sm:w-auto"
               >
                 <Filter className="h-4 w-4" />
                 <span>Filter</span>
@@ -133,7 +133,7 @@ const RecipeList: React.FC<RecipeListProps> = ({
         </div>
       )}
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {recipes.map(recipe => (
           <RecipeCard 
             key={recipe.id} 

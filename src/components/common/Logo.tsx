@@ -31,10 +31,10 @@ const Logo = ({ className = '', variant = 'default' }: LogoProps) => {
       <div className={colorClass}>
         <img 
           src={logoUrl} 
-          alt="Biowell Logo" 
-          className="h-16 w-auto object-contain" 
-          width="240"
-          height="64"
+          alt="Biowell Logo"
+          className="h-16 sm:h-20 w-auto object-contain"
+          width="240" 
+          height="80"
           loading="eager"
           onError={(e) => {
             // Fallback to text logo if image fails to load
@@ -42,8 +42,8 @@ const Logo = ({ className = '', variant = 'default' }: LogoProps) => {
             const parent = e.currentTarget.parentElement;
             if (parent) {
               const fallback = document.createElement('div');
-              fallback.className = "flex items-center gap-2 text-primary font-bold text-xl";
-              fallback.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Biowell</span>`;
+              fallback.className = "flex items-center gap-2 text-primary font-bold text-2xl";
+              fallback.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Biowell</span>`;
               parent.appendChild(fallback);
             }
           }}
