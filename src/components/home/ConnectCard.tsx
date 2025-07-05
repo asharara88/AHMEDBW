@@ -14,18 +14,18 @@ const ConnectCard = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.1 }}
-      className="group flex h-full flex-col overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl"
+      className="group flex h-full flex-col overflow-hidden rounded-3xl shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
     >
-      <div className="flex flex-1 flex-col justify-between bg-[hsl(var(--color-card))] p-6">
+      <div className="flex flex-1 flex-col justify-between bg-card p-6">
         <div>
           <div className="mb-4 flex items-center gap-3">
-            <div className="rounded-xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-2xl bg-gradient-to-r from-primary/10 to-primary-light/10 p-3 text-primary">
               <Watch className="h-6 w-6" />
             </div>
             <h3 className="text-xl font-bold">Connect</h3>
           </div>
           
-          <p className="mb-4 text-text-light">Sync your wearables and complete a quick health assessment.</p>
+          <p className="mb-4 text-text-light text-base">Sync your wearables and complete a quick health assessment.</p>
 
           <div className="mb-4 space-y-2">
             {['Wearable devices', 'Health quiz', 'Lab results'].map((feature, i) => (
@@ -38,7 +38,7 @@ const ConnectCard = () => {
           
           <button
             onClick={toggleExpanded}
-            className="text-primary underline text-sm focus:outline-none"
+            className="text-primary underline text-sm focus:outline-none hover:scale-105 transition-transform"
           >
             {isExpanded ? 'Hide details' : 'Learn more'}
           </button>

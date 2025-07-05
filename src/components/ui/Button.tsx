@@ -3,19 +3,22 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../utils/cn';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-40 touch-manipulation',
+  'inline-flex items-center justify-center gap-2 rounded-2xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-40 touch-manipulation transform-gpu',
   {
     variants: {
       variant: {
-        primary: 'bg-primary text-white shadow-lg shadow-primary/25 hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] dark:bg-primary/90 dark:hover:bg-primary dark:hover:shadow-primary/40',
-        secondary: 'bg-secondary text-white shadow-lg shadow-secondary/25 hover:bg-secondary-dark hover:shadow-xl hover:shadow-secondary/30 active:scale-[0.98] dark:bg-secondary/90 dark:hover:bg-secondary dark:hover:shadow-secondary/40',
-        outline: 'border-2 border-[hsl(var(--color-border))] bg-transparent text-text shadow-sm hover:bg-[hsl(var(--color-card-hover))] hover:shadow-md active:scale-[0.98] dark:text-text dark:hover:bg-[hsl(var(--color-card-hover))]',
-        ghost: 'hover:bg-[hsl(var(--color-card-hover))] text-text-light hover:text-text',
+        primary: 'bg-gradient-to-r from-primary to-primary-light text-white shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] dark:shadow-primary/40',
+        secondary: 'bg-gradient-to-r from-secondary to-secondary-light text-white shadow-lg shadow-secondary/25 hover:shadow-xl hover:shadow-secondary/30 hover:scale-[1.02] active:scale-[0.98] dark:shadow-secondary/40',
+        accent: 'bg-gradient-to-r from-accent to-accent-light text-white shadow-lg shadow-accent/25 hover:shadow-xl hover:shadow-accent/30 hover:scale-[1.02] active:scale-[0.98] dark:shadow-accent/40',
+        outline: 'border-2 border-border bg-transparent text-text shadow-sm hover:bg-card-hover hover:shadow-md hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm',
+        ghost: 'hover:bg-card-hover text-text-light hover:text-text hover:scale-[1.02] active:scale-[0.98]',
+        glass: 'bg-glass border border-glass-border backdrop-blur-glass text-text shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] hover:bg-glass/80',
       },
       size: {
         sm: 'h-9 px-4 text-sm',
         md: 'h-11 px-6',
         lg: 'h-12 px-8 text-lg min-h-[44px]',
+        xl: 'h-14 px-10 text-xl min-h-[48px]',
       },
       fullWidth: {
         true: 'w-full',
