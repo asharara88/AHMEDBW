@@ -48,7 +48,7 @@ export class RecipeService {
       }
 
       // Call the Supabase Edge Function
-      const { error } = await supabase.functions.invoke('get-personalized-recipes', {
+      const { data, error } = await supabase.functions.invoke('get-personalized-recipes', {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
