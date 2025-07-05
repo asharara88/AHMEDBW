@@ -346,7 +346,6 @@ const FitnessPage: React.FC = () => {
               
               <TabsContent value="planner" className="mt-0">
                 <MealPlanner />
-                </div>
               </TabsContent>
               
               <TabsContent value="progress" className="mt-0">
