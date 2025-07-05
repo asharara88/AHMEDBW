@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { AppProviders } from './components/providers/AppProviders';
 import './index.css';
 
 // Initialize React app
@@ -21,9 +20,7 @@ if (import.meta.env.DEV) {
 // Render the app
 root.render(
   <React.StrictMode>
-    <AppProviders>
-      <App />
-    </AppProviders>
+    <App />
   </React.StrictMode>
 );
 

@@ -256,7 +256,7 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
               className={`rounded-full p-1 ${preferSpeech ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'}`}
               title={preferSpeech ? "Turn off voice" : "Turn on voice"}
               onClick={() => setPreferSpeech(!preferSpeech)}
-              aria-pressed={preferSpeech}
+              aria-pressed={(preferSpeech).toString()}
               type="button"
             >
               {preferSpeech ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}

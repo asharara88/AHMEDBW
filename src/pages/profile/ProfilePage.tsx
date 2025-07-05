@@ -49,7 +49,7 @@ const ProfilePage = () => {
           return;
         }
 
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('profiles')
           .select('first_name, last_name, mobile')
           .eq('id', user.id)

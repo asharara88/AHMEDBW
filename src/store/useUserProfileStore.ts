@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabaseClient';
-import { enhancedOnboardingApi } from '../api/enhancedOnboardingApi';
+import { cedOnboardingApi } from '../api/enhancedOnboardingApi';
 import { logError, logInfo } from '../utils/logger';
 // Enhanced user profile interface
 export interface UserProfile {
@@ -121,7 +121,7 @@ export const useUserProfileStore = create<UserProfileState>()(
         set({ loading: true, error: null });
         
         try {
-          const profile = await enhancedOnboardingApi.loadUserProfile(userId);
+          const profile = await cedOnboardingApi.loadUserProfile(userId);
           
           if (profile) {
             set({ 
@@ -254,7 +254,7 @@ export const useUserProfileStore = create<UserProfileState>()(
           };
 
           // Use enhanced API to complete onboarding
-          await enhancedOnboardingApi.completeEnhancedOnboarding(user, completedProfile);
+          await cedOnboardingApi.completecedOnboarding(user, completedProfile);
 
           // Update local state
           set({ 

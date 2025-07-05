@@ -59,7 +59,7 @@ const StackBuilder = ({ supplements, userSupplements, onToggleSubscription }: St
       
       // In a real app, fetch data from Supabase
       if (!isDemo) {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('supplement_stacks')
           .select('*')
           .limit(10);

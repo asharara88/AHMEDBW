@@ -49,7 +49,7 @@ export const supplementApi = {
    */
   async toggleSubscription(userId: string, supplementId: string): Promise<void> {
     // First check if the user is already subscribed
-    const { data } = await supabase
+    const { data: _ } = await supabase
       .from('user_supplements')
       .select('id')
       .eq('user_id', userId)

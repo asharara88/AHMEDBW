@@ -100,7 +100,7 @@ const HealthTrends = ({ userId }: HealthTrendsProps) => {
       try {
         // In a real app, fetch data from Supabase
         if (!isDemo) {
-          const { data, error } = await supabase
+          const { error } = await supabase
             .from('cgm_data')
             .select('*')
             .eq('user_id', userId)
@@ -529,7 +529,7 @@ const HealthTrends = ({ userId }: HealthTrendsProps) => {
                         ? 'bg-primary text-white'
                         : 'bg-[hsl(var(--color-card-hover))] text-text-light hover:text-text'
                     }`}
-                    aria-pressed={timeRange === range}
+                    aria-pressed={((timeRange === range).toString()).toString()}
                   >
                     {range}
                   </button>

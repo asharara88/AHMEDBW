@@ -137,7 +137,7 @@ const VoiceInput = ({ onTranscription, disabled = false, className = '' }: Voice
               : 'bg-[hsl(var(--color-surface-1))] text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
         } disabled:cursor-not-allowed disabled:opacity-50`}
         aria-label={isRecording ? "Stop recording" : "Start voice recording"}
-        aria-pressed={isRecording}
+        aria-pressed={(isRecording).toString()}
         title={isRecording ? "Stop recording" : "Record voice message"}
       >
         {isProcessing ? (

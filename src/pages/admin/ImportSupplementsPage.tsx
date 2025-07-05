@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle, Check, Download, Upload, RefreshCw, FileText, Database } from 'lucide-react';
-import importSupplementsFromCsv from '../../scripts/importSupplementsFromCsv';
 import { supabase } from '../../lib/supabaseClient';
 
 const ImportSupplementsPage = () => {
@@ -54,7 +53,7 @@ const ImportSupplementsPage = () => {
     setDbLoading(true);
     
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('supplements')
         .select('*')
         .limit(100);
@@ -80,7 +79,7 @@ const ImportSupplementsPage = () => {
     setSuccess(null);
     
     try {
-      const result = await importSupplementsFromCsv();
+      
       if (result.success) {
         setSuccess(result.message);
         // Refresh database tab data
