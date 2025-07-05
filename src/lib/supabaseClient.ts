@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { logError, logInfo } from '../utils/logger'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -28,47 +29,70 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 export const testConnection = async () => {
   try {
-    console.log('🔄 Testing Supabase connection...')
+    logInfo('Testing Supabase connection...')
     
-    // Test with a simple query to a table that should exist
-    const { data, error } = await supabase
-      .from('users')
-      .select('id')
-      .limit(1)
+    // First try a simple health check
+    try {
+      const response = await fetch(`${supabaseUrl}/health`, {
+        headers: {
+          'apikey': supabaseAnonKey
+        }
+      })
+      
+      if (response.ok) {
+        logInfo('Supabase health check successful')
+      } else {
+        logError('Supabase health check failed', await response.text())
+      }
+    } catch (healthError) {
+      logError('Supabase health check error', healthError)
+    }
     
-    if (error) {
-      console.error('❌ Connection test failed:', error.message)
-      // Try alternative test with auth endpoint
-      try {
-        const { data: authData, error: authError } = await supabase.auth.getSession()
-        if (authError) {
-          console.error('❌ Auth connection also failed:', authError.message)
+    // Try with a simple query to a table that should exist
+    try {
+      const { data, error } = await supabase
+        .from('supplements')
+        .select('id')
+        .limit(1)
+      
+      if (error) {
+        logError('Database query test failed', error)
+        
+        // Try alternative test with auth endpoint
+        try {
+          const { data: authData, error: authError } = await supabase.auth.getSession()
+          if (authError) {
+            logError('Auth connection also failed', authError)
+            return false
+          }
+          logInfo('Auth connection successful, but database query failed')
+          return true
+        } catch (authErr) {
+          logError('Both database and auth connections failed', authErr)
           return false
         }
-        console.log('✅ Auth connection successful, but database query failed')
-        return true
-      } catch (authErr) {
-        console.error('❌ Both database and auth connections failed')
-        return false
       }
+      
+      logInfo('Supabase connection successful')
+      return true
+    } catch (dbError) {
+      logError('Database connection error', dbError)
+      
+      // Try a simpler connection test
+      try {
+        const { data, error } = await supabase.auth.getSession()
+        if (!error) {
+          logInfo('Basic Supabase connection works')
+          return true
+        }
+      } catch (fallbackError) {
+        logError('Fallback connection test also failed', fallbackError)
+      }
+      
+      return false
     }
-    
-    console.log('✅ Supabase connection successful')
-    return true
   } catch (error) {
-    console.error('❌ Connection error:', error)
-    
-    // Try a simpler connection test
-    try {
-      const { data, error } = await supabase.auth.getSession()
-      if (!error) {
-        console.log('✅ Basic Supabase connection works')
-        return true
-      }
-    } catch (fallbackError) {
-      console.error('❌ Fallback connection test also failed:', fallbackError)
-    }
-    
+    logError('Connection error', error)
     return false
   }
 }
