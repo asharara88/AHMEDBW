@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Heart, Mail, GitHub, Twitter } from 'lucide-react';
+import { Heart, Mail, Github as GitHub, Twitter } from 'lucide-react';
 import Logo from '../common/Logo';
 
 const Footer = () => {
