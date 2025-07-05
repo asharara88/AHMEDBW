@@ -1,11 +1,19 @@
 import React from 'react';
+import Navbar from './Navbar';
+import Footer from './Footer';
 
-// This file should contain layout components, not page components
+interface LayoutProps {
+  children: React.ReactNode;
+}
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div>
-      {children}
+    <div className="flex min-h-screen flex-col">
+      <Navbar />
+      <main className="flex-1 py-6">{children}</main>
+      <Footer />
     </div>
   );
-}
+};
+
+export default Layout;
