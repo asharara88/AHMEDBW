@@ -27,7 +27,7 @@ export const apiClient = {
     errorMessage: string = 'An error occurred'
   ): Promise<T> {
     try {
-      const { data, error } = await operation();
+      const { error } = await operation();
       
       if (error) {
         // Handle Supabase errors
