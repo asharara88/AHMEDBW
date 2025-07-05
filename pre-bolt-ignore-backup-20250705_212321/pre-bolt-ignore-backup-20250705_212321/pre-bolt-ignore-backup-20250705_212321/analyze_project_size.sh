@@ -16,7 +16,7 @@ echo "🔍 File type distribution:"
 find . -type f -name "*.*" | sed 's/.*\.//' | sort | uniq -c | sort -nr | head -20
 
 echo ""
-echo "�� Total project size:"
+echo "📊 Total project size:"
 du -sh .
 
 echo ""
