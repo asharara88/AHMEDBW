@@ -4,7 +4,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/Ta
 import { Dumbbell, Utensils, Calendar, LineChart, Plus, Trash2, X, Award, BarChart, Save, Download } from 'lucide-react';
 import FoodSearch from '../../components/fitness/FoodSearch'; 
 import ExerciseSearch from '../../components/fitness/ExerciseSearch'; 
-import MealPlanner from '../../components/fitness/MealPlanner';
 import { FoodItem } from '../../api/myFitnessPalApi';
 import { Exercise } from '../../api/exerciseDbApi';
 import { useAuth } from '../../contexts/AuthContext';
@@ -345,7 +344,16 @@ const FitnessPage: React.FC = () => {
               </TabsContent>
               
               <TabsContent value="planner" className="mt-0">
-                <MealPlanner />
+                <div className="rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4">
+                  <h3 className="text-lg font-semibold mb-4">Meal Planner</h3>
+                  <div className="py-8 text-center">
+                    <Calendar className="mx-auto h-12 w-12 text-text-light opacity-50 mb-3" />
+                    <h4 className="text-lg font-medium mb-2">Meal Planning Coming Soon</h4>
+                    <p className="text-text-light mb-4">
+                      Plan your meals and track your nutrition goals with our upcoming meal planner feature
+                    </p>
+                  </div>
+                </div>
               </TabsContent>
               
               <TabsContent value="progress" className="mt-0">
