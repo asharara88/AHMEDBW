@@ -136,6 +136,11 @@ const FitnessPage: React.FC = () => {
               
               <TabsContent value="planner" className="mt-0">
                 <div className="rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4">
+                  <MealPlanner />
+                </div>
+              </TabsContent>
+            </div>
+
             <div className="md:col-span-5 lg:col-span-4">
               <div className="rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-4">
                 <div className="mb-4 flex items-center justify-between">
