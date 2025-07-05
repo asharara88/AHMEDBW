@@ -31,12 +31,12 @@ const SupplementFilters: React.FC<SupplementFiltersProps> = ({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-text-light" />
-          <input
+          <input 
             type="text"
             placeholder="Search supplements..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] pl-10 pr-4 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-full rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] pl-10 pr-4 py-3 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             aria-label="Search supplements"
           />
           {searchQuery && (
@@ -64,7 +64,7 @@ const SupplementFilters: React.FC<SupplementFiltersProps> = ({
       
       {/* Active filters */}
       {hasActiveFilters && (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 mb-4">
           {selectedCategory && (
             <div className="flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
               Category: {selectedCategory}
@@ -116,7 +116,7 @@ const SupplementFilters: React.FC<SupplementFiltersProps> = ({
       {/* Expanded filters */}
       <AnimatePresence>
         {showFilters && (
-          <motion.div
+          <motion.div 
             id="filter-panel"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
@@ -127,7 +127,7 @@ const SupplementFilters: React.FC<SupplementFiltersProps> = ({
             <div className="p-4">
               <div className="grid gap-6 md:grid-cols-2">
                 {/* Categories */}
-                <div>
+                <div className="overflow-x-auto">
                   <h3 className="mb-3 text-sm font-medium">Categories</h3>
                   <div className="flex flex-wrap gap-2">
                     <button

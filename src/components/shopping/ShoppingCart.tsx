@@ -46,7 +46,7 @@ const ShoppingCart = ({ isOpen, onClose }: ShoppingCartProps) => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed inset-0 z-50 flex justify-end bg-black/50"
+            className="h-full w-full max-w-md overflow-hidden bg-[hsl(var(--color-card))] shadow-xl flex flex-col"
             onClick={onClose}
           >
             <motion.div
@@ -439,7 +439,7 @@ const ShoppingCart = ({ isOpen, onClose }: ShoppingCartProps) => {
                 </div>
               </div>
             </div>
-          )}
+              <div className="flex-1 overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
         </div>
       )}
     </div>

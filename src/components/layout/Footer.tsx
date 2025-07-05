@@ -8,9 +8,9 @@ const Footer = () => {
   return (
     <footer className="border-t border-[hsl(var(--color-border))] bg-background-alt py-12">
       <div className="container mx-auto px-4">
-        <div className="grid gap-8 md:grid-cols-4">
+        <div className="grid gap-8 grid-cols-2 md:grid-cols-4">
           {/* Logo and Description */}
-          <div className="md:col-span-1">
+          <div className="col-span-2 md:col-span-1">
             <Logo className="mb-4" />
             <p className="text-sm text-text-light">
               Personalized health optimization through data-driven insights and evidence-based recommendations.
@@ -18,7 +18,7 @@ const Footer = () => {
           </div>
 
           {/* Quick Links */}
-          <div className="md:col-span-1">
+          <div className="col-span-1 md:col-span-1">
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider">Quick Links</h3>
             <ul className="space-y-2">
               <li>
@@ -45,7 +45,7 @@ const Footer = () => {
           </div>
 
           {/* Resources */}
-          <div className="md:col-span-1">
+          <div className="col-span-1 md:col-span-1">
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider">Resources</h3>
             <ul className="space-y-2">
               <li>
@@ -72,7 +72,7 @@ const Footer = () => {
           </div>
 
           {/* Contact */}
-          <div className="md:col-span-1">
+          <div className="col-span-2 md:col-span-1 mt-4 md:mt-0">
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider">Contact</h3>
             <ul className="space-y-2">
               <li>

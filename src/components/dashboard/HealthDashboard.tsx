@@ -83,7 +83,7 @@ const HealthDashboard = () => {
         </div>
 
         {/* Metrics Overview */}
-        <div className="md:col-span-8">
+          <TabsList className="mb-6 overflow-x-auto flex-wrap">
           <MetricsOverview metrics={healthData.metrics} />
         </div>
       </div>
@@ -92,7 +92,7 @@ const HealthDashboard = () => {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-xl bg-primary/10 p-4 border border-primary/20"
+        transition={{ duration: 0.5, delay: 0.1 }}
       >
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>

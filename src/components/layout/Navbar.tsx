@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User, LogOut, Moon, Sun, Settings } from 'lucide-react';
+import { Menu, X, User, LogOut, Moon, Sun, Settings, Home, LayoutDashboard, MessageSquare, Package } from 'lucide-react';
 import Logo from '../common/Logo';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -40,12 +40,12 @@ const Navbar = () => {
   };
 
   const navItems = [
-    { path: '/', label: 'Home', requiresAuth: false },
-    { path: '/dashboard', label: 'Dashboard', requiresAuth: true },
-    { path: '/chat', label: 'MyCoach', requiresAuth: true },
-    { path: '/supplements', label: 'Supplements', requiresAuth: true },
-    { path: '/how-it-works', label: 'How It Works', requiresAuth: false },
-    { path: '/pricing', label: 'Pricing', requiresAuth: false },
+    { path: '/', label: 'Home', requiresAuth: false, icon: <Home className="h-5 w-5" /> },
+    { path: '/dashboard', label: 'Dashboard', requiresAuth: true, icon: <LayoutDashboard className="h-5 w-5" /> },
+    { path: '/chat', label: 'MyCoach', requiresAuth: true, icon: <MessageSquare className="h-5 w-5" /> },
+    { path: '/supplements', label: 'Supplements', requiresAuth: true, icon: <Package className="h-5 w-5" /> },
+    { path: '/how-it-works', label: 'How It Works', requiresAuth: false, icon: <Info className="h-5 w-5" /> },
+    { path: '/pricing', label: 'Pricing', requiresAuth: false, icon: <CreditCard className="h-5 w-5" /> },
   ];
 
   // Filter nav items based on authentication status
@@ -173,10 +173,10 @@ const Navbar = () => {
           <motion.div
             id="mobile-menu"
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: 'auto', maxHeight: '80vh' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="border-t border-[hsl(var(--color-border))] bg-background md:hidden"
+            className="border-t border-[hsl(var(--color-border))] bg-background overflow-y-auto md:hidden"
           >
             <div className="container mx-auto px-4 py-4">
               <nav className="flex flex-col space-y-4">
@@ -184,13 +184,14 @@ const Navbar = () => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`block rounded-lg px-4 py-2 text-lg transition-colors ${
+                    className={`flex items-center gap-3 rounded-lg px-4 py-3 text-base transition-colors ${
                       isActive(item.path)
                         ? 'bg-primary/10 font-medium text-primary'
                         : 'text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
                     }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
+                    {item.icon}
                     {item.label}
                   </Link>
                 ))}
