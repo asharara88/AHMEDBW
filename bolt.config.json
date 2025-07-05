@@ -1,0 +1,18 @@
+{
+  "maxProjectSize": "100MB",
+  "ignorePatterns": [
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    "coverage/**",
+    "*.log",
+    "*.tmp"
+  ],
+  "preserveFiles": [
+    "src/**",
+    "public/**",
+    "package.json",
+    "tsconfig.json",
+    "vite.config.ts"
+  ]
+}

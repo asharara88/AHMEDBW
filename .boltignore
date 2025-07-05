@@ -1,0 +1,89 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.yarn/
+vendor/
+bower_components/
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+.vite/
+*.build/
+public/build/
+
+# Test & Coverage
+coverage/
+.nyc_output/
+test-results/
+e2e-results/
+__tests__/
+*.test.*
+*.spec.*
+
+# Development tools
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs & temp files
+*.log
+logs/
+*.tmp
+*.temp
+.cache/
+temp/
+tmp/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Large assets (if any)
+*.mp4
+*.mov
+*.avi
+*.psd
+*.ai
+*.sketch
+
+# Backup files
+*.bak
+*.backup
+*.old
+backup/
+
+# Archives
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+
+# Database files
+*.sqlite
+*.db
+*.sql
+
+# Generated documentation
+docs/generated/
+.docusaurus/
+
+# Package locks (keep only one)
+yarn.lock
+pnpm-lock.yaml
+# Keep package-lock.json
+
+# Other
+.git/
+.svn/
+.hg/

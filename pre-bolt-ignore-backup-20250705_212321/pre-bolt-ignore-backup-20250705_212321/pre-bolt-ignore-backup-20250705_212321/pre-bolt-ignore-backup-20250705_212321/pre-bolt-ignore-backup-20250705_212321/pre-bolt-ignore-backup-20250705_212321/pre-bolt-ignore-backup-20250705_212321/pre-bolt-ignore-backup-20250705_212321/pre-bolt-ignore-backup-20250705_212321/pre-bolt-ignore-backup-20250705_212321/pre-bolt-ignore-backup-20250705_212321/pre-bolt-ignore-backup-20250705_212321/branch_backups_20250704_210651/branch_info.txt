@@ -1,0 +1,23 @@
+Branch: codex/fix-cors-policy-conflict
+fa2fb8c Fix unfinished edge function code
+---
+Branch: codex/fix-cors-policy-issue
+67c7437 Clean env example and remove duplicate function
+---
+Branch: codex/fix-config-parsing-errors
+e1b458d Fix Supabase config format
+---
+Branch: codex/add-environment-config-for-openai-api-key
+---
+Branch: codex/configure-database-url-for-postgresql
+0df6dc9 Add database connection test script
+---
+Branch: codex/implement-comprehensive-error-logging
+e6bf747 fix: update HealthTrends logging
+---
+Branch: codex/evaluate-and-update-jwt-verification-for-chat-assistant
+feaedec Enable JWT verification for chat assistant
+---
+Branch: codex/fix-infinite-request-loop-in-onboarding
+2fbfda0 fix: prevent onboarding status request loop
+---

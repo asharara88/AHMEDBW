@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="Layer_1" width="200pt" height="200pt" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0575E6" />
+      <stop offset="100%" style="stop-color:#021B79" />
+    </linearGradient>
+  </defs>
+  <style>
+    .st0{fill:url(#grad1);}
+    .st1{fill:none;stroke:#FFFFFF;stroke-width:9;stroke-linecap:round;stroke-linejoin:round;}
+    .st2{fill:none;stroke:#FFFFFF;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:0.5;}
+    @media (prefers-color-scheme: dark) {
+      .st1, .st2 {stroke:#FFFFFF;}
+    }
+    @media (prefers-color-scheme: light) {
+      .st1, .st2 {stroke:#FFFFFF;}
+    }
+  </style>
+  <g>
+    <circle class="st0" cx="100" cy="100" r="90" />
+    <path class="st1" d="M50,100 L150,100 M67,70 L133,70 M83,130 L117,130" />
+    <path class="st2" d="M40,100 L160,100 M57,50 L143,50 M73,150 L127,150" />
+  </g>
+</svg>
