@@ -31,64 +31,18 @@ export const testConnection = async () => {
   try {
     logInfo('Testing Supabase connection...')
     
-    // Test with a simple auth session check first (most reliable)
+    // Test with a simple auth session check first (most reliable and doesn't require specific tables)
     try {
       const { data, error } = await supabase.auth.getSession()
       if (error) {
         logError('Auth session check failed', error)
+        return false
       } else {
         logInfo('Supabase auth connection successful')
+        return true
       }
     } catch (authError) {
       logError('Auth connection error', authError)
-    }
-    
-    // Try a simple database query to test database connectivity
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id')
-        .limit(1)
-      
-      if (error) {
-        logError('Database query test failed', error)
-        
-        // If profiles table doesn't exist, try a different approach
-        try {
-          const { data: configData, error: configError } = await supabase
-            .from('configuration')
-            .select('id')
-            .limit(1)
-          
-          if (configError) {
-            logError('Alternative database query also failed', configError)
-            return false
-          }
-          
-          logInfo('Supabase database connection successful (via configuration table)')
-          return true
-        } catch (fallbackError) {
-          logError('Fallback database query failed', fallbackError)
-          return false
-        }
-      }
-      
-      logInfo('Supabase database connection successful')
-      return true
-    } catch (dbError) {
-      logError('Database connection error', dbError)
-      
-      // If database queries fail, at least check if we can reach Supabase
-      try {
-        const { data, error } = await supabase.auth.getSession()
-        if (!error) {
-          logInfo('Basic Supabase connection works (auth only)')
-          return true
-        }
-      } catch (fallbackError) {
-        logError('All connection tests failed', fallbackError)
-      }
-      
       return false
     }
   } catch (error) {
