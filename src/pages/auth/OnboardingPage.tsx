@@ -9,7 +9,7 @@ import StreamlinedOnboarding from '../../components/onboarding/StreamlinedOnboar
 import { AlertCircle, CheckCircle, MessageSquare, ClipboardList, Layers, Sparkles } from 'lucide-react';
 import Logo from '../../components/common/Logo';
 import { logError } from '../../utils/logger';
-import { onboardingApi, OnboardingFormData } from '../../api/onboardingApi';
+import { onboardingApi, OnboardingFormData } from '../../api/enhancedOnboardingApi';
 import { useUserProfileStore } from '../../store/useUserProfileStore';
 
 const OnboardingPage = () => {

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, AlertCircle, ArrowRight, Shield, User, Calendar, Activity, Brain } from 'lucide-react';
-import { OnboardingFormData } from '../../api/onboardingApi';
+import { OnboardingFormData } from '../../api/enhancedOnboardingApi';
 import OnboardingProgress from './OnboardingProgress';
 
 interface ValidationErrors {

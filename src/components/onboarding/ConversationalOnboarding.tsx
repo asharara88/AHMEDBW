@@ -4,7 +4,7 @@ import { Send, User, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { logError } from '../../utils/logger';
 import { useAutoScroll } from '../../hooks/useAutoScroll';
-import { OnboardingFormData } from '../../api/onboardingApi';
+import { OnboardingFormData } from '../../api/enhancedOnboardingApi';
 import SuggestedQuestions from './SuggestedQuestions';
 
 interface Message {
