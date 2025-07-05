@@ -27,7 +27,7 @@ export const apiClient = {
     errorMessage: string = 'An error occurred'
   ): Promise<T> {
     try {
-      const { error } = await operation();
+      const { data, error } = await operation();
       
       if (error) {
         // Handle Supabase errors
@@ -57,8 +57,8 @@ export const apiClient = {
         } as ApiError;
       }
       
-      return data as T;
-    } catch (error) {
+        return data;
+      } catch (error) {
       // If it's already an ApiError, just rethrow it
       if (error && typeof error === 'object' && 'type' in error) {
         throw error;

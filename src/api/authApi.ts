@@ -39,7 +39,7 @@ export const authApi = {
       // Generate captcha token
       const captchaToken = await generateCaptchaToken();
       
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
         options: {
@@ -83,7 +83,7 @@ export const authApi = {
       // Generate captcha token
       const captchaToken = await generateCaptchaToken();
       
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -134,7 +134,7 @@ export const authApi = {
    */
   async getUserProfile(userId: string): Promise<UserProfile> {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('first_name, last_name, email, onboarding_completed, mobile')
         .eq('id', userId)
@@ -216,7 +216,7 @@ export const authApi = {
    */
   async checkOnboardingStatus(userId: string): Promise<boolean> {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('onboarding_completed, first_name, last_name')
         .eq('id', userId)

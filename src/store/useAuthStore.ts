@@ -101,7 +101,7 @@ export const useAuthStore = create<AuthState>()(
         set({ loading: true, error: null });
         
         try {
-          const { error } = await authApi.signUp(email, password);
+          const { data, error } = await authApi.signUp(email, password);
           
           if (error) {
             set({ error: (error as any)?.message || 'An unexpected error occurred', loading: false });
