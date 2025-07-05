@@ -23,7 +23,8 @@ const RecipesPage: React.FC = () => {
       
       const fetchedRecipes = await RecipeService.getPersonalizedRecipes({
         dietPreference: dietFilter !== 'all' ? dietFilter : undefined,
-        wellnessGoal: healthFilter !== 'all' ? healthFilter : undefined
+        wellnessGoal: healthFilter !== 'all' ? healthFilter : undefined,
+        numberOfResults: 6 // Limit the number of results to reduce API usage
       });
       
       setRecipes(fetchedRecipes);

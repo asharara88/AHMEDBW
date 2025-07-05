@@ -62,15 +62,16 @@ export class RecipeService {
       if (error) {
         console.error('Supabase function error:', error);
         logError('Recipe function error:', error);
-        throw new Error(`Failed to fetch recipes: ${error.message}`);
+        throw new Error(`Failed to fetch recipes: ${error.message || 'Failed to send a request to the Edge Function'}`);
       }
 
-      if (!data) {
+      // Check if data exists before trying to access it
+      if (!data || !data.recipes) {
         console.error('No data returned from function');
         throw new Error('No data returned from recipe service');
       }
 
-      return data.recipes || [];
+      return data.recipes;
 
     } catch (error) {
       console.error('Error in getPersonalizedRecipes:', error);
