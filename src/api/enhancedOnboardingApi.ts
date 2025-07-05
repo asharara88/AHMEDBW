@@ -174,7 +174,7 @@ export const cedOnboardingApi = {
    */
   async loadUserProfile(userId: string): Promise<UserProfile | null> {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
