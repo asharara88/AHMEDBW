@@ -13,8 +13,8 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set, get) => ({
-      theme: 'time-based',
-      currentTheme: 'dark',
+      theme: 'light',
+      currentTheme: 'light',
       
       setTheme: (theme) => {
         set({ theme });
