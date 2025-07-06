@@ -47,7 +47,6 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimeoutRef = useRef<number | null>(null);
   const [isFirstRender, setIsFirstRender] = useState(true);
-  const [hasInteracted, setHasInteracted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   
   const { user, isDemo } = useAuth();
@@ -74,11 +73,11 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
     }
   }, []);
 
-  // Auto-scroll only after the user interacts with the chat
+  // Use the updated useAutoScroll hook with the onlyScrollDown parameter set to true
   useAutoScroll(
-    messagesEndRef,
-    [hasInteracted ? messages : null],
-    { behavior: 'smooth' },
+    messagesEndRef, 
+    [isFirstRender ? null : messages], 
+    { behavior: 'smooth' }, 
     true
   );
 
@@ -112,7 +111,6 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
     
     setInput('');
     setShowSuggestions(false);
-    setHasInteracted(true);
 
     try {
       await sendMessage(messageContent, user?.id || (isDemo ? '00000000-0000-0000-0000-000000000000' : undefined));
