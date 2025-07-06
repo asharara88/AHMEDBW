@@ -1,1 +1,8 @@
+# Netlify redirects file
 /*    /index.html   200
+
+# API redirects (if needed in future)
+/api/*  https://api.biowell.app/:splat  200
+
+# Old URLs redirect (if needed)
+/dashboard  /home  301

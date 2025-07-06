@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 
 const App: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [activeCard, setActiveCard] = useState<number | null>(null);
   const [healthScore, setHealthScore] = useState(0);
 
   useEffect(() => {
@@ -10,7 +9,6 @@ const App: React.FC = () => {
       setCurrentTime(new Date());
     }, 1000);
 
-    // Animate health score
     const scoreTimer = setInterval(() => {
       setHealthScore(prev => prev < 85 ? prev + 1 : 85);
     }, 50);
@@ -21,243 +19,226 @@ const App: React.FC = () => {
     };
   }, []);
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString([], { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
-  };
-
-  const healthData = [
-    {
-      id: 1,
-      title: "Health Score",
-      value: `${healthScore}%`,
-      icon: "💚",
-      color: "from-green-400 to-emerald-500",
-      bgColor: "bg-green-50",
-      textColor: "text-green-800",
-      description: "Overall wellness indicator",
-      trend: "+5% from last week"
-    },
-    {
-      id: 2,
-      title: "Daily Supplements",
-      value: "3/5",
-      icon: "💊",
-      color: "from-blue-400 to-cyan-500",
-      bgColor: "bg-blue-50",
-      textColor: "text-blue-800",
-      description: "Supplements taken today",
-      trend: "2 remaining"
-    },
-    {
-      id: 3,
-      title: "Workout Progress",
-      value: "4/5",
-      icon: "🏋️",
-      color: "from-purple-400 to-violet-500",
-      bgColor: "bg-purple-50",
-      textColor: "text-purple-800",
-      description: "Weekly workout goals",
-      trend: "1 day left"
-    },
-    {
-      id: 4,
-      title: "Nutrition Score",
-      value: "92%",
-      icon: "🥗",
-      color: "from-orange-400 to-amber-500",
-      bgColor: "bg-orange-50",
-      textColor: "text-orange-800",
-      description: "Daily nutrition target",
-      trend: "Excellent!"
-    },
-    {
-      id: 5,
-      title: "Sleep Quality",
-      value: "7.5h",
-      icon: "😴",
-      color: "from-indigo-400 to-blue-500",
-      bgColor: "bg-indigo-50",
-      textColor: "text-indigo-800",
-      description: "Last night's sleep",
-      trend: "Good quality"
-    },
-    {
-      id: 6,
-      title: "Hydration",
-      value: "2.1L",
-      icon: "💧",
-      color: "from-cyan-400 to-teal-500",
-      bgColor: "bg-cyan-50",
-      textColor: "text-cyan-800",
-      description: "Water intake today",
-      trend: "0.9L to go"
-    }
-  ];
-
-  const quickActions = [
-    { icon: "📊", label: "View Reports", color: "bg-gradient-to-r from-pink-500 to-rose-500" },
-    { icon: "⚙️", label: "Settings", color: "bg-gradient-to-r from-gray-500 to-slate-500" },
-    { icon: "🎯", label: "Goals", color: "bg-gradient-to-r from-yellow-500 to-orange-500" },
-    { icon: "🔔", label: "Reminders", color: "bg-gradient-to-r from-red-500 to-pink-500" }
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-purple-200 to-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-gradient-to-r from-yellow-200 to-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse animation-delay-2000"></div>
-        <div className="absolute bottom-10 left-1/2 w-72 h-72 bg-gradient-to-r from-blue-200 to-cyan-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse animation-delay-4000"></div>
+    <div style={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+      padding: '2rem'
+    }}>
+      {/* Header */}
+      <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <div style={{
+          width: '4rem',
+          height: '4rem',
+          background: 'linear-gradient(135deg, #3b82f6 0%, #9333ea 100%)',
+          borderRadius: '1rem',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: '1.5rem',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
+        }}>
+          <span style={{ fontSize: '1.5rem' }}>🩺</span>
+        </div>
+        
+        <h1 style={{
+          fontSize: '3rem',
+          fontWeight: 'bold',
+          background: 'linear-gradient(135deg, #1f2937 0%, #4b5563 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          marginBottom: '1rem'
+        }}>
+          BioWell
+        </h1>
+        
+        <p style={{ fontSize: '1.25rem', color: '#6b7280', marginBottom: '0.5rem' }}>
+          Your Personal Health Dashboard
+        </p>
+        
+        <div style={{ fontSize: '1.125rem', color: '#9ca3af' }}>
+          {currentTime.toLocaleString()}
+        </div>
+      </header>
+
+      {/* Quick Actions */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+        <div style={{
+          display: 'flex',
+          gap: '1rem',
+          background: 'rgba(255, 255, 255, 0.8)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '1rem',
+          padding: '1rem'
+        }}>
+          {[
+            { icon: "📊", label: "Reports", color: "linear-gradient(135deg, #ec4899 0%, #f43f5e 100%)" },
+            { icon: "⚙️", label: "Settings", color: "linear-gradient(135deg, #6b7280 0%, #64748b 100%)" },
+            { icon: "🎯", label: "Goals", color: "linear-gradient(135deg, #eab308 0%, #f97316 100%)" },
+            { icon: "🔔", label: "Alerts", color: "linear-gradient(135deg, #ef4444 0%, #ec4899 100%)" }
+          ].map((action, index) => (
+            <button
+              key={index}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.75rem 1rem',
+                background: action.color,
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.75rem',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'transform 0.2s',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              <span>{action.icon}</span>
+              <span>{action.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Main Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <header className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-6 shadow-lg">
-            <span className="text-2xl">🩺</span>
+      {/* Health Cards */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '1.5rem',
+        marginBottom: '3rem'
+      }}>
+        {[
+          {
+            title: "Health Score",
+            value: `${healthScore}%`,
+            icon: "💚",
+            color: "#22c55e",
+            bgColor: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)"
+          },
+          {
+            title: "Daily Supplements",
+            value: "3/5",
+            icon: "💊",
+            color: "#3b82f6",
+            bgColor: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)"
+          },
+          {
+            title: "Workout Progress",
+            value: "4/5",
+            icon: "🏋️",
+            color: "#9333ea",
+            bgColor: "linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)"
+          },
+          {
+            title: "Nutrition Score",
+            value: "92%",
+            icon: "🥗",
+            color: "#f97316",
+            bgColor: "linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%)"
+          },
+          {
+            title: "Sleep Quality",
+            value: "7.5h",
+            icon: "😴",
+            color: "#6366f1",
+            bgColor: "linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)"
+          },
+          {
+            title: "Hydration",
+            value: "2.1L",
+            icon: "💧",
+            color: "#06b6d4",
+            bgColor: "linear-gradient(135deg, #ecfeff 0%, #cffafe 100%)"
+          }
+        ].map((item, index) => (
+          <div
+            key={index}
+            style={{
+              background: item.bgColor,
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+              transition: 'transform 0.2s',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.02)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <div style={{
+                width: '3rem',
+                height: '3rem',
+                background: 'rgba(255, 255, 255, 0.8)',
+                borderRadius: '0.75rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.5rem'
+              }}>
+                {item.icon}
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937' }}>
+                  {item.title}
+                </h3>
+              </div>
+            </div>
+            
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: item.color, marginBottom: '0.5rem' }}>
+              {item.value}
+            </div>
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-4">
-            BioWell
-          </h1>
-          <p className="text-xl text-gray-600 mb-2">Your Personal Health Dashboard</p>
-          <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
-            <span className="flex items-center">
-              <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
-              {formatDate(currentTime)}
-            </span>
-            <span className="text-2xl font-mono text-gray-700">{formatTime(currentTime)}</span>
-          </div>
-        </header>
+        ))}
+      </div>
 
-        {/* Quick Actions */}
-        <div className="flex justify-center mb-8">
-          <div className="flex space-x-4 bg-white/60 backdrop-blur-sm rounded-2xl p-2 shadow-lg">
-            {quickActions.map((action, index) => (
-              <button
-                key={index}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-xl ${action.color} text-white text-sm font-medium hover:scale-105 transform transition-all duration-200 shadow-md hover:shadow-lg`}
-              >
-                <span>{action.icon}</span>
-                <span>{action.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Health Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {healthData.map((item) => (
-            <div
-              key={item.id}
-              className={`group relative bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:scale-105 ${
-                activeCard === item.id ? 'ring-2 ring-blue-500 ring-offset-2' : ''
-              }`}
-              onMouseEnter={() => setActiveCard(item.id)}
-              onMouseLeave={() => setActiveCard(null)}
-            >
-              {/* Gradient Background */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${item.color} rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
-              
-              {/* Content */}
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${item.bgColor} group-hover:scale-110 transition-transform duration-300`}>
-                      <span className="text-2xl">{item.icon}</span>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{item.title}</h3>
-                      <p className="text-sm text-gray-500">{item.description}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex items-end justify-between">
-                  <div>
-                    <div className="text-3xl font-bold text-gray-900 mb-1">{item.value}</div>
-                    <div className={`text-sm font-medium ${item.textColor}`}>
-                      {item.trend}
-                    </div>
-                  </div>
-                  
-                  {/* Progress Ring for Health Score */}
-                  {item.id === 1 && (
-                    <div className="relative w-16 h-16">
-                      <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">
-                        <circle
-                          cx="32"
-                          cy="32"
-                          r="28"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          fill="none"
-                          className="text-green-100"
-                        />
-                        <circle
-                          cx="32"
-                          cy="32"
-                          r="28"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          fill="none"
-                          strokeDasharray={`${healthScore * 1.76} 176`}
-                          className="text-green-500 transition-all duration-1000 ease-out"
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-xs font-bold text-green-600">{healthScore}%</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
+      {/* Weekly Overview */}
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(10px)',
+        borderRadius: '1rem',
+        padding: '2rem',
+        boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
+      }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', color: '#1f2937' }}>
+          Weekly Overview
+        </h2>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '1rem' }}>
+          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => (
+            <div key={day} style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem' }}>
+                {day}
+              </div>
+              <div style={{
+                width: '100%',
+                height: '6rem',
+                borderRadius: '0.75rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.5rem',
+                background: index < 5 
+                  ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
+                  : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                color: index < 5 ? 'white' : '#9ca3af'
+              }}>
+                {index < 5 ? '✅' : '⭕'}
               </div>
             </div>
           ))}
         </div>
-
-        {/* Weekly Overview */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Weekly Overview</h2>
-            <div className="flex space-x-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-              <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse animation-delay-1000"></div>
-              <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse animation-delay-2000"></div>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-7 gap-4">
-            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => (
-              <div key={day} className="text-center">
-                <div className="text-sm text-gray-500 mb-2">{day}</div>
-                <div className={`w-full h-24 rounded-xl flex items-center justify-center text-2xl transition-all duration-300 hover:scale-105 ${
-                  index < 4 ? 'bg-gradient-to-t from-green-400 to-green-500 text-white shadow-lg' : 
-                  index === 4 ? 'bg-gradient-to-t from-blue-400 to-blue-500 text-white shadow-lg' :
-                  'bg-gray-100 text-gray-400'
-                }`}>
-                  {index < 5 ? '✅' : '⭕'}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <footer className="text-center mt-12 text-gray-500">
-          <p className="text-sm">
-            BioWell - Empowering your health journey with intelligent insights
-          </p>
-        </footer>
       </div>
     </div>
   );
