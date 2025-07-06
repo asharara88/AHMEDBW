@@ -6,12 +6,12 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-[hsl(var(--color-border))] bg-background-alt py-12">
+    <footer className="border-t border-border bg-background-alt py-8">
       <div className="container mx-auto px-4">
-        <div className="grid gap-8 md:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-4">
           {/* Logo and Description */}
           <div className="col-span-2 md:col-span-1">
-            <Logo className="mb-4" />
+            <Logo className="mb-3" />
             <p className="text-sm text-text-light">
               Personalized health optimization through data-driven insights and evidence-based recommendations.
             </p>
@@ -19,25 +19,25 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider">Quick Links</h3>
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/dashboard" className="text-sm text-text-light hover:text-primary">
+                <Link to="/dashboard" className="text-sm text-text-light transition-colors hover:text-primary hover:scale-105 inline-block">
                   Dashboard
                 </Link>
               </li>
               <li>
-                <Link to="/chat" className="text-sm text-text-light hover:text-primary">
+                <Link to="/chat" className="text-sm text-text-light transition-colors hover:text-primary hover:scale-105 inline-block">
                   MyCoach
                 </Link>
               </li>
               <li>
-                <Link to="/supplements" className="text-sm text-text-light hover:text-primary">
+                <Link to="/supplements" className="text-sm text-text-light transition-colors hover:text-primary hover:scale-105 inline-block">
                   Supplements
                 </Link>
               </li>
               <li>
-                <Link to="/pricing" className="text-sm text-text-light hover:text-primary">
+                <Link to="/pricing" className="text-sm text-text-light transition-colors hover:text-primary hover:scale-105 inline-block">
                   Pricing
                 </Link>
               </li>
@@ -46,7 +46,7 @@ const Footer = () => {
 
           {/* Resources */}
           <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider">Resources</h3>
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider">Resources</h3>
             <ul className="space-y-2">
               <li>
                 <Link to="/how-it-works" className="text-sm text-text-light hover:text-primary">
