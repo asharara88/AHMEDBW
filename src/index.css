@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+backup-before-consolidation
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 @layer base {
   :root {
     /* Color Palette */
@@ -462,3 +476,4 @@
     @apply min-h-[44px] min-w-[44px] flex items-center justify-center sm:justify-start;
   }
 }
+ main

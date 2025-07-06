@@ -1,0 +1,435 @@
+Branch Analysis Report - Sat Jul  5 08:34:49 +04 2025
+================================
+
+Branch: 0hgtga-codex/add-newline-at-end-of-text-files
+----------------
+Last commit: 2025-06-27 14:08:33 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: 1rmj5h-codex/add-newline-at-end-of-text-files
+----------------
+Last commit: 2025-06-27 14:08:33 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: 709qle-codex/add-newline-at-end-of-text-files
+----------------
+Last commit: 2025-06-27 14:08:33 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: 7u36qz-codex/add-environment-config-for-openai-api-key
+----------------
+Last commit: 2025-06-19 11:20:40 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: BWMIDO
+----------------
+Last commit: 2025-06-17 18:21:21 +0400
+Commits ahead of main: 68
+Files changed:       77
+Changed files:
+.env.example
+.gitignore
+index.html
+package-lock.json
+package.json
+postcss.config.js
+src/App.tsx
+src/components/auth/AuthErrorHandler.tsx
+src/components/auth/CaptchaWrapper.tsx
+src/components/auth/LoginForm.tsx
+
+Branch: asp1ys-codex/add-environment-config-for-openai-api-key
+----------------
+Last commit: 2025-06-19 11:20:40 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: b9288z-codex/configure-database-url-for-postgresql
+----------------
+Last commit: 2025-05-20 13:41:23 +0400
+Commits ahead of main: 1
+Files changed:        3
+Changed files:
+README.md
+package.json
+scripts/test-db-connection.js
+
+Branch: codespace-sturdy-xylophone-5g5qxx9469ggfvvq
+----------------
+Last commit: 2025-05-20 10:41:57 +0000
+Commits ahead of main: 1
+Files changed:        1
+Changed files:
+.env.example
+
+Branch: codex/add-environment-config-for-openai-api-key
+----------------
+Last commit: 2025-06-19 11:20:40 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: codex/add-missing-icon-files-or-update-manifest
+----------------
+Last commit: 2025-05-19 17:46:38 +0400
+Commits ahead of main: 1
+Files changed:        1
+Changed files:
+public/manifest.json
+
+Branch: codex/add-newline-at-end-of-text-files
+----------------
+Last commit: 2025-06-27 14:08:33 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: codex/amend-and-commit-postgres-url
+----------------
+Last commit: 2025-05-20 14:23:08 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: codex/check-and-clean-up-supabase-client-references
+----------------
+Last commit: 2025-05-19 14:46:50 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: codex/configure-database-url-for-postgresql
+----------------
+Last commit: 2025-05-20 13:41:14 +0400
+Commits ahead of main: 1
+Files changed:        3
+Changed files:
+README.md
+package.json
+scripts/test-db-connection.js
+
+Branch: codex/edit-and-commit-config.toml-settings
+----------------
+Last commit: 2025-06-26 06:02:40 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: codex/evaluate-and-update-jwt-verification-for-chat-assistant
+----------------
+Last commit: 2025-05-19 14:46:13 +0400
+Commits ahead of main: 1
+Files changed:        3
+Changed files:
+.env.example
+README.md
+supabase/config.toml
+
+Branch: codex/extract-complex-logic-to-custom-hooks
+----------------
+Last commit: 2025-05-21 06:56:26 +0400
+Commits ahead of main: 1
+Files changed:        6
+Changed files:
+src/components/auth/SignUpCard.tsx
+src/components/dashboard/MetabolicCard.tsx
+src/components/home/ConnectCard.tsx
+src/components/supplements/StackBuilder.tsx
+src/components/supplements/SupplementCard.tsx
+src/hooks/useToggle.ts
+
+Branch: codex/fix-config-parsing-errors
+----------------
+Last commit: 2025-05-19 17:45:41 +0400
+Commits ahead of main: 1
+Files changed:        1
+Changed files:
+supabase/config.toml
+
+Branch: codex/fix-config-parsing-errors-s7nr92
+----------------
+Last commit: 2025-05-19 17:45:48 +0400
+Commits ahead of main: 1
+Files changed:        1
+Changed files:
+supabase/config.toml
+
+Branch: codex/fix-cors-policy-conflict
+----------------
+Last commit: 2025-05-19 16:53:26 +0400
+Commits ahead of main: 1
+Files changed:        3
+Changed files:
+supabase/functions/chat-assistant/index.ts
+supabase/functions/openai-proxy/index.ts
+supabase/functions/openai-proxy/openai-proxy.ts
+
+Branch: codex/fix-cors-policy-issue
+----------------
+Last commit: 2025-05-19 16:42:14 +0400
+Commits ahead of main: 1
+Files changed:       15
+Changed files:
+.env.example
+.gitignore
+README.md
+eslint.config.js
+index.html
+netlify.toml
+package.json
+src/supabase/functions/openai-proxy.ts
+src/supabase/functions/openai-proxy/index.ts
+supabase/functions/chat-assistant/index.ts
+
+Branch: codex/fix-infinite-request-loop-in-onboarding
+----------------
+Last commit: 2025-05-19 17:44:35 +0400
+Commits ahead of main: 1
+Files changed:        3
+Changed files:
+src/contexts/AuthContext.tsx
+src/pages/auth/LoginPage.tsx
+src/pages/auth/OnboardingPage.tsx
+
+Branch: codex/fix-issue-immediately
+----------------
+Last commit: 2025-05-21 06:48:22 +0400
+Commits ahead of main: 1
+Files changed:        1
+Changed files:
+package.json
+
+Branch: codex/fix-submodule-url-in-gitmodules
+----------------
+Last commit: 2025-06-13 11:01:43 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: codex/implement-comprehensive-error-logging
+----------------
+Last commit: 2025-05-21 07:06:12 +0400
+Commits ahead of main: 1
+Files changed:       33
+Changed files:
+src/components/auth/AuthErrorHandler.tsx
+src/components/chat/AIHealthCoach.tsx
+src/components/chat/ActionFetchBlock.tsx
+src/components/chat/ChatButton.tsx
+src/components/chat/CoachChat.tsx
+src/components/common/ErrorBoundary.tsx
+src/components/common/PricingSection.tsx
+src/components/dashboard/DeploymentStatusWidget.tsx
+src/components/dashboard/DeviceDropdown.tsx
+src/components/dashboard/HealthTrends.tsx
+
+Branch: codex/locate-and-remove-deviceimages-tsx
+----------------
+Last commit: 2025-05-19 14:45:33 +0400
+Commits ahead of main: 1
+Files changed:        1
+Changed files:
+src/utils/deviceImages.tsx
+
+Branch: codex/merge-files-into-supabaseclient-module
+----------------
+Last commit: 2025-06-01 07:07:55 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: codex/move-tokenized-asset-links-to-env-vars
+----------------
+Last commit: 2025-05-31 14:23:31 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: codex/remove-or-refactor-authhelpers-usage
+----------------
+Last commit: 2025-05-19 14:45:15 +0400
+Commits ahead of main: 1
+Files changed:        2
+Changed files:
+src/lib/supabase.ts
+src/utils/authHelpers.ts
+
+Branch: codex/remove-redundant-supabaseprovider
+----------------
+Last commit: 2025-05-19 17:47:03 +0400
+Commits ahead of main: 1
+Files changed:        1
+Changed files:
+src/App.tsx
+
+Branch: codex/remove-unused-supabase-ts-file
+----------------
+Last commit: 2025-05-19 17:46:01 +0400
+Commits ahead of main: 1
+Files changed:        2
+Changed files:
+src/utils/authHelpers.ts
+src/utils/supabase.ts
+
+Branch: codex/replace-secrets-with-placeholders-in-env-example
+----------------
+Last commit: 2025-05-19 14:45:58 +0400
+Commits ahead of main: 1
+Files changed:        2
+Changed files:
+.env.example
+supabase/config.toml
+
+Branch: codex/replace-supabase-urls-with-local-paths
+----------------
+Last commit: 2025-05-19 17:46:59 +0400
+Commits ahead of main: 1
+Files changed:       11
+Changed files:
+index.html
+public/favicon.svg
+public/icons/icon-128x128.png
+public/icons/icon-144x144.png
+public/icons/icon-152x152.png
+public/icons/icon-192x192.png
+public/icons/icon-384x384.png
+public/icons/icon-512x512.png
+public/icons/icon-72x72.png
+public/icons/icon-96x96.png
+
+Branch: codex/resolve-conflicts-between-codex-update-workflow-to-install-g
+----------------
+Last commit: 2025-05-20 19:16:19 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: codex/resolve-npm-eresolve-dependency-conflict
+----------------
+Last commit: 2025-05-20 14:03:43 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: codex/review-codexrouter.ts-functions
+----------------
+Last commit: 2025-06-26 05:48:47 +0400
+Commits ahead of main: 4
+Files changed:        5
+Changed files:
+codex/codexRouter.ts
+codex/index.ts
+codex/types.ts
+supabase/.gitignore
+supabase/config.toml
+
+Branch: codex/search-and-remove-unused-deviceimages-tsx
+----------------
+Last commit: 2025-05-19 14:46:28 +0400
+Commits ahead of main: 1
+Files changed:        1
+Changed files:
+src/utils/deviceImages.tsx
+
+Branch: codex/set-up-jest-and-add-sample-test
+----------------
+Last commit: 2025-06-02 06:09:28 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: codex/setup-supabase-environment-variables
+----------------
+Last commit: 2025-05-21 09:27:46 +0400
+Commits ahead of main: 1
+Files changed:        3
+Changed files:
+.env
+.env.example
+.env.production
+
+Branch: codex/store-and-retrieve-goal-in-localstorage
+----------------
+Last commit: 2025-06-19 13:43:41 +0400
+Commits ahead of main: 1
+Files changed:        2
+Changed files:
+src/pages/QuizPage.tsx
+src/pages/chat/ChatPage.tsx
+
+Branch: codex/troubleshoot-empty-screen-after-vercel-deployment
+----------------
+Last commit: 2025-05-20 13:30:49 +0400
+Commits ahead of main: 1
+Files changed:        2
+Changed files:
+README.md
+src/lib/supabaseClient.ts
+
+Branch: codex/update-env-example-with-dummy-values
+----------------
+Last commit: 2025-05-19 16:53:18 +0400
+Commits ahead of main: 1
+Files changed:        1
+Changed files:
+.env.example
+
+Branch: codex/update-verify-jwt-setting-in-config-toml
+----------------
+Last commit: 2025-05-19 17:46:27 +0400
+Commits ahead of main: 1
+Files changed:        1
+Changed files:
+supabase/config.toml
+
+Branch: codex/update-workflow-to-install-gulp
+----------------
+Last commit: 2025-05-20 13:54:29 +0400
+Commits ahead of main: 1
+Files changed:        3
+Changed files:
+.github/workflows/npm-gulp.yml
+package-lock.json
+package.json
+
+Branch: db4iho-codex/add-newline-at-end-of-text-files
+----------------
+Last commit: 2025-06-27 14:08:33 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: feature/next-feature
+----------------
+Last commit: 2025-07-04 18:25:43 +0400
+Commits ahead of main: 2
+Files changed:       16
+Changed files:
+lint-errors.txt
+openaiApi.ts
+src/api/sendChat.ts
+src/api/userApi.ts
+src/components/auth/OnboardingForm.tsx
+src/components/onboarding/EnhancedOnboardingForm.tsx
+src/components/onboarding/EnhancedOnboardingFormFixed.tsx
+src/components/recipes/RecipeCard.tsx
+src/components/recipes/RecipeList.tsx
+src/components/ui/InputField.tsx
+
+Branch: gw2ul5-codex/add-environment-config-for-openai-api-key
+----------------
+Last commit: 2025-06-19 11:20:40 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: ilmqtt-codex/fix-submodule-url-in-gitmodules
+----------------
+Last commit: 2025-05-20 13:27:26 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: main
+----------------
+Last commit: 2025-07-04 20:56:48 +0400
+Commits ahead of main: 0
+Files changed:        0
+
+Branch: preview
+----------------
+Last commit: 2025-05-21 09:44:37 +0400
+Commits ahead of main: 1
+Files changed:        1
+Changed files:
+stackbit.config.ts

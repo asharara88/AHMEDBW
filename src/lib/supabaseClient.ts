@@ -33,7 +33,7 @@ export const testConnection = async () => {
     
     // Test with a simple auth session check first (most reliable and doesn't require specific tables)
     try {
-      const { data, error } = await supabase.auth.getSession()
+      const { error } = await supabase.auth.getSession()
       if (error) {
         logError('Auth session check failed', error)
         return false
