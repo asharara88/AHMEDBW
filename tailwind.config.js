@@ -6,17 +6,19 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: 'hsl(var(--color-primary))',
-          light: 'hsl(var(--color-primary-light))',
-          dark: 'hsl(var(--color-primary-dark))',
+          DEFAULT: 'hsl(var(--color-primary) / <alpha-value>)',
+          light: 'hsl(var(--color-primary-light) / <alpha-value>)',
+          dark: 'hsl(var(--color-primary-dark) / <alpha-value>)',
         },
         secondary: {
-          DEFAULT: 'hsl(var(--color-secondary))',
-          light: 'hsl(var(--color-secondary-light))',
-          dark: 'hsl(var(--color-secondary-dark))',
+          DEFAULT: 'hsl(var(--color-secondary) / <alpha-value>)',
+          light: 'hsl(var(--color-secondary-light) / <alpha-value>)',
+          dark: 'hsl(var(--color-secondary-dark) / <alpha-value>)',
         },
         accent: {
-          DEFAULT: 'hsl(var(--color-accent))',
+          DEFAULT: 'hsl(var(--color-accent) / <alpha-value>)',
+          light: 'hsl(var(--color-accent-light) / <alpha-value>)',
+          dark: 'hsl(var(--color-accent-dark) / <alpha-value>)',
           light: 'hsl(var(--color-accent-light))',
           dark: 'hsl(var(--color-accent-dark))',
         },
@@ -38,16 +40,16 @@ export default {
           DEFAULT: 'hsl(var(--color-background))',
           alt: 'hsl(var(--color-background-alt))',
         },
+        card: {
+          DEFAULT: 'hsl(var(--color-card))',
+          hover: 'hsl(var(--color-card-hover))',
+        },
         surface: {
           1: 'hsl(var(--color-surface-1))',
           2: 'hsl(var(--color-surface-2))',
           3: 'hsl(var(--color-surface-3))',
         },
-        border: 'hsl(var(--color-border))',
-        card: {
-          DEFAULT: 'hsl(var(--color-card))',
-          hover: 'hsl(var(--color-card-hover))',
-        },
+        border: 'hsl(var(--color-border))'
       },
       fontFamily: {
         sans: ['Inter Variable', 'system-ui', 'sans-serif'],
