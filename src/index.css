@@ -506,3 +506,4 @@
    .btn, .nav-link, .dropdown-item {
      @apply min-h-[44px] min-w-[44px] flex items-center justify-center sm:justify-start;
    }
+}
