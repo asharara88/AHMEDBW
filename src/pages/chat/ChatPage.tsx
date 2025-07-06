@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/Tabs';
 import AIHealthCoach from '../../components/chat/AIHealthCoach';
-import { MessageCircle, Zap, Settings, Volume2, VolumeX, Moon, Brain, Activity, Coffee, Shield } from 'lucide-react';
+import { MessageCircle, Zap, Settings, Volume2, VolumeX, Moon, Brain, Activity, Coffee, Shield, MessageSquareText } from 'lucide-react';
 import { useChatStore } from '../../store';
 import VoicePreferences from '../../components/chat/VoicePreferences';
 import ChatButton from '../../components/chat/ChatButton';
@@ -73,12 +73,15 @@ const ChatPage = () => {
   return (
     <div className="container mx-auto px-4 py-6">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 0.5 }}
       >
         <div className="mb-6">
-          <h1 className="text-2xl font-bold">MyCoach</h1>
+          <h1 className="text-2xl font-bold flex items-center">
+            <MessageSquareText className="mr-2 h-7 w-7 text-primary" />
+            MyCoach
+          </h1>
           <p className="text-text-light">
             Chat with your AI MyCoach for personalized guidance and recommendations
           </p>
@@ -105,7 +108,7 @@ const ChatPage = () => {
               className={`rounded-full p-2 ${preferSpeech ? 'text-primary' : 'text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text'}`}
               title={preferSpeech ? "Turn off voice" : "Turn on voice"}
               onClick={() => setPreferSpeech(!preferSpeech)}
-              aria-pressed={preferSpeech.toString()}
+              aria-pressed={preferSpeech}
               type="button"
             >
               {preferSpeech ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
@@ -270,6 +273,19 @@ const ChatPage = () => {
           </TabsContent>
         </Tabs>
       </motion.div>
+      
+      {/* Floating Chat Button for Mobile */}
+      <div className="fixed bottom-4 left-4 z-40 md:hidden">
+        <button
+          onClick={() => setActiveTab('chat')}
+          className={`flex h-16 w-16 items-center justify-center rounded-full shadow-lg fixed-bottom ${
+            activeTab === 'chat' ? 'bg-primary text-white' : 'bg-[hsl(var(--color-card))] text-primary border border-primary'
+          }`}
+          aria-label="Open chat"
+        >
+          <MessageCircle className="h-8 w-8" />
+        </button>
+      </div>
     </div>
   );
 };

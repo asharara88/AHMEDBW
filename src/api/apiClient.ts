@@ -57,8 +57,8 @@ export const apiClient = {
         } as ApiError;
       }
       
-      return data as T;
-    } catch (error) {
+      return data;
+      } catch (error) {
       // If it's already an ApiError, just rethrow it
       if (error && typeof error === 'object' && 'type' in error) {
         throw error;

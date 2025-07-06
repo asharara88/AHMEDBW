@@ -50,7 +50,7 @@ const HomePage = () => {
   return (
     <div className="overflow-x-hidden max-w-full">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-background to-background-alt py-20 md:py-28">
+      <section className="relative overflow-hidden bg-gradient-to-br from-background via-background-alt to-background py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="relative z-10 mx-auto max-w-4xl text-center">
             <motion.div
@@ -58,43 +58,43 @@ const HomePage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/10 bg-primary/5 px-4 py-2 text-sm text-primary relative">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-gradient-to-r from-primary/10 to-secondary/10 px-4 py-2 text-sm text-primary backdrop-blur-sm">
                 <Shield className="h-4 w-4" />
                 <span>Evidence-based health optimization</span>
               </div>
 
-              <h1 className="mb-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white text-center md:text-4xl lg:text-5xl">
-                Your Personal <span className="bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">Wellness Coach</span>
+              <h1 className="mb-6 text-3xl font-bold tracking-tight text-text text-center md:text-4xl lg:text-5xl">
+                Your Personal <span className="bg-gradient-to-r from-primary via-primary-light to-secondary bg-clip-text text-transparent">Wellness Coach</span>
               </h1>
 
-              <p className="mx-auto mb-8 max-w-2xl text-sm text-gray-600 dark:text-gray-300 text-center md:text-base lg:text-lg">
+              <p className="mx-auto mb-8 max-w-2xl text-base text-text-light text-center md:text-lg">
                 Optimize your wellness everyday with science backed insights with MyCoach&copy;
               </p>
 
-              <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+              <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
                 {user ? (
                   <Link
                     to="/dashboard"
-                    className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-primary-dark sm:w-auto"
+                    className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-primary-light px-6 py-3 text-base font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-105 sm:w-auto"
                   >
                     Go to Dashboard
-                    <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 ) : (
                   <>
                     <button
                       onClick={handleGetStarted}
-                      className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-primary-dark sm:w-auto"
+                      className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-primary-light px-6 py-3 text-base font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-105 sm:w-auto"
                     >
                       Get Started
-                      <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </button>
                     <button
                       onClick={handleDemoClick}
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] px-8 py-4 text-lg font-semibold transition-all hover:bg-[hsl(var(--color-card-hover))] sm:w-auto"
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-border bg-glass backdrop-blur-glass px-6 py-3 text-base font-semibold transition-all hover:bg-glass/80 hover:shadow-lg hover:scale-105 sm:w-auto"
                     >
                       Try Demo
-                      <Activity className="h-5 w-5" />
+                      <Activity className="h-4 w-4" />
                     </button>
                   </>
                 )}
@@ -104,39 +104,39 @@ const HomePage = () => {
         </div>
         
         {/* Background decoration */}
-        <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-primary/5 blur-3xl"></div>
-        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-secondary/5 blur-3xl"></div>
+        <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 blur-3xl"></div>
+        <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-gradient-to-r from-accent/20 to-primary/20 blur-3xl"></div>
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 md:py-28">
+      <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold sm:text-4xl">How It Works</h2>
-            <p className="mx-auto max-w-2xl text-text-light">
+            <h2 className="mb-4 text-2xl font-bold sm:text-3xl lg:text-4xl">How It Works</h2>
+            <p className="mx-auto max-w-2xl text-base text-text-light">
               Our platform combines cutting-edge technology with evidence-based health science to help you achieve optimal wellness.
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-3">
             <ConnectCard />
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="group flex h-full flex-col overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl"
+              className="group flex h-full flex-col overflow-hidden rounded-3xl shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
             >
-              <div className="flex flex-1 flex-col justify-between bg-[hsl(var(--color-card))] p-6">
+              <div className="flex flex-1 flex-col justify-between bg-card p-6">
                 <div>
                   <div className="mb-4 flex items-center gap-3">
-                    <div className="rounded-xl bg-primary/10 p-3 text-primary">
+                    <div className="rounded-2xl bg-gradient-to-r from-primary/10 to-primary-light/10 p-3 text-primary">
                       <Brain className="h-6 w-6" />
                     </div>
                     <h3 className="text-xl font-bold">Analyze</h3>
                   </div>
                   
-                  <p className="mb-4 text-text-light">Your data is analyzed for patterns in sleep, activity, and nutrition.</p>
+                  <p className="mb-4 text-text-light text-base">Your data is analyzed for patterns in sleep, activity, and nutrition.</p>
 
                   <div className="mb-4 space-y-2">
                     {['Pattern recognition', 'Trend analysis', 'Health insights'].map((feature, i) => (
@@ -154,18 +154,18 @@ const HomePage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="group flex h-full flex-col overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl"
+              className="group flex h-full flex-col overflow-hidden rounded-3xl shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
             >
-              <div className="flex flex-1 flex-col justify-between bg-[hsl(var(--color-card))] p-6">
+              <div className="flex flex-1 flex-col justify-between bg-card p-6">
                 <div>
                   <div className="mb-4 flex items-center gap-3">
-                    <div className="rounded-xl bg-primary/10 p-3 text-primary">
+                    <div className="rounded-2xl bg-gradient-to-r from-primary/10 to-primary-light/10 p-3 text-primary">
                       <MessageCircle className="h-6 w-6" />
                     </div>
                     <h3 className="text-xl font-bold">Personalize</h3>
                   </div>
                   
-                  <p className="mb-4 text-text-light">Get personalized supplement recommendations and health advice.</p>
+                  <p className="mb-4 text-text-light text-base">Get personalized supplement recommendations and health advice.</p>
 
                   <div className="mb-4 space-y-2">
                     {['Custom recommendations', 'Goal-based planning', 'Progress tracking'].map((feature, i) => (
@@ -183,21 +183,21 @@ const HomePage = () => {
       </section>
       
       {/* Features Section */}
-      <section className="bg-background-alt py-20 md:py-28">
+      <section className="bg-background-alt py-16 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold sm:text-4xl">Key Features</h2>
-            <p className="mx-auto max-w-2xl text-text-light">
+          <div className="mb-10 text-center">
+            <h2 className="mb-4 text-2xl font-bold sm:text-3xl">Key Features</h2>
+            <p className="mx-auto max-w-2xl text-base text-text-light">
               Discover how Biowell can transform your health journey
             </p>
           </div>
           
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="rounded-xl bg-[hsl(var(--color-card))] p-6 shadow-md transition-shadow hover:shadow-lg"
+              className="rounded-2xl bg-card p-6 shadow-md transition-all duration-300 hover:shadow-lg hover:scale-105"
             >
               <div className="mb-4 inline-flex rounded-xl bg-primary/10 p-3 text-primary">
                 <Activity className="h-6 w-6" />

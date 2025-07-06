@@ -27,14 +27,14 @@ const Logo = ({ className = '', variant = 'default' }: LogoProps) => {
                      'text-black dark:text-white';
 
   return (
-    <Link to="/" className={`flex items-center ${className}`} aria-label="Biowell Home">
+    <Link to="/" className={`flex items-center transition-all duration-300 hover:scale-105 ${className}`} aria-label="Biowell Home">
       <div className={colorClass}>
         <img 
           src={logoUrl} 
-          alt="Biowell Logo" 
-          className="h-16 w-auto object-contain" 
-          width="240"
-          height="64"
+          alt="Biowell Logo"
+          className="h-8 sm:h-10 w-auto object-contain"
+          width="120" 
+          height="40"
           loading="eager"
           onError={(e) => {
             // Fallback to text logo if image fails to load

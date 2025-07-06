@@ -4,21 +4,10 @@ import App from './App';
 import { AppProviders } from './components/providers/AppProviders';
 import './index.css';
 
-// Initialize React app
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
-// Log environment info in development
-if (import.meta.env.DEV) {
-  console.log('[Biowell] Application starting in development mode', {
-    mode: import.meta.env.MODE,
-    dev: import.meta.env.DEV,
-    prod: import.meta.env.PROD
-  });
-}
-
-// Render the app
 root.render(
   <React.StrictMode>
     <AppProviders>
@@ -26,8 +15,3 @@ root.render(
     </AppProviders>
   </React.StrictMode>
 );
-
-// Log success
-if (import.meta.env.DEV) {
-  console.log('[Biowell] Application rendered successfully');
-}

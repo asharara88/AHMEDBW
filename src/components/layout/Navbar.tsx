@@ -1,276 +1,255 @@
-import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { UserCircle, Settings, LogOut, Sun, Moon, Laptop } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Menu, X, User, LogOut, Moon, Sun, Settings, Home, LayoutDashboard, MessageSquare, Package, Info, CreditCard } from 'lucide-react';
+import Logo from '../common/Logo';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import Logo from '../../components/common/Logo';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
-  
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
-  const toggleThemeMenu = () => setIsThemeMenuOpen(!isThemeMenuOpen);
-  
-  const { user, signOut, startDemo } = useAuth();
-  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { theme, setTheme, currentTheme } = useTheme();
   const location = useLocation();
-  
+  const menuRef = useRef<HTMLDivElement>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close menus when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Close menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+    setIsProfileMenuOpen(false);
+  }, [location.pathname]);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+    // Close profile menu when main menu is toggled
+    if (isProfileMenuOpen) setIsProfileMenuOpen(false);
+  };
+
+  const toggleProfileMenu = () => {
+    setIsProfileMenuOpen(!isProfileMenuOpen);
+    // Close main menu when profile menu is toggled
+    if (isMenuOpen) setIsMenuOpen(false);
+  };
+
   const handleSignOut = async () => {
     await signOut();
-    navigate('/');
     setIsProfileMenuOpen(false);
-  };
-  
-  const isActive = (path: string) => location.pathname === path;
-
-  const { theme, setTheme } = useTheme();
-  
-  const getThemeIcon = () => {
-    switch (theme) {
-      case 'light': return <Sun className="h-5 w-5" />;
-      case 'dark': return <Moon className="h-5 w-5" />;
-      case 'time-based':
-      case 'system': return <Laptop className="h-5 w-5" />;
-      default: return <Laptop className="h-5 w-5" />;
-    }
+    setIsMenuOpen(false);
   };
 
-  const MenuIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="3" y1="6" x2="21" y2="6" />
-      <line x1="3" y1="12" x2="15" y2="12" />
-      <line x1="3" y1="18" x2="21" y2="18" />
-    </svg>
-  );
-  
+  const toggleTheme = () => {
+    setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+  };
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
+  const navItems = [
+    { path: '/', label: 'Home', requiresAuth: false, icon: <Home className="h-5 w-5" /> },
+    { path: '/dashboard', label: 'Dashboard', requiresAuth: true, icon: <LayoutDashboard className="h-5 w-5" /> },
+    { path: '/chat', label: 'MyCoach', requiresAuth: true, icon: <MessageSquare className="h-5 w-5" /> },
+    { path: '/supplements', label: 'Supplements', requiresAuth: true, icon: <Package className="h-5 w-5" /> },
+    { path: '/how-it-works', label: 'How It Works', requiresAuth: false, icon: <Info className="h-5 w-5" /> },
+    { path: '/pricing', label: 'Pricing', requiresAuth: false, icon: <CreditCard className="h-5 w-5" /> },
+  ];
+
+  // Filter nav items based on authentication status
+  const filteredNavItems = navItems.filter(item => !item.requiresAuth || user);
+
   return (
-    <header className="sticky top-0 z-50 border-b border-[hsl(var(--color-border))] bg-background/95 backdrop-blur-md">
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 sm:h-20 items-center justify-between">
-          <div className="flex items-center gap-4 sm:gap-8">
-            <Logo className="h-8" />
-            
-            <nav className="hidden space-x-1 md:flex">
-              {user ? (
-                <>
-                  <Link 
-                    to="/dashboard" 
-                    className={`nav-link ${isActive('/dashboard') ? 'nav-link-active' : ''}`}
-                  >
-                    Home
-                  </Link>
-                  <Link 
-                    to="/chat" 
-                    className={`nav-link ${isActive('/chat') || location.pathname.startsWith('/chat/') ? 'nav-link-active' : ''}`}
-                  >
-                    Coach
-                  </Link>
-                  <Link 
-                    to="/supplements" 
-                    className={`nav-link ${isActive('/supplements') ? 'nav-link-active' : ''}`}
-                  >
-                    Supplements
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link to="/how-it-works" className="nav-link">How it Works</Link>
-                  <Link to="/pricing" className="nav-link">Pricing</Link>
-                </>
-              )}
-            </nav>
-          </div>
-          
-          <div className="flex items-center gap-2 sm:gap-4">
-            {!user && (
-              <div className="hidden md:flex md:items-center md:gap-4">
-                <Link to="/login" className="nav-link">
-                  Sign in
-                </Link>
-                <Link to="/signup" className="btn-primary">
-                  Get Started
-                </Link>
-              </div>
-            )}
-            
-            <div className="relative">
-              <button
-                onClick={toggleThemeMenu}
-                className="flex h-10 w-10 items-center justify-center rounded-full text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))]"
-                aria-label="Toggle theme"
-              >
-                {getThemeIcon()}
-              </button>
+    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-14 items-center justify-between">
+          {/* Logo */}
+          <Logo className="shrink-0" />
 
-              {isThemeMenuOpen && (
-                <div className="dropdown-menu">
-                  <button
-                    onClick={() => { setTheme('light'); setIsThemeMenuOpen(false); }}
-                    className="dropdown-item"
-                  >
-                    <Sun className="h-4 w-4" />
-                    Light
-                  </button>
-                  <button
-                    onClick={() => { setTheme('dark'); setIsThemeMenuOpen(false); }}
-                    className="dropdown-item"
-                  >
-                    <Moon className="h-4 w-4" />
-                    Dark
-                  </button>
-                  <button
-                    onClick={() => { setTheme('time-based'); setIsThemeMenuOpen(false); }}
-                    className="dropdown-item"
-                  >
-                    <Laptop className="h-4 w-4" />
-                    Auto
-                  </button>
-                </div>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex md:items-center md:space-x-1">
+            {filteredNavItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`relative px-3 py-2 text-sm font-medium transition-all duration-300 rounded-xl hover:bg-card-hover hover:scale-105 ${
+                  isActive(item.path) 
+                    ? 'text-primary bg-primary/10 shadow-sm' 
+                    : 'text-text-light hover:text-text'
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Right Side Actions */}
+          <div className="flex items-center space-x-2">
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="rounded-xl p-2 text-text-light transition-all duration-300 hover:bg-card-hover hover:text-text hover:scale-105 min-h-[36px] min-w-[36px] flex items-center justify-center"
+              aria-label={currentTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {currentTheme === 'dark' ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
               )}
-            </div>
-            
-            {user && (
-              <div className="relative hidden md:block">
-                <button 
+            </button>
+
+            {/* Auth Actions */}
+            {user ? (
+              <div className="relative" ref={profileMenuRef}>
+                <button
                   onClick={toggleProfileMenu}
-                  className="flex h-10 w-10 items-center justify-center rounded-full text-text-light hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-r from-primary to-primary-light text-white shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
                   aria-label="Open profile menu"
+                  aria-expanded={isProfileMenuOpen}
+                  aria-haspopup="true"
                 >
-                  <UserCircle className="h-6 w-6" />
+                  <User className="h-4 w-4" />
                 </button>
-                
-                {isProfileMenuOpen && (
-                  <div className="dropdown-menu">
-                    <div className="border-b border-[hsl(var(--color-border))] px-4 py-2">
-                      <p className="text-sm font-medium text-text">{user.email}</p>
-                    </div>
-                    <div className="p-1">
+
+                {/* Profile Dropdown */}
+                <AnimatePresence>
+                  {isProfileMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 top-full z-50 mt-2 min-w-[180px] origin-top-right rounded-2xl border border-border bg-card/95 backdrop-blur-xl p-1 shadow-xl"
+                    >
                       <Link 
-                        to="/profile" 
-                        className="dropdown-item"
+                        to="/profile"
+                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-text-light transition-all duration-300 hover:bg-card-hover hover:text-text hover:scale-105 min-h-[36px]"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                      >
+                        <User className="h-4 w-4" />
+                        Profile
+                      </Link>
+                      <Link
+                        to="/profile"
+                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-text-light transition-all duration-300 hover:bg-card-hover hover:text-text hover:scale-105 min-h-[36px]"
                         onClick={() => setIsProfileMenuOpen(false)}
                       >
                         <Settings className="h-4 w-4" />
-                        Profile Settings
+                        Settings
                       </Link>
-                      <button 
-                        onClick={handleSignOut} 
-                        className="dropdown-item text-error hover:bg-error/10"
+                      <button
+                        onClick={handleSignOut}
+                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-error transition-all duration-300 hover:bg-error/10 min-h-[36px]"
                       >
                         <LogOut className="h-4 w-4" />
-                        Sign out
+                        Sign Out
                       </button>
-                    </div>
-                  </div>
-                )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <div className="hidden items-center space-x-2 sm:flex">
+                <Link
+                  to="/login"
+                  className="rounded-xl px-3 py-2 text-sm font-medium text-text-light transition-all duration-300 hover:bg-card-hover hover:text-text hover:scale-105 min-h-[36px] flex items-center"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/signup"
+                  className="rounded-xl bg-gradient-to-r from-primary to-primary-light px-3 py-2 text-sm font-medium text-white transition-all duration-300 hover:shadow-lg hover:scale-105 min-h-[36px] flex items-center"
+                >
+                  Sign Up
+                </Link>
               </div>
             )}
-            
-            <button 
-              onClick={toggleMenu} 
-              className="flex h-10 w-10 items-center justify-center rounded-full text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] md:hidden"
-              aria-label="Toggle menu"
-              aria-expanded={isMenuOpen}
-            >
-              {isMenuOpen ? (
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              ) : (
-                <MenuIcon />
-              )}
-            </button>
+
+            {/* Mobile Menu Button */}
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={toggleMenu}
+                className="rounded-xl p-2 text-text-light transition-all duration-300 hover:bg-card-hover hover:text-text hover:scale-105 md:hidden min-h-[36px] min-w-[36px] flex items-center justify-center"
+                aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={isMenuOpen}
+                aria-controls="mobile-menu"
+              >
+                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            </div>
           </div>
         </div>
-        
-        {isMenuOpen && (
-          <div className="border-t border-[hsl(var(--color-border))] py-4 md:hidden">
-            <nav className="flex flex-col space-y-1">
-              {user ? (
-                <>
-                  <Link 
-                    to="/dashboard" 
-                    className={`rounded-lg px-4 py-2 text-text-light transition-colors ${
-                      isActive('/dashboard') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
-                    }`}
-                    onClick={toggleMenu}
-                  >
-                    Home
-                  </Link>
-                  <Link 
-                    to="/chat" 
-                    className={`rounded-lg px-4 py-2 text-text-light transition-colors ${
-                      isActive('/chat') || location.pathname.startsWith('/chat/') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
-                    }`}
-                    onClick={toggleMenu}
-                  >
-                    Coach
-                  </Link>
-                  <Link 
-                    to="/supplements" 
-                    className={`rounded-lg px-4 py-2 text-text-light transition-colors ${
-                      isActive('/supplements') ? 'bg-primary/10 text-primary' : 'hover:bg-[hsl(var(--color-card-hover))] hover:text-text'
-                    }`}
-                    onClick={toggleMenu}
-                  >
-                    Supplements
-                  </Link>
-                  <Link 
-                    to="/profile" 
-                    className="rounded-lg px-4 py-2 text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
-                    onClick={toggleMenu}
-                  >
-                    <Settings className="h-5 w-5 inline-block mr-2" />
-                    Profile Settings
-                  </Link>
-                  <button 
-                    onClick={handleSignOut}
-                    className="flex w-full items-center gap-2 rounded-lg px-4 py-2 text-left text-error transition-colors hover:bg-error/10"
-                  >
-                    <LogOut className="h-5 w-5" />
-                    Sign out
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link 
-                    to="/how-it-works" 
-                    className="rounded-lg px-4 py-2 text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
-                    onClick={toggleMenu}
-                  >
-                    How it Works
-                  </Link>
-                  <Link 
-                    to="/pricing" 
-                    className="rounded-lg px-4 py-2 text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
-                    onClick={toggleMenu}
-                  >
-                    Pricing
-                  </Link>
-                  <Link 
-                    to="/login" 
-                    className="rounded-lg px-4 py-2 text-text-light transition-colors hover:bg-[hsl(var(--color-card-hover))] hover:text-text"
-                    onClick={toggleMenu}
-                  >
-                    Sign in
-                  </Link>
-                  <Link 
-                    to="/signup" 
-                    className="mt-2 block w-full rounded-lg bg-primary px-4 py-2 text-center font-medium text-white transition-colors hover:bg-primary-dark"
-                    onClick={toggleMenu}
-                  >
-                    Get Started
-                  </Link>
-                </>
-              )}
-            </nav>
-          </div>
-        )}
       </div>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            id="mobile-menu"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="border-t border-border bg-background/95 backdrop-blur-xl md:hidden"
+            style={{ maxHeight: 'calc(100vh - 56px)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}
+          >
+            <div className="container mx-auto px-4 py-4">
+              <nav className="flex flex-col space-y-1">
+                {filteredNavItems.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`flex items-center gap-3 rounded-xl px-4 py-3 text-base transition-all duration-300 min-h-[44px] hover:scale-105 ${
+                      isActive(item.path)
+                        ? 'bg-primary/10 font-medium text-primary shadow-sm'
+                        : 'text-text-light hover:bg-card-hover hover:text-text'
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <span className="text-lg">{item.icon}</span>
+                    {item.label}
+                  </Link>
+                ))}
+                {!user && (
+                  <div className="mt-4 flex flex-col space-y-2 pt-4 border-t border-border">
+                    <Link
+                      to="/login"
+                      className="rounded-xl border border-border bg-card px-4 py-3 text-center font-medium min-h-[44px] flex items-center justify-center transition-all duration-300 hover:bg-card-hover hover:scale-105"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      to="/signup"
+                      className="rounded-xl bg-gradient-to-r from-primary to-primary-light px-4 py-3 text-center font-medium text-white min-h-[44px] flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:scale-105"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                )}
+              </nav>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };

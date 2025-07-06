@@ -279,7 +279,7 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
       <div 
         ref={chatContainerRef}
         className="flex-1 overflow-y-auto p-4 overscroll-contain"
-        style={{ display: 'flex', flexDirection: 'column' }}
+        style={{ display: 'flex', flexDirection: 'column', WebkitOverflowScrolling: 'touch' }}
       >
         {error && <ApiErrorDisplay error={{ type: 'unknown', message: error }} />}
 
@@ -427,14 +427,14 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
       )}
 
       <div className="border-t border-[hsl(var(--color-border))] p-4">
-        <form onSubmit={handleSubmit} className="flex gap-2 relative">
+        <form onSubmit={handleSubmit} className="flex gap-2 relative items-center">
           <input
-            ref={inputRef}
+            ref={inputRef} 
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask me anything about your health..."
-            className="flex-1 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-2 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="flex-1 rounded-lg border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-3 text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[50px]"
             disabled={loading}
             aria-label="Your message"
           />
@@ -450,10 +450,10 @@ export default function AIHealthCoach({ initialQuestion = null }: AIHealthCoachP
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center justify-center rounded-lg bg-primary px-4 py-3 text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50 min-h-[50px] min-w-[50px]"
             aria-label="Send message"
           >
-            <Send className="h-5 w-5" />
+            <Send className="h-6 w-6" />
           </button>
         </form>
       </div>

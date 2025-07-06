@@ -54,7 +54,7 @@ export const audioCacheApi = {
    */
   async getAudio(userId: string, cacheKey: string): Promise<Blob | null> {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('audio_cache')
         .select('audio_data, content_type, expires_at')
         .eq('user_id', userId)

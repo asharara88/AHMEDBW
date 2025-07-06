@@ -92,8 +92,9 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
       <div className="relative h-48 overflow-hidden bg-gradient-to-br from-primary/5 to-primary/10">
         <img
           src={getFormImage(supplement.form_type)}
-          alt={`${supplement.name} supplement`}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          alt={`${supplement.name} supplement`} 
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" 
+          loading="lazy"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             target.src = "https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg";
@@ -178,7 +179,7 @@ const SupplementCard: React.FC<SupplementCardProps> = ({
             <button
               onClick={handleAddToCart}
               disabled={isInCart}
-              className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors min-h-[44px] ${
                 isInCart
                   ? 'bg-success/10 text-success cursor-not-allowed'
                   : 'bg-primary text-white hover:bg-primary-dark'

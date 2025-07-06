@@ -3,19 +3,22 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../utils/cn';
 
 const inputVariants = cva(
-  'w-full rounded-xl border-2 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50',
+  'w-full rounded-2xl border-2 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 touch-manipulation transform-gpu',
   {
     variants: {
       variant: {
         default:
-          'border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] text-text shadow-sm placeholder:text-text-disabled/75 hover:border-primary/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-text dark:placeholder:text-text-disabled/50 dark:hover:border-primary/40',
+          'border-border bg-surface-1 text-text shadow-sm placeholder:text-text-disabled/75 hover:border-primary/50 hover:shadow-md focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:shadow-lg focus:scale-[1.01] dark:text-text dark:placeholder:text-text-disabled/50 dark:hover:border-primary/40',
+        glass:
+          'border-glass-border bg-glass backdrop-blur-glass text-text shadow-lg placeholder:text-text-disabled/75 hover:border-primary/50 hover:shadow-xl focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:shadow-2xl focus:scale-[1.01] hover:bg-glass/80',
         error:
-          'border-error bg-error/5 text-error placeholder:text-error/50 hover:border-error focus:border-error focus:outline-none focus:ring-2 focus:ring-error/20',
+          'border-error bg-error/5 text-error placeholder:text-error/50 hover:border-error focus:border-error focus:outline-none focus:ring-2 focus:ring-error/20 focus:shadow-lg focus:scale-[1.01]',
       },
       size: {
         sm: 'h-9 px-3 text-sm',
-        md: 'h-11 px-4',
-        lg: 'h-12 px-4 text-lg',
+        md: 'h-11 px-4 min-h-[44px]',
+        lg: 'h-12 px-4 text-lg min-h-[44px]',
+        xl: 'h-14 px-6 text-xl min-h-[48px]',
       },
     },
     defaultVariants: {

@@ -128,8 +128,8 @@ const VoiceInput = ({ onTranscription, disabled = false, className = '' }: Voice
       <button
         type="button"
         onClick={toggleRecording}
-        disabled={disabled || isProcessing}
-        className={`flex items-center justify-center rounded-lg p-3 transition-colors ${
+        disabled={disabled || isProcessing} 
+        className={`flex items-center justify-center rounded-lg p-3 transition-colors min-h-[44px] min-w-[44px] ${
           isRecording 
             ? 'bg-error text-white animate-pulse' 
             : isProcessing

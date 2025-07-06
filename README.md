@@ -121,6 +121,29 @@ supabase secrets list
 
 You should see `OPENAI_API_KEY` in the list of secrets.
 
+#### Setting up Spoonacular API Key (Required for Recipe Recommendations)
+
+**IMPORTANT**: The recipe recommendation functionality requires a Spoonacular API key to be configured as a Supabase secret. Follow these steps:
+
+1. **Get your Spoonacular API key** from [Spoonacular's API platform](https://spoonacular.com/food-api)
+
+2. **Set the Spoonacular API key as a Supabase secret** (replace `your-actual-spoonacular-api-key` with your real Spoonacular API key):
+```bash
+supabase secrets set SPOONACULAR_API_KEY=your-actual-spoonacular-api-key
+```
+
+3. **Deploy the Edge Function** for recipe recommendations:
+```bash
+supabase functions deploy get-personalized-recipes
+```
+
+4. **Verify the setup** by checking that the secret was set correctly:
+```bash
+supabase secrets list
+```
+
+You should see both `OPENAI_API_KEY` and `SPOONACULAR_API_KEY` in the list of secrets.
+
 #### Troubleshooting OpenAI Integration
 
 If you encounter the error "Failed to fetch", "Network request failed", or "Incorrect API key provided":
@@ -186,6 +209,44 @@ supabase functions serve
 ```
 
 **Note**: The `.env` file approach only works for local development. For production, you must use Supabase secrets.
+
+#### Troubleshooting Recipe Integration
+
+If you encounter errors like "Failed to send a request to the Edge Function" or "FunctionsFetchError" when fetching recipes:
+
+1. **Verify your Spoonacular API key is valid**:
+   - Go to [Spoonacular's API dashboard](https://spoonacular.com/food-api/console#Dashboard)
+   - Make sure your key is active and has sufficient quota
+   - Copy the exact key from your dashboard
+
+2. **Check if the secret is properly set**:
+   ```bash
+   supabase secrets list
+   ```
+   You should see `SPOONACULAR_API_KEY` listed.
+
+3. **If the secret is missing or incorrect, set it again**:
+   ```bash
+   supabase secrets set SPOONACULAR_API_KEY=your-actual-spoonacular-key
+   ```
+
+4. **Redeploy the Edge Function** after setting/updating the secret:
+   ```bash
+   supabase functions deploy get-personalized-recipes
+   ```
+
+5. **Check the Edge Function logs** for more details:
+   ```bash
+   supabase functions logs get-personalized-recipes
+   ```
+
+6. **Test the Edge Function directly** to isolate the issue:
+   ```bash
+   curl -X POST "https://your-project-ref.supabase.co/functions/v1/get-personalized-recipes" \
+     -H "Authorization: Bearer your-supabase-anon-key" \
+     -H "Content-Type: application/json" \
+     -d '{"dietPreference":"all","wellnessGoal":"all","numberOfResults":6}'
+   ```
 
 ### Audio Cache Table
 
