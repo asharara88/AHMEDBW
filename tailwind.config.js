@@ -18,9 +18,7 @@ export default {
         accent: {
           DEFAULT: 'hsl(var(--color-accent) / <alpha-value>)',
           light: 'hsl(var(--color-accent-light) / <alpha-value>)',
-          dark: 'hsl(var(--color-accent-dark) / <alpha-value>)',
-          light: 'hsl(var(--color-accent-light))',
-          dark: 'hsl(var(--color-accent-dark))',
+          dark: 'hsl(var(--color-accent-dark) / <alpha-value>)'
         },
         success: {
           DEFAULT: 'hsl(var(--color-success))',

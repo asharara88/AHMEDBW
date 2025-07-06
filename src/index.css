@@ -4,30 +4,30 @@
 
 @layer base {
   :root {
-    /* Modern Color Palette */
-    --primary: 222 89% 55%;
-    --primary-light: 217 91% 60%;
-    --primary-dark: 226 85% 45%;
+    /* Color Palette */
+    --primary: 262 83% 58%;
+    --primary-light: 262 83% 68%;
+    --primary-dark: 262 83% 48%;
     --secondary: 200 100% 50%;
     --secondary-light: 200 100% 60%;
     --secondary-dark: 200 100% 40%;
     --accent: 142 76% 36%;
     --accent-light: 142 76% 46%;
     --accent-dark: 142 76% 26%;
-    --success: 142 76% 45%;
-    --warning: 39 100% 57%;
-    --error: 0 91% 65%;
+    --success: 142 71% 45%;
+    --warning: 38 92% 50%;
+    --error: 0 84% 60%;
     --text: 222 84% 5%;
-    --text-light: 215 16% 47%;
+    --text-light: 215 14% 34%;
     --text-disabled: 215 14% 58%;
-    --background: 210 20% 98%;
-    --background-alt: 220 16% 96%;
+    --background: 0 0% 100%;
+    --background-alt: 220 14% 96%;
     --card: 0 0% 100%;
-    --card-hover: 216 33% 97%;
-    --border: 220 13% 90%;
+    --card-hover: 220 14% 96%;
+    --border: 220 13% 91%;
     --surface-1: 0 0% 100%;
-    --surface-2: 220 16% 96%;
-    --surface-3: 215 16% 94%;
+    --surface-2: 220 14% 96%;
+    --surface-3: 220 14% 92%;
 
     /* Durations */
     --duration-fast: 150ms;
@@ -502,8 +502,7 @@
     @apply px-3 py-2;
   }
 
-  /* Improve tap targets on mobile */
-  .btn, .nav-link, .dropdown-item {
-    @apply min-h-[44px] min-w-[44px] flex items-center justify-center sm:justify-start;
-  }
-}
+   /* Improve tap targets on mobile */
+   .btn, .nav-link, .dropdown-item {
+     @apply min-h-[44px] min-w-[44px] flex items-center justify-center sm:justify-start;
+   }
