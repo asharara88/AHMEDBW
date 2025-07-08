@@ -1,116 +1,116 @@
-
-__tests__/
-!.env.example
-!.vscode/extensions.json
-.cache/
-.docusaurus/
-.DS_Store
-.env
-.env.*
-.env.development.local
-.env.local
-.env.production
-.env.production.local
-.env.test.local
-.git/
-.hg/
-.idea
-.idea/
-.netlify
-.next/
-.nuxt/
-.nyc_output/
-.output/
-.pnpm-store/
-.svn/
-.vite/
-.vscode/
-.vscode/*
-.yarn/
-*.7z
-*.ai
-*.avi
-*.backup
-*.bak
-*.build/
-*.db
-*.gz
-*.local
-*.log
-*.mov
-*.mp4
-*.njsproj
-*.ntvs*
-*.old
-*.psd
-*.rar
-*.sketch
-*.sln
-*.spec.*
-*.sql
-*.sqlite
-*.suo
-*.sw?
-*.swo
-*.swp
-*.tar
-*.tar.gz
-*.temp
-*.test.*
-*.tmp
-*.zip
-*~
-/.cache
-/build
-/coverage
-/tempdeno.lock
-/tmp
-# Archive files
-# Archives
-# Backup files
-# Build files
-# Build outputs
-# Database files
 # Dependencies
-# Development tools
-# Editor directories and files
-# Environment files
-# Environment variables
-# Generated documentation
-# Keep package-lock.json
-# Large assets (if any)
-# Local Netlify folder
-# Logs
-# Logs & temp files
-# Other
-# Package locks (keep only one)
-# Temporary files
-# Test & Coverage
-# Test coverage
-backup/
-bower_components/
-build/
-coverage/
-dist
-dist-ssr
-dist/
-docs/generated/
-e2e-results/
-lerna-debug.log*
-logs
-logs/
-node_modules
 node_modules/
 npm-debug.log*
-out/
-pnpm-debug.log*
-pnpm-lock.yaml
-public/build/
-temp/
-test-results/
-Thumbs.db
-tmp/
-vendor/
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build outputs
+dist/
+dist-ssr/
+build/
+*.local
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory
+coverage/
+*.lcov
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor backup files
+*~
+*.bak
+*.tmp
+*.temp
+
+# Package manager files
+package-lock.json
 yarn.lock
+pnpm-lock.yaml
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env.test
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/

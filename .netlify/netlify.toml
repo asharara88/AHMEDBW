@@ -1,0 +1,52 @@
+functionsDirectory = "/Users/ahmedsharara/Downloads/biowell demo/biowell_final_refined/AHMEDBW/my_functions"
+functionsDirectoryOrigin = "ui"
+redirectsOrigin = "config"
+headers = []
+
+[functions]
+
+[functions."*"]
+
+[[plugins]]
+origin = "ui"
+package = "@netlify/plugin-lighthouse"
+pinned_version = "6"
+
+[plugins.inputs]
+
+[build]
+publish = "/Users/ahmedsharara/Downloads/biowell demo/biowell_final_refined/AHMEDBW/dist"
+publishOrigin = "config"
+commandOrigin = "config"
+command = "npm run build"
+ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ./package-lock.json"
+functions = "/Users/ahmedsharara/Downloads/biowell demo/biowell_final_refined/AHMEDBW/my_functions"
+
+[build.environment]
+NODE_VERSION = "22"
+PYENV_VERSION = "3.10.13"
+GIT_SUBMODULE_STRATEGY = "none"
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
