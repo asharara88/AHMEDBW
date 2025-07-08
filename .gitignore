@@ -1,12 +1,13 @@
 
 __tests__/
-!.env.example
 !.vscode/extensions.json
 .cache/
 .docusaurus/
 .DS_Store
 .env
 .env.*
+!.env.example
+!.env.production.example
 .env.development.local
 .env.local
 .env.production
