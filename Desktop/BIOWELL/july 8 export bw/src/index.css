@@ -1,0 +1,339 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light theme colors */
+    --color-primary: 224 64% 33%;
+    --color-primary-light: 214 84% 56%;
+    --color-primary-dark: 224 84% 28%;
+    
+    --color-secondary: 199 89% 48%;
+    --color-secondary-light: 199 84% 58%;
+    --color-secondary-dark: 199 84% 38%;
+    
+    --color-accent: 187 100% 42%;
+    --color-accent-light: 187 100% 52%;
+    --color-accent-dark: 187 100% 32%;
+    
+    --color-success: 142 72% 29%;
+    --color-warning: 45 93% 47%;
+    --color-error: 0 91% 58%;
+    
+    --color-text: 224 32% 11%;
+    --color-text-light: 224 12% 40%;
+    --color-text-disabled: 224 10% 62%;
+    
+    --color-background: 0 0% 100%;
+    --color-background-alt: 213 33% 98%;
+    
+    --color-card: 0 0% 100%;
+    --color-card-hover: 213 33% 98%;
+    --color-border: 214 32% 91%;
+    
+    --color-surface-1: 0 0% 100%;
+    --color-surface-2: 213 33% 98%;
+    --color-surface-3: 213 33% 96%;
+
+    /* Animation durations */
+    --duration-fast: 150ms;
+    --duration-normal: 300ms;
+    --duration-slow: 500ms;
+
+    /* Shadows */
+    --shadow-sm: 0 2px 4px rgba(0, 28, 73, 0.05);
+    --shadow-md: 0 4px 8px rgba(0, 28, 73, 0.08);
+    --shadow-lg: 0 8px 16px rgba(0, 28, 73, 0.12);
+    --shadow-xl: 0 12px 24px rgba(0, 28, 73, 0.16);
+  }
+
+  .dark {
+    --color-text: 213 33% 99%;
+    --color-text-light: 213 20% 80%;
+    --color-text-disabled: 213 15% 60%;
+    
+    --color-background: 224 32% 8%;
+    --color-background-alt: 224 32% 12%;
+    
+    --color-card: 224 32% 16%;
+    --color-card-hover: 224 32% 20%;
+    --color-border: 224 24% 24%;
+    
+    --color-surface-1: 224 32% 12%;
+    --color-surface-2: 224 32% 16%;
+    --color-surface-3: 224 32% 20%;
+
+    /* Adjust shadows for dark mode */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.6);
+    
+    /* Add light variants of primary colors for better contrast in dark mode */
+    --color-primary-light: 214 70% 70%;
+    --color-success-light: 142 60% 60%;
+    --color-warning-light: 45 80% 60%;
+    --color-error-light: 0 80% 70%;
+  }
+
+  * {
+    @apply transition-colors duration-300;
+  }
+
+  html, body {
+    @apply overflow-x-hidden max-w-full box-border;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background font-sans text-text antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  html, body, #root {
+    @apply min-h-screen w-full;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight text-text;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    line-height: 1.2;
+  }
+  
+  h1 {
+    @apply text-3xl md:text-4xl;
+  }
+  
+  h2 {
+    @apply text-2xl md:text-3xl;
+  }
+  
+  h3 {
+    @apply text-xl md:text-2xl;
+  }
+  
+  h4 {
+    @apply text-lg md:text-xl;
+  }
+  
+  p {
+    @apply leading-relaxed;
+  }
+  
+  img {
+    @apply max-w-full;
+  }
+
+  /* Improve touch targets for mobile */
+  button, a, input, select, textarea {
+    @apply touch-manipulation;
+  }
+
+  /* Fix iOS input styling */
+  input, textarea {
+    @apply appearance-none;
+  }
+
+  /* Prevent iOS zoom on input focus */
+  @media screen and (max-width: 768px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+  }
+  
+  /* Focus styles for accessibility */
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  
+  .btn-primary {
+    @apply btn bg-primary text-white shadow-lg shadow-primary/25 hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98];
+  }
+  
+  .btn-outline {
+    @apply btn border-2 border-[hsl(var(--color-border))] bg-transparent text-text shadow-sm hover:bg-[hsl(var(--color-card-hover))] hover:shadow-md active:scale-[0.98];
+  }
+
+  .btn-sm {
+    @apply px-4 py-2 text-sm;
+  }
+
+  .btn-xs {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  .input {
+    @apply w-full rounded-xl border-2 border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-1))] px-4 py-3 text-text shadow-sm placeholder:text-text-disabled/75 transition-all duration-300 hover:border-primary/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20;
+  }
+  
+  .label {
+    @apply mb-2 block text-sm font-medium text-text-light;
+  }
+
+  .nav-link {
+    @apply relative px-4 py-2 text-text-light transition-all duration-300 before:absolute before:bottom-0 before:left-0 before:h-0.5 before:w-full before:origin-left before:scale-x-0 before:bg-primary before:transition-transform before:duration-300 hover:text-text before:hover:scale-x-100;
+  }
+
+  .nav-link-active {
+    @apply text-text before:scale-x-100;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium shadow-sm transition-all duration-300;
+  }
+
+  .badge-primary {
+    @apply badge bg-primary/10 text-primary shadow-primary/5;
+  }
+
+  .badge-success {
+    @apply badge bg-success/10 text-success shadow-success/5;
+  }
+
+  .badge-warning {
+    @apply badge bg-warning/10 text-warning shadow-warning/5;
+  }
+
+  .badge-error {
+    @apply badge bg-error/10 text-error shadow-error/5;
+  }
+
+  .dropdown-menu {
+    @apply absolute right-0 mt-2 min-w-[200px] origin-top-right rounded-xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-surface-2))] p-2 shadow-xl transition-all duration-300;
+  }
+
+  .dropdown-item {
+    @apply flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-sm text-text-light transition-all duration-300 hover:bg-[hsl(var(--color-card-hover))] hover:text-text;
+  }
+
+  .card {
+    @apply rounded-2xl border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] p-6 shadow-lg transition-all duration-300 hover:shadow-xl;
+  }
+
+  .card-hover {
+    @apply hover:border-primary/50 hover:bg-[hsl(var(--color-card-hover))];
+  }
+  
+  /* Container with responsive padding */
+  .container-padded {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* Section spacing */
+  .section-spacing {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+  
+  /* Mobile-specific styles */
+  @media (max-width: 640px) {
+    .btn {
+      @apply px-4 py-2 text-sm;
+    }
+    
+    .input {
+      @apply px-3 py-2 text-sm;
+    }
+    
+    .dropdown-menu {
+      @apply min-w-[250px] max-w-[calc(100vw-2rem)];
+    }
+    
+    .nav-link {
+      @apply px-3 py-1.5;
+    }
+
+    /* Improve tap targets on mobile */
+    .btn, .nav-link, .dropdown-item {
+      @apply min-h-[44px] min-w-[44px];
+    }
+  }
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+/* iOS-specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .h-screen {
+    height: -webkit-fill-available;
+  }
+  
+  .min-h-screen {
+    min-height: -webkit-fill-available;
+  }
+  
+  /* Fix for iOS momentum scrolling */
+  .overflow-y-auto, .overflow-y-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Fix for iOS input zoom */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  textarea {
+    font-size: 16px;
+  }
+}

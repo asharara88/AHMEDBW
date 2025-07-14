@@ -1,0 +1,19 @@
+{
+  "name": "AHMEDBW - BioWell Health Dashboard",
+  "description": "Ahmed's BioWell health tracking dashboard with real-time metrics",
+  "framework": "react",
+  "language": "typescript",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "port": 5173,
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "features": [
+    "tailwindcss",
+    "typescript",
+    "react",
+    "vite"
+  ]
+}

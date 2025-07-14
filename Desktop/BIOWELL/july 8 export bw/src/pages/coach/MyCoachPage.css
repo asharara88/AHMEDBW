@@ -1,0 +1,267 @@
+.mycoach-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding: var(--spacing-lg);
+}
+
+.mycoach-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+/* Header */
+.mycoach-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+  border-radius: 16px;
+  color: white;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.header-icon {
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+
+.header-text h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.header-text p {
+  margin: 8px 0 0 0;
+  opacity: 0.9;
+  font-size: 1.125rem;
+}
+
+.header-stats {
+  display: flex;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Welcome Section */
+.welcome-section {
+  margin: var(--spacing-lg) 0;
+}
+
+.welcome-card {
+  background: linear-gradient(135deg, #F0FDF4, #EBF8FF);
+  border: 1px solid #BBF7D0;
+  padding: var(--spacing-xl);
+}
+
+.welcome-content h2 {
+  margin: 0 0 16px 0;
+  font-size: 1.5rem;
+  color: #111827;
+}
+
+.welcome-content p {
+  margin: 0 0 24px 0;
+  font-size: 1rem;
+  color: #6B7280;
+  line-height: 1.6;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cta-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Features Section */
+.features-section {
+  margin: var(--spacing-xl) 0;
+}
+
+.section-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.section-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 1.5rem;
+  color: #111827;
+}
+
+.section-header p {
+  margin: 0;
+  color: #6B7280;
+  font-size: 1rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.feature-card {
+  padding: 24px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #E5E7EB;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+}
+
+.feature-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.125rem;
+  color: #111827;
+}
+
+.feature-card p {
+  margin: 0 0 16px 0;
+  font-size: 0.875rem;
+  color: #6B7280;
+  line-height: 1.4;
+}
+
+/* Quick Actions */
+.quick-actions {
+  margin: var(--spacing-xl) 0;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.action-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #E5E7EB;
+  position: relative;
+}
+
+.action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #3B82F6;
+}
+
+.action-card h3 {
+  margin: 12px 0 4px 0;
+  font-size: 1rem;
+  color: #111827;
+}
+
+.action-card p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6B7280;
+}
+
+.action-arrow {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  color: #9CA3AF;
+  transition: color 0.2s ease;
+}
+
+.action-card:hover .action-arrow {
+  color: #3B82F6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .mycoach-page {
+    padding: 16px;
+  }
+  
+  .mycoach-header {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .header-content {
+    justify-content: center;
+  }
+  
+  .header-stats {
+    justify-content: center;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .cta-buttons {
+    flex-direction: column;
+  }
+  
+  .actions-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .header-stats {
+    flex-direction: column;
+  }
+  
+  .stat-item {
+    justify-content: center;
+  }
+  
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+}
