@@ -71,9 +71,10 @@ ADD COLUMN IF NOT EXISTS weight JSONB,
 ADD COLUMN IF NOT EXISTS activity_level TEXT CHECK (activity_level IN ('sedentary', 'lightly-active', 'moderately-active', 'very-active', 'extremely-active'));
 
 -- Create indexes for performance
-CREATE INDEX idx_profiles_onboarding_completed_at ON profiles(onboarding_completed_at);
+CREATE INDEX IF NOT EXISTS idx_profiles_onboarding_completed_at ON profiles(onboarding_completed_at);
 CREATE INDEX IF NOT EXISTS idx_profiles_primary_health_goals ON profiles USING GIN(primary_health_goals);
 CREATE INDEX IF NOT EXISTS idx_profiles_fitness_goals ON profiles USING GIN(fitness_goals);
+CREATE INDEX IF NOT EXISTS idx_profiles_secondary_health_goals ON profiles USING GIN(secondary_health_goals);
 CREATE INDEX IF NOT EXISTS idx_profiles_diet_preference ON profiles(diet_preference);
 CREATE INDEX IF NOT EXISTS idx_profiles_activity_level ON profiles(activity_level);
 

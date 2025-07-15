@@ -18,12 +18,26 @@ CREATE TABLE cart_items (
   supplement_id uuid NOT NULL REFERENCES supplements(id) ON DELETE CASCADE,
   quantity integer NOT NULL DEFAULT 1 CHECK (quantity > 0),
   created_at timestamptz DEFAULT now(),
-  updated_at timestamptz
+  updated_at timestamptz DEFAULT now()
 );
 
 -- Unique index for quick lookups
 CREATE UNIQUE INDEX cart_items_user_supplement_idx
   ON cart_items(user_id, supplement_id);
+
+-- Trigger function to update updated_at on row modification
+CREATE OR REPLACE FUNCTION update_cart_items_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_update_cart_items_updated_at
+BEFORE UPDATE ON cart_items
+FOR EACH ROW
+EXECUTE FUNCTION update_cart_items_updated_at();
 
 -- Enable row level security
 ALTER TABLE cart_items ENABLE ROW LEVEL SECURITY;

@@ -21,8 +21,8 @@ import DeploymentStatusPage from './pages/dashboard/DeploymentStatusPage';
 function App() {
   return (
     <SupabaseProvider>
-      <ThemeProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <ThemeProvider>
           <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<HomePage />} />
@@ -64,8 +64,8 @@ function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>
-        </AuthProvider>
-      </ThemeProvider>
+        </ThemeProvider>
+      </AuthProvider>
     </SupabaseProvider>
   );
 }
