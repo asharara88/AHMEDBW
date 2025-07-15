@@ -16,7 +16,7 @@ CREATE TABLE cart_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   supplement_id uuid NOT NULL REFERENCES supplements(id) ON DELETE CASCADE,
-  quantity integer NOT NULL DEFAULT 1,
+  quantity integer NOT NULL DEFAULT 1 CHECK (quantity > 0),
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz
 );
@@ -25,11 +25,23 @@ CREATE TABLE cart_items (
 CREATE UNIQUE INDEX cart_items_user_supplement_idx
   ON cart_items(user_id, supplement_id);
 
--- Enable Row Level Security
+-- Enable row level security
 ALTER TABLE cart_items ENABLE ROW LEVEL SECURITY;
 
--- Policy: Only allow users to access their own cart items
-CREATE POLICY cart_items_user_policy
-  ON cart_items
-  FOR ALL
-  USING (user_id = auth.uid());
+-- Policies
+CREATE POLICY "Users can view their own cart items"
+  ON cart_items FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert cart items"
+  ON cart_items FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own cart items"
+  ON cart_items FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own cart items"
+  ON cart_items FOR DELETE
+  USING (auth.uid() = user_id);
